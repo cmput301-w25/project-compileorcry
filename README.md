@@ -29,7 +29,7 @@
 
 ## Documentation
 
-- [Wiki Link]
-- [Scrum Board]
+- [Wiki Link](https://github.com/cmput301-w25/project-compileorcry/wiki)
+- [Scrum Board](https://github.com/orgs/cmput301-w25/projects/35)
 - [UI Mockups]
 - [UML]
