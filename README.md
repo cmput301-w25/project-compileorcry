@@ -1,10 +1,10 @@
-# CMPUT 301 W25 - Team [Team Name]
+# CMPUT 301 W25 - Team CompileOrCry
 
 ## Team Members
 
 | Name        | CCID   | GitHub Username |
 | ----------- | ------ | --------------- |
-| [Full Name] | [CCID] | [@username]     |
+| Matthew Naruzny | mnaruzny | @matthewnaruzny     |
 | [Full Name] | [CCID] | [@username]     |
 | [Full Name] | [CCID] | [@username]     |
 | [Full Name] | [CCID] | [@username]     |
