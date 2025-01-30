@@ -2,12 +2,12 @@
 
 ## Team Members
 
-| Name        | CCID   | GitHub Username |
-| ----------- | ------ | --------------- |
+| Name | CCID   | GitHub Username |
+|  | ------ | --------------- |
 | Matthew Naruzny | mnaruzny | @matthewnaruzny     |
 | Balpreet Juneja | bjuneja | [@BalpreetJ|
+| Raghav Sharma | raghav4 | [@rraghavssharma]     |
 | Jasmine Mah | jamah2 | @JasmineMah     |
-| [Full Name] | [CCID] | [@username]     |
 | Alastair Cottier | cottier | @cottiera     |
 | Noah Carter | noahjohn | @noahjsc     |
 
