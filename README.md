@@ -3,7 +3,7 @@
 ## Team Members
 
 | Name | CCID   | GitHub Username |
-|  | ------ | --------------- |
+| ----  | ------ | --------------- |
 | Matthew Naruzny | mnaruzny | @matthewnaruzny     |
 | Balpreet Juneja | bjuneja | [@BalpreetJ|
 | Raghav Sharma | raghav4 | [@rraghavssharma]     |
