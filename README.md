@@ -8,7 +8,7 @@
 | [Full Name] | [CCID] | [@username]     |
 | [Full Name] | [CCID] | [@username]     |
 | [Full Name] | [CCID] | [@username]     |
-| [Full Name] | [CCID] | [@username]     |
+| [Alastair Cottier] | [cottier] | [@cottiera]     |
 | [Noah Carter] | [noahjohn] | [@noahjsc]     |
 
 ## Project Description
