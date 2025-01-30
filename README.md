@@ -5,7 +5,7 @@
 | Name        | CCID   | GitHub Username |
 | ----------- | ------ | --------------- |
 | Matthew Naruzny | mnaruzny | @matthewnaruzny     |
-| [Full Name] | [CCID] | [@username]     |
+| Balpreet Juneja | bjuneja | [@BalpreetJ|
 | [Full Name] | [CCID] | [@username]     |
 | [Full Name] | [CCID] | [@username]     |
 | Alastair Cottier | cottier | @cottiera     |
