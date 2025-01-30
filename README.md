@@ -9,7 +9,7 @@
 | [Full Name] | [CCID] | [@username]     |
 | [Full Name] | [CCID] | [@username]     |
 | [Full Name] | [CCID] | [@username]     |
-| [Full Name] | [CCID] | [@username]     |
+| [Noah Carter] | [noahjohn] | [@noahjsc]     |
 
 ## Project Description
 
