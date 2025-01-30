@@ -7,7 +7,7 @@
 | Matthew Naruzny | mnaruzny | @matthewnaruzny     |
 | Balpreet Juneja | bjuneja | [@BalpreetJ|
 | Raghav Sharma | raghav4 | [@rraghavssharma]     |
-| [Full Name] | [CCID] | [@username]     |
+| Jasmine Mah | jamah2 | @JasmineMah     |
 | Alastair Cottier | cottier | @cottiera     |
 | Noah Carter | noahjohn | @noahjsc     |
 
