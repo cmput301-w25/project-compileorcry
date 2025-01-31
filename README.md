@@ -5,8 +5,8 @@
 | Name | CCID   | GitHub Username |
 | ----  | ------ | --------------- |
 | Matthew Naruzny | mnaruzny | @matthewnaruzny     |
-| Balpreet Juneja | bjuneja | [@BalpreetJ|
-| Raghav Sharma | raghav4 | [@rraghavssharma]     |
+| Balpreet Juneja | bjuneja | @BalpreetJ |
+| Raghav Sharma | raghav4 | @rraghavssharma     |
 | Jasmine Mah | jamah2 | @JasmineMah     |
 | Alastair Cottier | cottier | @cottiera     |
 | Noah Carter | noahjohn | @noahjsc     |
