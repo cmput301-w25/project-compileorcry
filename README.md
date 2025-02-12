@@ -31,5 +31,5 @@
 
 - [Wiki Link](https://github.com/cmput301-w25/project-compileorcry/wiki)
 - [Scrum Board](https://github.com/orgs/cmput301-w25/projects/35)
-- [UI Mockups]
+- [UI Mockups](https://www.figma.com/team_invite/redeem/5ejgfykba30pwhxKh3QezE)
 - [UML]
