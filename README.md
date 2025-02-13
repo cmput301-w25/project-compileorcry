@@ -32,4 +32,6 @@
 - [Wiki Link](https://github.com/cmput301-w25/project-compileorcry/wiki)
 - [Scrum Board](https://github.com/orgs/cmput301-w25/projects/35)
 - [UI Mockups](https://www.figma.com/team_invite/redeem/5ejgfykba30pwhxKh3QezE)
+  UI Flow [Subject to Change]
+  ![image](https://github.com/user-attachments/assets/5f77371a-f11d-487c-aa25-900fc7cda0f8)
 - [UML]
