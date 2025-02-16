@@ -1,4 +1,5 @@
-![image](https://github.com/user-attachments/assets/77b63179-ccbd-423f-a6a8-d5bb2beaaac6)# CMPUT 301 W25 - Team CompileOrCry
+![image](https://github.com/user-attachments/assets/77b63179-ccbd-423f-a6a8-d5bb2beaaac6)
+# CMPUT 301 W25 - Team CompileOrCry
 
 ## Team Members
 
