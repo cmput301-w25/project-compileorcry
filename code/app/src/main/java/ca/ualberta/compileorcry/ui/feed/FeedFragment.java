@@ -1,4 +1,4 @@
-package ca.ualberta.compileorcry.ui.home;
+package ca.ualberta.compileorcry.ui.feed;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -10,22 +10,22 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import ca.ualberta.compileorcry.databinding.FragmentNotificationsBinding;
+import ca.ualberta.compileorcry.databinding.FragmentHomeBinding;
 
-public class HomeFragment extends Fragment {
+public class FeedFragment extends Fragment {
 
-    private FragmentNotificationsBinding binding;
+    private FragmentHomeBinding binding;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        HomeViewModel homeViewModel =
-                new ViewModelProvider(this).get(HomeViewModel.class);
+        FeedViewModel feedViewModel =
+                new ViewModelProvider(this).get(FeedViewModel.class);
 
-        binding = FragmentNotificationsBinding.inflate(inflater, container, false);
+        binding = FragmentHomeBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        final TextView textView = binding.textNotifications;
-        homeViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
+        final TextView textView = binding.textHome;
+        feedViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
         return root;
     }
 
