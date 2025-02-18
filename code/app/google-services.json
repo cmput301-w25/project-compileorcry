@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "596136346352",
+    "project_id": "compile-or-cry-8c762",
+    "storage_bucket": "compile-or-cry-8c762.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:596136346352:android:23310eedb3b4ea166c7835",
+        "android_client_info": {
+          "package_name": "ca.ualberta.compileorcry"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDOCpwAsOXwh_Yb5GAD16Awy2sDsOpTO8E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:596136346352:android:533e99f6967e9d7b6c7835",
+        "android_client_info": {
+          "package_name": "com.example.tester"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDOCpwAsOXwh_Yb5GAD16Awy2sDsOpTO8E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
