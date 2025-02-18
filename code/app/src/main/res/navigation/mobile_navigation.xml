@@ -22,4 +22,10 @@
         android:name="ca.ualberta.compileorcry.ui.home.HomeFragment"
         android:label="@string/title_home"
         tools:layout="@layout/fragment_notifications" />
+
+    <fragment
+        android:id="@+id/navigation_registration"
+        android:name="ca.ualberta.compileorcry.ui.registration.RegistrationFragment"
+        android:label="@string/title_registration"
+        tools:layout="@layout/fragment_registration" />
 </navigation>
