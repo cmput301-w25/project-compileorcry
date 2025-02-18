@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">CompileOrCry</string>
     <string name="title_feed">Feed</string>
-    <string name="title_add">Add</string>
-    <string name="title_home">Home</string>
+    <string name="title_new">New</string>
+    <string name="title_profile">Profile</string>
     <string name="title_registration">Registration</string>
 </resources>

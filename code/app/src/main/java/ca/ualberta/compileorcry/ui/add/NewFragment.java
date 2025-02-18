@@ -10,22 +10,23 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import ca.ualberta.compileorcry.databinding.FragmentDashboardBinding;
+import ca.ualberta.compileorcry.databinding.FragmentNewBinding;
 
-public class AddFragment extends Fragment {
 
-    private FragmentDashboardBinding binding;
+public class NewFragment extends Fragment {
+
+    private FragmentNewBinding binding;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        AddViewModel addViewModel =
-                new ViewModelProvider(this).get(AddViewModel.class);
+        NewViewModel newViewModel =
+                new ViewModelProvider(this).get(NewViewModel.class);
 
-        binding = FragmentDashboardBinding.inflate(inflater, container, false);
+        binding = FragmentNewBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        final TextView textView = binding.textDashboard;
-        addViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
+        final TextView textView = binding.textNew;
+        newViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
         return root;
     }
 
