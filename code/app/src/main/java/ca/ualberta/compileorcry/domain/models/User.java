@@ -19,6 +19,7 @@ import com.google.firebase.firestore.WriteBatch;
 import java.util.Map;
 
 public class User {
+    private  boolean isLoading = true;
     private String username;
     private String name;
     private String password;
@@ -28,15 +29,21 @@ public class User {
     private SetOptions setOptions;
     private ListenerRegistration listenerRegistration;
 
+    //This interface gets called when the user is loaded
+    //Ensure this has beem called before using methods in this class
+    public interface OnUserLoadedListener {
+        void onUserLoaded(User user);
+    }
+
     //Use this constructor for registering a user
-    public User(String username, String name) {
+    public User(String username, String name, OnUserLoadedListener listener) {
         this.username = username;
         this.name = name;
         this.db = FirebaseFirestore.getInstance();
         this.users = db.collection("users");
         this.userDocRef = users.document(this.username);
         this.setOptions = SetOptions.mergeFields("username", "name");
-        User outerUserInstance = this;
+        User ptr = this;
         userDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -47,7 +54,11 @@ public class User {
                         throw new IllegalArgumentException("This username is already in use");
                     } else {
                         // Document does not exist, proceed with setting the document
-                        userDocRef.set(outerUserInstance, outerUserInstance.setOptions);
+                        userDocRef.set(ptr, ptr.setOptions);
+                        ptr.isLoading = false;
+                        if (listener != null) {
+                            listener.onUserLoaded(ptr);
+                        }
                     }
                 } else {
                     // Handle any errors that occurred while fetching the document
@@ -58,6 +69,40 @@ public class User {
                 }
             }
         });
+    }
+    public User(String username, OnUserLoadedListener listener){
+        this.username = username;
+        this.db = FirebaseFirestore.getInstance();
+        this.users = db.collection("users");
+        this.userDocRef = users.document(this.username);
+        this.setOptions = SetOptions.mergeFields("username", "name");
+        User ptr = this;
+        userDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (!document.exists()) {
+                        // Document exists, throw an exception
+                        throw new IllegalArgumentException("This does not exist");
+                    } else {
+                        ptr.name = document.get("name", String.class);
+                        attachSnapshotListener();
+                        ptr.isLoading = false;
+                        if (listener != null) {
+                            listener.onUserLoaded(ptr);
+                        }
+                    }
+                } else {
+                    // Handle any errors that occurred while fetching the document
+                    Exception e = task.getException();
+                    if (e != null) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+
     }
 
     private void attachSnapshotListener() {
@@ -147,5 +192,6 @@ public class User {
                     }
                 });
     }
+
 }
 
