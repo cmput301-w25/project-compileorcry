@@ -5,30 +5,33 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.time.format.DateTimeFormatter;
+import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Locale;
 
-import ca.ualberta.compileorcry.R; // Adjust as necessary
+import ca.ualberta.compileorcry.R;
 import ca.ualberta.compileorcry.features.mood.model.MoodEvent;
 
 public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder> {
 
-    private List<MoodEvent> moodEvents;
+    private final List<MoodEvent> moodEvents;
 
     public MoodAdapter(List<MoodEvent> moodEvents) {
         this.moodEvents = moodEvents;
     }
 
+    @NonNull
     @Override
-    public MoodViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public MoodViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_mood_event, parent, false);
         return new MoodViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(MoodViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull MoodViewHolder holder, int position) {
         MoodEvent event = moodEvents.get(position);
         holder.bind(event);
     }
@@ -39,12 +42,12 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
     }
 
     public static class MoodViewHolder extends RecyclerView.ViewHolder {
-        private TextView textViewTimestamp;
-        private TextView textViewEmotionalState;
-        private TextView textViewTrigger;
-        private TextView textViewSocialSituation;
+        private final TextView textViewTimestamp;
+        private final TextView textViewEmotionalState;
+        private final TextView textViewTrigger;
+        private final TextView textViewSocialSituation;
 
-        public MoodViewHolder(View itemView) {
+        public MoodViewHolder(@NonNull View itemView) {
             super(itemView);
             textViewTimestamp = itemView.findViewById(R.id.textview_timestamp);
             textViewEmotionalState = itemView.findViewById(R.id.textview_emotional_state);
@@ -53,9 +56,9 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
         }
 
         public void bind(MoodEvent event) {
-            // Format the timestamp (e.g., "2025-02-17 10:30")
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-            textViewTimestamp.setText(event.getTimestamp().format(formatter));
+            // Use SimpleDateFormat to format the java.util.Date timestamp.
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+            textViewTimestamp.setText(sdf.format(event.getTimestamp()));
             textViewEmotionalState.setText(event.getEmotionalState().name());
             textViewTrigger.setText(event.getTrigger() != null ? event.getTrigger() : "");
             textViewSocialSituation.setText(event.getSocialSituation() != null ? event.getSocialSituation() : "");
