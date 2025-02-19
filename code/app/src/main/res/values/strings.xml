@@ -4,4 +4,9 @@
     <string name="title_new">New</string>
     <string name="title_profile">Profile</string>
     <string name="title_registration">Registration</string>
+    <string name="registration_header">Let\'s Get\nStarted</string>
+    <string name="registration_username">Username</string>
+    <string name="registration_name">Name</string>
+    <string name="registration_back">Back</string>
+    <string name="registration_done">Done</string>
 </resources>
