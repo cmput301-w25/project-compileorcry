@@ -2,10 +2,6 @@ package ca.ualberta.compileorcry.domain.models;
 
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -13,96 +9,104 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class User {
-    private  boolean isLoading = true;
-    private String username;
+    private final String username;
     private String name;
-    private String password;
-    private FirebaseFirestore db;
-    private CollectionReference users;
     private DocumentReference userDocRef;
-    private SetOptions setOptions;
     private ListenerRegistration listenerRegistration;
 
-    //This interface gets called when the user is loaded
-    //Ensure this has beem called before using methods in this class
     public interface OnUserLoadedListener {
+        /**
+         * Callback which contains the resulting user from a function.
+         * @param user Resulting user from a function. Null if an error occurred.
+         */
         void onUserLoaded(User user);
     }
 
-    //Use this constructor for registering a user
-    public User(String username, String name, OnUserLoadedListener listener) {
+    private User(String username, String name, DocumentReference documentReference){
         this.username = username;
         this.name = name;
-        this.db = FirebaseFirestore.getInstance();
-        this.users = db.collection("users");
-        this.userDocRef = users.document(this.username);
-        this.setOptions = SetOptions.mergeFields("username", "name");
-        User ptr = this;
-        userDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        // Document exists, throw an exception
-                        throw new IllegalArgumentException("This username is already in use");
-                    } else {
-                        // Document does not exist, proceed with setting the document
-                        userDocRef.set(ptr, ptr.setOptions);
-                        ptr.isLoading = false;
-                        if (listener != null) {
-                            listener.onUserLoaded(ptr);
+        this.userDocRef = documentReference;
+        this.attachSnapshotListener();
+    }
+
+    /**
+     * Get a document reference for a user, from a username.
+     * @param username Username of user
+     * @return Document reference of user
+     */
+    private static DocumentReference get_doc_reference_by_username(String username){
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference users = db.collection("users");
+        return users.document(username);
+    }
+
+    /**
+     * Register a new user. On success the User is passed to the callback, otherwise null is passed.
+     * @param username Username of new user.
+     * @param name Name of new user.
+     * @param callback
+     */
+    public static void register_user(String username, String name, OnUserLoadedListener callback){
+        DocumentReference userDocReference = get_doc_reference_by_username(username);
+        userDocReference.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot document = task.getResult();
+                if(document.exists()){ // User already exists
+                    if (callback != null)
+                        callback.onUserLoaded(null);
+                } else { // Register new user
+                    User newUser = new User(username, name, userDocReference);
+                    Map<String, Object> userData = new HashMap<>();
+                    userData.put("username", username);
+                    userData.put("name", name);
+                    userDocReference.set(userData).addOnCompleteListener(utask -> {
+                        if(utask.isSuccessful()){
+                            if (callback != null)
+                                callback.onUserLoaded(newUser);
+                            return;
                         }
-                    }
-                } else {
-                    // Handle any errors that occurred while fetching the document
-                    Exception e = task.getException();
-                    if (e != null) {
-                        e.printStackTrace();
-                    }
+                        if (callback != null)
+                            callback.onUserLoaded(null);
+
+                    });
                 }
+            } else {
+                if (callback != null)
+                    callback.onUserLoaded(null);
             }
         });
     }
-    public User(String username, OnUserLoadedListener listener){
-        this.username = username;
-        this.db = FirebaseFirestore.getInstance();
-        this.users = db.collection("users");
-        this.userDocRef = users.document(this.username);
-        this.setOptions = SetOptions.mergeFields("username", "name");
-        User ptr = this;
-        userDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (!document.exists()) {
-                        // Document exists, throw an exception
-                        throw new IllegalArgumentException("This does not exist");
-                    } else {
-                        ptr.name = document.get("name", String.class);
-                        attachSnapshotListener();
-                        ptr.isLoading = false;
-                        if (listener != null) {
-                            listener.onUserLoaded(ptr);
-                        }
+
+    /**
+     *
+     * @param username
+     * @param callback
+     */
+    public static void get_user(String username, OnUserLoadedListener callback){
+        DocumentReference userDocReference = get_doc_reference_by_username(username);
+        userDocReference.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot document = task.getResult();
+                if(document.exists()){ // User exists
+                    if (callback != null) {
+                        User newUser = new User(username, document.getString("name"), userDocReference);
+                        callback.onUserLoaded(newUser);
                     }
-                } else {
-                    // Handle any errors that occurred while fetching the document
-                    Exception e = task.getException();
-                    if (e != null) {
-                        e.printStackTrace();
-                    }
+                } else { // User does not exist
+                    if (callback != null)
+                        callback.onUserLoaded(null);
                 }
+            } else {
+                if (callback != null)
+                    callback.onUserLoaded(null);
             }
         });
-
     }
 
     private void attachSnapshotListener() {
@@ -136,6 +140,10 @@ public class User {
         return userDocRef;
     }
 
+    /**
+     * Change the name of a user
+     * @param name New name for the user
+     */
     public void setName(String name) {
         this.name = name;
         userDocRef.update(Map.of("name",this.name));
