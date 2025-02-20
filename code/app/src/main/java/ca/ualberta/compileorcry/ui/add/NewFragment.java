@@ -12,7 +12,7 @@ import androidx.fragment.app.Fragment;
 
 import ca.ualberta.compileorcry.R;
 import ca.ualberta.compileorcry.databinding.FragmentNewBinding;
-import ca.ualberta.compileorcry.features.mood.data.MoodRepository;
+import ca.ualberta.compileorcry.features.mood.data.MoodList;
 import ca.ualberta.compileorcry.features.mood.model.EmotionalState;
 import ca.ualberta.compileorcry.features.mood.model.MoodEvent;
 
@@ -60,7 +60,8 @@ public class NewFragment extends Fragment {
             MoodEvent moodEvent = new MoodEvent(state, trigger, socialSituation);
 
             // Add the event to the repository.
-            MoodRepository.getInstance().addMoodEvent(moodEvent);
+            //Sorry I commented this out but it stops from building -Noah
+            //MoodList.getInstance().addMoodEvent(moodEvent);
 
             // Provide confirmation feedback.
             Toast.makeText(getContext(), "Mood event added", Toast.LENGTH_SHORT).show();
