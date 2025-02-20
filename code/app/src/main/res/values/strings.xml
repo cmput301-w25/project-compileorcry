@@ -9,4 +9,5 @@
     <string name="emotional_state">Emotional State</string>
     <string name="trigger">Trigger</string>
     <string name="social_situation">Social Situation</string>
+    <string name="new_event">New Event</string>
 </resources>

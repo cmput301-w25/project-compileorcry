@@ -3,7 +3,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#333333">
 
     <!-- Scrollable container for your mood form -->
     <ScrollView
@@ -21,6 +22,21 @@
             android:orientation="vertical"
             android:padding="16dp">
 
+            <TextView
+                android:id="@+id/title_new_event"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/new_event"
+                android:textSize="32sp"
+                android:textStyle="bold"
+                android:textColor="#D6D6D6"
+                android:fontFamily="sans-serif"
+                android:layout_gravity="center"
+                android:shadowColor="@android:color/black"
+                android:shadowDx="2"
+                android:shadowDy="2"
+                android:shadowRadius="4"/>
+
             <EditText
                 android:id="@+id/edittext_trigger"
                 android:layout_width="match_parent"
@@ -34,17 +50,17 @@
                 android:layout_height="wrap_content"
                 android:entries="@array/emotional_states" />
 
-            <Button
-                android:id="@+id/button_save_mood"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/button_save_mood" />
-
             <Spinner
                 android:id="@+id/spinner_social_situation"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:entries="@array/social_situations" />
+
+            <Button
+                android:id="@+id/button_save_mood"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/button_save_mood" />
 
         </LinearLayout>
     </ScrollView>

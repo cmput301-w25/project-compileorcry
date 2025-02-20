@@ -1,6 +1,10 @@
 package ca.ualberta.compileorcry.ui.add;
 
+import android.graphics.Color;
+import android.graphics.LinearGradient;
+import android.graphics.Shader;
 import android.os.Bundle;
+import android.text.TextPaint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +35,35 @@ public class NewFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        // Apply gradient effect to the title "New Event"
+        binding.titleNewEvent.post(() -> {
+            TextPaint paint = binding.titleNewEvent.getPaint();
+            String text = binding.titleNewEvent.getText().toString();
+            float width = paint.measureText(text);
+
+            int[] colors = new int[]{
+                    Color.parseColor("#FFADAD"),
+                    Color.parseColor("#FFD6A5"),
+                    Color.parseColor("#FDFFB6"),
+                    Color.parseColor("#CAFFBF"),
+                    Color.parseColor("#9BF6FF"),
+                    Color.parseColor("#A0C4FF"),
+                    Color.parseColor("#BDB2FF"),
+                    Color.parseColor("#FFC6FF")
+            };
+
+            // Horizontal gradient: start at (0,0) and end at (width, 0)
+            Shader shader = new LinearGradient(
+                    0, 0, width, 0,
+                    colors,
+                    null,
+                    Shader.TileMode.CLAMP
+            );
+
+            paint.setShader(shader);
+            binding.titleNewEvent.invalidate();
+        });
 
         // Set up the click listener for the "Save Mood" button.
         binding.buttonSaveMood.setOnClickListener(v -> {
