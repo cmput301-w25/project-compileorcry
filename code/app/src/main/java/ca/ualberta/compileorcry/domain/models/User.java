@@ -16,6 +16,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 public class User {
@@ -28,6 +29,7 @@ public class User {
     private DocumentReference userDocRef;
     private SetOptions setOptions;
     private ListenerRegistration listenerRegistration;
+
 
     //This interface gets called when the user is loaded
     //Ensure this has beem called before using methods in this class

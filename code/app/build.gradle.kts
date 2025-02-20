@@ -50,4 +50,5 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
     implementation(platform("com.google.firebase:firebase-bom:33.9.0"))
     implementation("com.google.firebase:firebase-firestore:25.1.2")
+    implementation ("com.firebase:geofire-android-common:3.1.0")
 }
