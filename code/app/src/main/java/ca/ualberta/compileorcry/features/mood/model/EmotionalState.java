@@ -1,24 +1,24 @@
 package ca.ualberta.compileorcry.features.mood.model;
 
 public enum EmotionalState {
-    ANGER(1, "Anger"),
-    CONFUSION(2, "Confusion"),
-    DISGUST(3, "Disgust"),
-    FEAR(4, "Fear"),
-    HAPPINESS(5, "Happiness"),
-    SADNESS(6, "Sadness"),
-    SHAME(7, "Shame"),
-    SURPRISE(8, "Surprise");
+    ANGER(1L, "Anger"),
+    CONFUSION(2L, "Confusion"),
+    DISGUST(3L, "Disgust"),
+    FEAR(4L, "Fear"),
+    HAPPINESS(5L, "Happiness"),
+    SADNESS(6L, "Sadness"),
+    SHAME(7L, "Shame"),
+    SURPRISE(8L, "Surprise");
 
-    private final int code;
+    private final long code;
     private final String description;
 
-    EmotionalState(int code, String description) {
+    EmotionalState(long code, String description) {
         this.code = code;
         this.description = description;
     }
 
-    public int getCode() {
+    public long getCode() {
         return code;
     }
 
@@ -26,7 +26,7 @@ public enum EmotionalState {
         return description;
     }
 
-    public static EmotionalState fromCode(int code) {
+    public static EmotionalState fromCode(long code) {
         for (EmotionalState state : values()) {
             if (state.code == code) {
                 return state;
