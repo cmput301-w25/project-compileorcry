@@ -17,7 +17,7 @@ import java.util.Map;
 public class User {
     private final String username;
     private String name;
-    private DocumentReference userDocRef;
+    private final DocumentReference userDocRef;
     private ListenerRegistration listenerRegistration;
 
     public interface OnUserLoadedListener {
@@ -50,7 +50,7 @@ public class User {
      * Register a new user. On success the User is passed to the callback, otherwise null is passed.
      * @param username Username of new user.
      * @param name Name of new user.
-     * @param callback
+     * @param callback Callback to receive user object
      */
     public static void register_user(String username, String name, OnUserLoadedListener callback){
         DocumentReference userDocReference = get_doc_reference_by_username(username);
@@ -84,9 +84,9 @@ public class User {
     }
 
     /**
-     *
-     * @param username
-     * @param callback
+     * Get user object from username
+     * @param username Username of user
+     * @param callback Callback to receive user object
      */
     public static void get_user(String username, OnUserLoadedListener callback){
         DocumentReference userDocReference = get_doc_reference_by_username(username);
@@ -112,7 +112,7 @@ public class User {
     private void attachSnapshotListener() {
         listenerRegistration = userDocRef.addSnapshotListener((documentSnapshot, error) -> {
             if (error != null) {
-                System.err.println("Listen failed: " + error);
+                Log.e("Firestore", "Listen failed: " + error);
                 return;
             }
 
