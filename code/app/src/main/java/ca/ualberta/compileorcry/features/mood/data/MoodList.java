@@ -272,7 +272,7 @@ public class MoodList {
                                 recentEventDocRef.set(eventMap);
                             }
                         } else {
-                            throw new IllegalArgumentException("the recent document for the user has an invalid timestampe");
+                            throw new IllegalArgumentException("the recent document for the user has an invalid timestamp");
                         }
 
                     } else {
