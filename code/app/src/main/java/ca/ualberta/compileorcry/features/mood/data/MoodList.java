@@ -39,7 +39,7 @@ import ca.ualberta.compileorcry.features.mood.model.MoodEvent;
 
 public class MoodList {
     private final ArrayList<MoodEvent> moodEvents;
-    private final MoodList prtToSelf;
+    private final MoodList ptrToSelf;
     private boolean writeAllowed = false;
     private boolean dontUpdate = false;
     private boolean isMade = false;
@@ -151,7 +151,7 @@ public class MoodList {
         this.followingReference = userDocRef.collection("following");
         this.moodEventsReference = userDocRef.collection("mood_events");
         this.moodEventsRecentRef = db.collection("most_recent_moods");
-        this.prtToSelf = this;
+        this.ptrToSelf = this;
         switch (queryType) {
             case HISTORY_MODIFIABLE:
                 getQuery();
@@ -196,7 +196,7 @@ public class MoodList {
         this.followingReference = userDocRef.collection("following");
         this.moodEventsReference = userDocRef.collection("mood_events");
         this.moodEventsRecentRef = db.collection("most_recent_moods");
-        this.prtToSelf = this;
+        this.ptrToSelf = this;
         this.filter = filter;
         switch (queryType) {
             case HISTORY_STATE:
@@ -264,7 +264,7 @@ public class MoodList {
                                 Map<String,Object> eventMap = event.toFireStoreMap();
                                 eventMap.put("username", user.getUsername());
                                 eventMap.put("mood_id", id);
-                                if(!prtToSelf.isRecentEventMapValid(eventMap)){
+                                if(!ptrToSelf.isRecentEventMapValid(eventMap)){
                                     //this error should only occur under extreme circumstances
                                     //if this becomes an issue, a clone method on the event should be used
                                     throw new RuntimeException("this error shouldn't occur, if this is happening it likey the moodevent was modified improperly before the onComplete listener finished");
@@ -280,7 +280,7 @@ public class MoodList {
                         Map<String,Object> eventMap = event.toFireStoreMap();
                         eventMap.put("username", user.getUsername());
                         eventMap.put("mood_id", id);
-                        if(!prtToSelf.isRecentEventMapValid(eventMap)){
+                        if(!ptrToSelf.isRecentEventMapValid(eventMap)){
                             //this error should only occur under extreme circumstances
                             //if this becomes an issue, a clone method on the event should be used
                             throw new RuntimeException("this error shouldn't occur, if this is happening it likely the moodevent was modified improperly before the onComplete listener finished");
@@ -353,7 +353,7 @@ public class MoodList {
                                     eventMap.put("username", user.getUsername());
                                     //this shouldn't be empty as the MoodList assigns an ID to every moodEvent in it
                                     eventMap.put("mood_id", newEvent.getId());
-                                    if(!prtToSelf.isRecentEventMapValid(eventMap)){
+                                    if(!ptrToSelf.isRecentEventMapValid(eventMap)){
                                         //this error should only occur under extreme circumstances
                                         //If this happened it's likely that some bad dummy data found it's way into the db
                                         throw new RuntimeException("the event that tried to replace most recnet was misformated");
@@ -377,7 +377,7 @@ public class MoodList {
                             eventMap.put("username", user.getUsername());
                             //this shouldn't be empty as the MoodList assigns an ID to every moodEvent in it
                             eventMap.put("mood_id", event.getId());
-                            if(!prtToSelf.isRecentEventMapValid(eventMap)){
+                            if(!ptrToSelf.isRecentEventMapValid(eventMap)){
                                 //this error should only occur under extreme circumstances
                                 //If this happened it's likely that some bad dummy data found it's way into the db
                                 throw new RuntimeException("this error shouldn't occur, if this is happening it likely the moodevent was modified improperly before the onComplete listener finished");
@@ -440,36 +440,36 @@ public class MoodList {
                 for (Task<?> task : tasks) {
                     if (task.isSuccessful() && task.getResult() instanceof DocumentSnapshot) {
                         DocumentSnapshot doc = (DocumentSnapshot) task.getResult();
-                        if (doc.getReference().equals(prtToSelf.moodEventsReference.document(event.getId()))) {
-                            docMap.put(prtToSelf.moodEventsReference.document(event.getId()), doc);
-                        } else if (doc.getReference().equals(prtToSelf.moodEventsRecentRef.document(user.getUsername()))) {
-                            docMap.put(prtToSelf.moodEventsRecentRef.document(user.getUsername()), doc);
+                        if (doc.getReference().equals(ptrToSelf.moodEventsReference.document(event.getId()))) {
+                            docMap.put(ptrToSelf.moodEventsReference.document(event.getId()), doc);
+                        } else if (doc.getReference().equals(ptrToSelf.moodEventsRecentRef.document(user.getUsername()))) {
+                            docMap.put(ptrToSelf.moodEventsRecentRef.document(user.getUsername()), doc);
                         }
                     }
                 }
-                DocumentSnapshot personalDoc = docMap.get(prtToSelf.moodEventsReference.document(event.getId()));
-                DocumentSnapshot recentDoc = docMap.get(prtToSelf.moodEventsRecentRef.document(user.getUsername()));
+                DocumentSnapshot personalDoc = docMap.get(ptrToSelf.moodEventsReference.document(event.getId()));
+                DocumentSnapshot recentDoc = docMap.get(ptrToSelf.moodEventsRecentRef.document(user.getUsername()));
                 if(personalDoc == null){
                     throw new IllegalArgumentException("no document related to this mood event");
                 }
                 Map<String,Object> eventMap  = event.toFireStoreMap();
-                if(!prtToSelf.isPersonalEventMapValid(eventMap)){
+                if(!ptrToSelf.isPersonalEventMapValid(eventMap)){
                     throw new IllegalArgumentException("the eventMap is bad value(s)");
                 }
                 eventMap.remove("username");
-                prtToSelf.moodEventsReference.document(event.getId()).set(eventMap);
+                ptrToSelf.moodEventsReference.document(event.getId()).set(eventMap);
                 if (personalDoc != null && recentDoc != null){
                     if(personalDoc.get("mood_id").equals(recentDoc.get("mood_id"))){
                         eventMap.put("username", user.getUsername());
                         eventMap.put("mood_id", event.getId());
-                        if(!prtToSelf.isRecentEventMapValid(eventMap)){
+                        if(!ptrToSelf.isRecentEventMapValid(eventMap)){
                             throw new IllegalArgumentException("the eventMap is bad value(s)");
                         }
-                        prtToSelf.moodEventsRecentRef.document(user.getUsername()).set(eventMap);
+                        ptrToSelf.moodEventsRecentRef.document(user.getUsername()).set(eventMap);
                     }
 
                 }
-                if(!prtToSelf.dontUpdate){
+                if(!ptrToSelf.dontUpdate){
                     listener.updatedMoodList();
                 }
             }
@@ -506,11 +506,11 @@ public class MoodList {
                 throw new RuntimeException("user is following nobody");
             }
             if (!followingLoaded) {
-                prtToSelf.getQuery();
-                attachMoodEventsListener(prtToSelf.query);
+                ptrToSelf.getQuery();
+                attachMoodEventsListener(ptrToSelf.query);
                 followingLoaded = true;
             } else {
-                prtToSelf.getQuery();
+                ptrToSelf.getQuery();
                 //if needed a listener call here for update to followers
             }
         });
@@ -577,7 +577,7 @@ public class MoodList {
                 }
                 if (!isMade) {
                     isMade = true;
-                    listener.returnMoodList(prtToSelf);
+                    listener.returnMoodList(ptrToSelf);
                 }
                 if (!dontUpdate) {
                     listener.updatedMoodList();
@@ -755,7 +755,7 @@ public class MoodList {
                                 }
                             }
                         }
-                        listener.returnMoodList(prtToSelf);
+                        listener.returnMoodList(ptrToSelf);
                     }
                 });
     }
