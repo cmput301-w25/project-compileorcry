@@ -43,7 +43,7 @@ public class MoodList {
     private boolean writeAllowed = false;
     private boolean dontUpdate = false;
     private boolean isMade = false;
-    private boolean followeringInited = false;
+    private boolean followingLoaded = false;
     private boolean recentsType, mapType;
     private final User user;
     private final DocumentReference userDocRef;
@@ -505,10 +505,10 @@ public class MoodList {
             if (followings.isEmpty()) {
                 throw new RuntimeException("user is following nobody");
             }
-            if (!followeringInited) {
+            if (!followingLoaded) {
                 prtToSelf.getQuery();
                 attachMoodEventsListener(prtToSelf.query);
-                followeringInited = true;
+                followingLoaded = true;
             } else {
                 prtToSelf.getQuery();
                 //if needed a listener call here for update to followers
