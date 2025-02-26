@@ -136,7 +136,7 @@ public class MoodList {
                 break;
             default:
                 // Handle unexpected query types
-                throw new IllegalArgumentException("Unsupported query type: " + queryType);
+                throw new IllegalArgumentException("unsupported query type: " + queryType);
         }
     }
 
@@ -181,7 +181,7 @@ public class MoodList {
                 attachFollowersListener();
                 break;
             default:
-                throw new IllegalArgumentException("Unsupported query type: " + queryType);
+                throw new IllegalArgumentException("unsupported query type: " + queryType);
         }
     }
 
@@ -221,7 +221,7 @@ public class MoodList {
                 executeGeoQuery();
                 break;
             default:
-                throw new IllegalArgumentException("Unsupported query type: " + queryType);
+                throw new IllegalArgumentException("unsupported query type: " + queryType);
         }
 
     }
@@ -236,17 +236,17 @@ public class MoodList {
      */
     public void addMoodEvent(MoodEvent event) {
         if(!this.writeAllowed){
-            throw new IllegalArgumentException("Cannot add events to read only MoodList");
+            throw new IllegalArgumentException("cannot add events to read only MoodList");
         }
         if(event.getUsername() != null && !event.getUsername().equals(user.getUsername())){
-            throw new IllegalArgumentException("Username of event does not match username of user");
+            throw new IllegalArgumentException("username of event does not match username of user");
         }
         String id = this.moodEventsReference.document().getId();
         DocumentReference moodEventDocRef = moodEventsReference.document(id);
         event.setIdFromDocRef(moodEventDocRef);
         Map<String,Object> eventMap = event.toFireStoreMap();
         if(!this.checkIfGoodToStorePersonal(eventMap)){
-            throw new IllegalArgumentException("This event has invalid date or emotional_state");
+            throw new IllegalArgumentException("this event has invalid date or emotional_state");
         } else {
             moodEventDocRef.set(eventMap);
         }
@@ -267,12 +267,12 @@ public class MoodList {
                                 if(!prtToSelf.checkIfGoodToStoreRecent(eventMap)){
                                     //this error should only occur under extreme circumstances
                                     //if this becomes an issue, a clone method on the event should be used
-                                    throw new RuntimeException("This error shouldn't occur, if this is happening it likey the moodevent was modified improperly before the onComplete listener finished");
+                                    throw new RuntimeException("this error shouldn't occur, if this is happening it likey the moodevent was modified improperly before the onComplete listener finished");
                                 }
                                 recentEventDocRef.set(eventMap);
                             }
                         } else {
-                            throw new IllegalArgumentException("The recent document for the user has an invalid timestampe");
+                            throw new IllegalArgumentException("the recent document for the user has an invalid timestampe");
                         }
 
                     } else {
@@ -283,7 +283,7 @@ public class MoodList {
                         if(!prtToSelf.checkIfGoodToStoreRecent(eventMap)){
                             //this error should only occur under extreme circumstances
                             //if this becomes an issue, a clone method on the event should be used
-                            throw new RuntimeException("This error shouldn't occur, if this is happening it likely the moodevent was modified improperly before the onComplete listener finished");
+                            throw new RuntimeException("this error shouldn't occur, if this is happening it likely the moodevent was modified improperly before the onComplete listener finished");
                         }
                         recentEventDocRef.set(eventMap);
 
@@ -317,10 +317,10 @@ public class MoodList {
      */
     public void deleteMoodEvent(MoodEvent event) {
         if(!this.writeAllowed){
-            throw new IllegalArgumentException("Cannot add events to read only MoodList");
+            throw new IllegalArgumentException("cannot add events to read only MoodList");
         }
         if (event.getId() == null){
-            throw new IllegalArgumentException("A event needs a Id to be deleted");
+            throw new IllegalArgumentException("a event needs a Id to be deleted");
         } else {
             DocumentReference recentEventDocRef = this.moodEventsRecentRef.document(user.getUsername());
             recentEventDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -356,7 +356,7 @@ public class MoodList {
                                     if(!prtToSelf.checkIfGoodToStoreRecent(eventMap)){
                                         //this error should only occur under extreme circumstances
                                         //If this happened it's likely that some bad dummy data found it's way into the db
-                                        throw new RuntimeException("The event that tried to replace most recnet was misformated");
+                                        throw new RuntimeException("the event that tried to replace most recnet was misformated");
                                     }
                                     recentEventDocRef.set(eventMap);
                                 } else {
@@ -380,7 +380,7 @@ public class MoodList {
                             if(!prtToSelf.checkIfGoodToStoreRecent(eventMap)){
                                 //this error should only occur under extreme circumstances
                                 //If this happened it's likely that some bad dummy data found it's way into the db
-                                throw new RuntimeException("This error shouldn't occur, if this is happening it likely the moodevent was modified improperly before the onComplete listener finished");
+                                throw new RuntimeException("this error shouldn't occur, if this is happening it likely the moodevent was modified improperly before the onComplete listener finished");
                             }
                             recentEventDocRef.set(eventMap);
                             }
@@ -418,7 +418,7 @@ public class MoodList {
      */
     public void editMoodEvent(MoodEvent event, Map<String, Object> changes) {
         if(!this.writeAllowed){
-            throw new IllegalArgumentException("Cannot add events to read only MoodList");
+            throw new IllegalArgumentException("cannot add events to read only MoodList");
         }
         if(event.getId() == null){
             throw new IllegalArgumentException("mood event does not have an id");
@@ -450,7 +450,7 @@ public class MoodList {
                 DocumentSnapshot personalDoc = docMap.get(prtToSelf.moodEventsReference.document(event.getId()));
                 DocumentSnapshot recentDoc = docMap.get(prtToSelf.moodEventsRecentRef.document(user.getUsername()));
                 if(personalDoc == null){
-                    throw new IllegalArgumentException("No document related to this mood event");
+                    throw new IllegalArgumentException("no document related to this mood event");
                 }
                 Map<String,Object> eventMap  = event.toFireStoreMap();
                 if(!prtToSelf.checkIfGoodToStorePersonal(eventMap)){
@@ -669,7 +669,7 @@ public class MoodList {
                 break;
             default:
                 // Handle unexpected query types
-                throw new IllegalArgumentException("Unsupported query type: " + queryType);
+                throw new IllegalArgumentException("unsupported query type: " + queryType);
         }
         this.query = query;
     }
