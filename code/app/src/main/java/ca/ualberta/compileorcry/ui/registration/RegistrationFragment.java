@@ -1,5 +1,7 @@
 package ca.ualberta.compileorcry.ui.registration;
 
+import static androidx.navigation.Navigation.findNavController;
+
 import android.util.Log;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -11,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import ca.ualberta.compileorcry.R;
 import ca.ualberta.compileorcry.databinding.FragmentRegistrationBinding;
 import ca.ualberta.compileorcry.domain.models.User;
 
@@ -23,6 +26,19 @@ public class RegistrationFragment extends Fragment {
         binding = FragmentRegistrationBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
         return root;
+    }
+
+    public void disableUI(){
+        binding.usernameText.setEnabled(false);
+        binding.nameText.setEnabled(false);
+        binding.backButton.setEnabled(false);
+        binding.doneButton.setEnabled(false);
+    }
+    public void enableUI(){
+        binding.usernameText.setEnabled(true);
+        binding.nameText.setEnabled(true);
+        binding.backButton.setEnabled(true);
+        binding.doneButton.setEnabled(true);
     }
 
     @Override
@@ -41,8 +57,7 @@ public class RegistrationFragment extends Fragment {
                 errorToast.show();
                 return;
             }
-
-            Log.w("RegisterFragment", "DONE HIT");
+            disableUI();
 
             User.register_user(username, name, (user, error) -> {
                 if(error != null || user == null){
@@ -52,8 +67,14 @@ public class RegistrationFragment extends Fragment {
                             error,
                             Toast.LENGTH_SHORT);
                     toast.show();
+                    enableUI();
+                    return;
                 }
                 //TODO: Implement saving locally username
+
+                // Navigate to Main App
+                findNavController(view).navigate(R.id.navigation_feed);
+                getActivity().findViewById(R.id.nav_view).setVisibility(View.VISIBLE);
             });
         });
     }

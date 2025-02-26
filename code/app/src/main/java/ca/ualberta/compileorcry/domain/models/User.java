@@ -71,12 +71,13 @@ public class User {
                     userData.put("name", name);
                     userDocReference.set(userData).addOnCompleteListener(utask -> {
                         if(utask.isSuccessful()){ // If added successfully return user and no error
-                            callback.onUserLoaded(newUser, null);
+                            if (callback != null)
+                                callback.onUserLoaded(newUser, null);
+                            return;
                         }
                         Log.e("UserRepository", "Error Registering User");
-                        if (callback != null) {
+                        if (callback != null)
                             callback.onUserLoaded(null, "Error occurred during registration");
-                        }
                     });
                 }
             } else {
@@ -128,7 +129,7 @@ public class User {
                     System.out.println("Name updated to: " + this.name);
                 }
             } else {
-                System.out.println("User document does not exist.");
+                Log.e("UserRepository", "Attach Failed. User document does not exist.");
             }
         });
     }
