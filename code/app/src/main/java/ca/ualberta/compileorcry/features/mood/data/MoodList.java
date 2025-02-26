@@ -267,7 +267,7 @@ public class MoodList {
                                 if(!ptrToSelf.isRecentEventMapValid(eventMap)){
                                     //this error should only occur under extreme circumstances
                                     //if this becomes an issue, a clone method on the event should be used
-                                    throw new RuntimeException("this error shouldn't occur, if this is happening it likey the moodevent was modified improperly before the onComplete listener finished");
+                                    throw new RuntimeException("recent event is invalid");
                                 }
                                 recentEventDocRef.set(eventMap);
                             }
