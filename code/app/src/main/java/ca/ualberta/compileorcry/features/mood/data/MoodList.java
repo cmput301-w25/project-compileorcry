@@ -356,7 +356,7 @@ public class MoodList {
                                     if(!ptrToSelf.isRecentEventMapValid(eventMap)){
                                         //this error should only occur under extreme circumstances
                                         //If this happened it's likely that some bad dummy data found it's way into the db
-                                        throw new RuntimeException("the event that tried to replace most recnet was misformated");
+                                        throw new RuntimeException("the event that tried to replace most recent was incorrectly formatted");
                                     }
                                     recentEventDocRef.set(eventMap);
                                 } else {
