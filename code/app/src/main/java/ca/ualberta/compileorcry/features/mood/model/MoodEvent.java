@@ -91,6 +91,12 @@ public class MoodEvent {
     public void setSocialSituation(String socialSituation) {
         this.socialSituation = socialSituation;
     }
+    /**
+     * Used to set a moodEvent's Id from a document reference. MoodEvent ID should only be made if
+     * it has an ID in the DB.
+     *
+     * @param ref The MoodEvent document DocumentReference
+     */
     public void setIdFromDocRef(DocumentReference ref){
         this.id = ref.getId();
     }
