@@ -831,7 +831,7 @@ public class MoodList {
      * This method ensures the changes are valid and applies them to the event.
      *
      * @param toBeUpdated The MoodEvent to update.
-     * @param updateMap   A map of key-value pairs representing the changes to apply.
+     * @param updateMap   key-value pairs representing the changes to apply.
      * @throws IllegalArgumentException If the update map contains invalid data.
      */
     private void updateEventFromMap(MoodEvent toBeUpdated, Map<String, Object> updateMap){
