@@ -24,8 +24,9 @@ public class User {
         /**
          * Callback which contains the resulting user from a function.
          * @param user Resulting user from a function. Null if an error occurred.
+         * @param error Description of the error if one occurred, otherwise null.
          */
-        void onUserLoaded(User user);
+        void onUserLoaded(User user, String error);
     }
 
     private User(String username, String name, DocumentReference documentReference){
@@ -53,13 +54,16 @@ public class User {
      * @param callback Callback to receive user object
      */
     public static void register_user(String username, String name, OnUserLoadedListener callback){
+        Log.i("Firestore", "Registering User");
         DocumentReference userDocReference = get_doc_reference_by_username(username);
         userDocReference.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 DocumentSnapshot document = task.getResult();
                 if(document.exists()){ // User already exists
-                    if (callback != null)
-                        callback.onUserLoaded(null);
+                    if (callback != null) {
+                        Log.i("UserRepository", "Username already registered in firebase");
+                        callback.onUserLoaded(null, "Username already registered");
+                    }
                 } else { // Register new user
                     User newUser = new User(username, name, userDocReference);
                     Map<String, Object> userData = new HashMap<>();
@@ -67,18 +71,22 @@ public class User {
                     userData.put("name", name);
                     userDocReference.set(userData).addOnCompleteListener(utask -> {
                         if(utask.isSuccessful()){
-                            if (callback != null)
-                                callback.onUserLoaded(newUser);
+                            if (callback != null) {
+                                Log.e("UserRepository", "Error Registering User");
+                                callback.onUserLoaded(newUser, "Error occurred during registration");
+                            }
                             return;
                         }
-                        if (callback != null)
-                            callback.onUserLoaded(null);
-
+                        if (callback != null) {
+                            Log.e("UserRepository", "Error Registering User");
+                            callback.onUserLoaded(null, "Error occurred during registration");
+                        }
                     });
                 }
             } else {
+                Log.e("UserRepository", "Error Registering User");
                 if (callback != null)
-                    callback.onUserLoaded(null);
+                    callback.onUserLoaded(null, "Error occurred during registration");
             }
         });
     }
@@ -96,15 +104,15 @@ public class User {
                 if(document.exists()){ // User exists
                     if (callback != null) {
                         User newUser = new User(username, document.getString("name"), userDocReference);
-                        callback.onUserLoaded(newUser);
+                        callback.onUserLoaded(newUser, null);
                     }
                 } else { // User does not exist
                     if (callback != null)
-                        callback.onUserLoaded(null);
+                        callback.onUserLoaded(null, "User does not exist.");
                 }
             } else {
                 if (callback != null)
-                    callback.onUserLoaded(null);
+                    callback.onUserLoaded(null, "Error while logging in.");
             }
         });
     }
@@ -112,7 +120,7 @@ public class User {
     private void attachSnapshotListener() {
         listenerRegistration = userDocRef.addSnapshotListener((documentSnapshot, error) -> {
             if (error != null) {
-                Log.e("Firestore", "Listen failed: " + error);
+                Log.e("UserRepository", "Listen failed: " + error);
                 return;
             }
 
@@ -187,16 +195,16 @@ public class User {
                             batch.commit()
                                     .addOnSuccessListener(aVoid -> {
                                         // All documents deleted successfully
-                                        Log.d("Firestore", "All documents deleted successfully.");
+                                        Log.d("UserRepository", "All documents deleted successfully.");
                                     })
                                     .addOnFailureListener(e -> {
                                         // Handle any errors
-                                        Log.e("Firestore", "Error deleting documents: ", e);
+                                        Log.e("UserRepository", "Error deleting documents: ", e);
                                     });
                         }
                     } else {
                         // Handle the error
-                        Log.e("Firestore", "Error getting documents: ", task.getException());
+                        Log.e("UserRepository", "Error getting documents: ", task.getException());
                     }
                 });
     }
