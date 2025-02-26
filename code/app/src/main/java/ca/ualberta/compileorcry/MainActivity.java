@@ -28,5 +28,6 @@ public class MainActivity extends AppCompatActivity {
 
         navController.navigate(R.id.navigation_login);
         findViewById(R.id.nav_view).setVisibility(View.GONE);
+        //TODO: Add check to see if logged in and redirect to profile
     }
 }

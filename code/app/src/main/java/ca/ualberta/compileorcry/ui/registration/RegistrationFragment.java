@@ -45,6 +45,10 @@ public class RegistrationFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        binding.backButton.setOnClickListener((View v) -> {
+            findNavController(view).navigate(R.id.navigation_login);
+        });
+
         binding.doneButton.setOnClickListener((View v) -> { // Attempt to register user
             String username = binding.usernameText.getText().toString();
             String name = binding.nameText.getText().toString();
