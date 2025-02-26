@@ -60,8 +60,8 @@ public class User {
             if (task.isSuccessful()) {
                 DocumentSnapshot document = task.getResult();
                 if(document.exists()){ // User already exists
+                    Log.i("UserRepository", "Username already registered in firebase");
                     if (callback != null) {
-                        Log.i("UserRepository", "Username already registered in firebase");
                         callback.onUserLoaded(null, "Username already registered");
                     }
                 } else { // Register new user
@@ -70,15 +70,11 @@ public class User {
                     userData.put("username", username);
                     userData.put("name", name);
                     userDocReference.set(userData).addOnCompleteListener(utask -> {
-                        if(utask.isSuccessful()){
-                            if (callback != null) {
-                                Log.e("UserRepository", "Error Registering User");
-                                callback.onUserLoaded(newUser, "Error occurred during registration");
-                            }
-                            return;
+                        if(utask.isSuccessful()){ // If added successfully return user and no error
+                            callback.onUserLoaded(newUser, null);
                         }
+                        Log.e("UserRepository", "Error Registering User");
                         if (callback != null) {
-                            Log.e("UserRepository", "Error Registering User");
                             callback.onUserLoaded(null, "Error occurred during registration");
                         }
                     });
