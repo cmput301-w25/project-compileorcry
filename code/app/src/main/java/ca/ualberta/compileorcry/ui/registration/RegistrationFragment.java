@@ -73,7 +73,7 @@ public class RegistrationFragment extends Fragment {
                 //TODO: Implement saving locally username
 
                 // Navigate to Main App
-                findNavController(view).navigate(R.id.navigation_feed);
+                findNavController(view).navigate(R.id.navigation_profile);
                 getActivity().findViewById(R.id.nav_view).setVisibility(View.VISIBLE);
             });
         });

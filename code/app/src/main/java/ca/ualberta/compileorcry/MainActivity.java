@@ -1,6 +1,7 @@
 package ca.ualberta.compileorcry;
 
 import android.os.Bundle;
+import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
@@ -24,5 +25,8 @@ public class MainActivity extends AppCompatActivity {
 
         // Set up default navigation behavior for other items
         NavigationUI.setupWithNavController(navView, navController);
+
+        navController.navigate(R.id.navigation_login);
+        findViewById(R.id.nav_view).setVisibility(View.GONE);
     }
 }
