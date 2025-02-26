@@ -245,7 +245,7 @@ public class MoodList {
         DocumentReference moodEventDocRef = moodEventsReference.document(id);
         event.setIdFromDocRef(moodEventDocRef);
         Map<String,Object> eventMap = event.toFireStoreMap();
-        if(!this.checkIfGoodToStorePersonal(eventMap)){
+        if(!this.isPersonalEventMapValid(eventMap)){
             throw new IllegalArgumentException("this event has invalid date or emotional_state");
         } else {
             moodEventDocRef.set(eventMap);
@@ -264,7 +264,7 @@ public class MoodList {
                                 Map<String,Object> eventMap = event.toFireStoreMap();
                                 eventMap.put("username", user.getUsername());
                                 eventMap.put("mood_id", id);
-                                if(!prtToSelf.checkIfGoodToStoreRecent(eventMap)){
+                                if(!prtToSelf.isRecentEventMapValid(eventMap)){
                                     //this error should only occur under extreme circumstances
                                     //if this becomes an issue, a clone method on the event should be used
                                     throw new RuntimeException("this error shouldn't occur, if this is happening it likey the moodevent was modified improperly before the onComplete listener finished");
@@ -280,7 +280,7 @@ public class MoodList {
                         Map<String,Object> eventMap = event.toFireStoreMap();
                         eventMap.put("username", user.getUsername());
                         eventMap.put("mood_id", id);
-                        if(!prtToSelf.checkIfGoodToStoreRecent(eventMap)){
+                        if(!prtToSelf.isRecentEventMapValid(eventMap)){
                             //this error should only occur under extreme circumstances
                             //if this becomes an issue, a clone method on the event should be used
                             throw new RuntimeException("this error shouldn't occur, if this is happening it likely the moodevent was modified improperly before the onComplete listener finished");
@@ -353,7 +353,7 @@ public class MoodList {
                                     eventMap.put("username", user.getUsername());
                                     //this shouldn't be empty as the MoodList assigns an ID to every moodEvent in it
                                     eventMap.put("mood_id", newEvent.getId());
-                                    if(!prtToSelf.checkIfGoodToStoreRecent(eventMap)){
+                                    if(!prtToSelf.isRecentEventMapValid(eventMap)){
                                         //this error should only occur under extreme circumstances
                                         //If this happened it's likely that some bad dummy data found it's way into the db
                                         throw new RuntimeException("the event that tried to replace most recnet was misformated");
@@ -377,7 +377,7 @@ public class MoodList {
                             eventMap.put("username", user.getUsername());
                             //this shouldn't be empty as the MoodList assigns an ID to every moodEvent in it
                             eventMap.put("mood_id", event.getId());
-                            if(!prtToSelf.checkIfGoodToStoreRecent(eventMap)){
+                            if(!prtToSelf.isRecentEventMapValid(eventMap)){
                                 //this error should only occur under extreme circumstances
                                 //If this happened it's likely that some bad dummy data found it's way into the db
                                 throw new RuntimeException("this error shouldn't occur, if this is happening it likely the moodevent was modified improperly before the onComplete listener finished");
@@ -453,7 +453,7 @@ public class MoodList {
                     throw new IllegalArgumentException("no document related to this mood event");
                 }
                 Map<String,Object> eventMap  = event.toFireStoreMap();
-                if(!prtToSelf.checkIfGoodToStorePersonal(eventMap)){
+                if(!prtToSelf.isPersonalEventMapValid(eventMap)){
                     throw new IllegalArgumentException("the eventMap is bad value(s)");
                 }
                 eventMap.remove("username");
@@ -462,7 +462,7 @@ public class MoodList {
                     if(personalDoc.get("mood_id").equals(recentDoc.get("mood_id"))){
                         eventMap.put("username", user.getUsername());
                         eventMap.put("mood_id", event.getId());
-                        if(!prtToSelf.checkIfGoodToStoreRecent(eventMap)){
+                        if(!prtToSelf.isRecentEventMapValid(eventMap)){
                             throw new IllegalArgumentException("the eventMap is bad value(s)");
                         }
                         prtToSelf.moodEventsRecentRef.document(user.getUsername()).set(eventMap);
@@ -538,35 +538,35 @@ public class MoodList {
                         Map<String, Object> documentData = document.getData();
                         String id = document.getId();
                         MoodEvent moodEvent = new MoodEvent(id);
-                        if (isValidForInput(documentData, "emotional_state", Long.class)) {
+                        if (isValidKeyPairDatatype(documentData, "emotional_state", Long.class)) {
                             moodEvent.setEmotionalState(EmotionalState.fromCode((Long) documentData.get("emotional_state")));
                         } else {
                             throw new IllegalArgumentException("emotional state cannot be null");
                         }
-                        if (isValidForInput(documentData, "date", Timestamp.class)) {
+                        if (isValidKeyPairDatatype(documentData, "date", Timestamp.class)) {
                             moodEvent.setTimestamp((Timestamp) documentData.get("date"));
                         } else {
                             throw new IllegalArgumentException("date cannot be null");
                         }
-                        if (isValidForInput(documentData, "username", String.class)) {
+                        if (isValidKeyPairDatatype(documentData, "username", String.class)) {
                             moodEvent.setUsername((String) documentData.get("username"));
                         } else if (recentsType) {
                             throw new IllegalArgumentException("username cannot be null for querys of recentMoods or is not a String");
                         }
-                        if (isValidForInput(documentData, "trigger", String.class)) {
+                        if (isValidKeyPairDatatype(documentData, "trigger", String.class)) {
                             moodEvent.setTrigger((String) documentData.get("trigger"));
                         }
-                        if (isValidForInput(documentData, "social_situation", String.class)) {
+                        if (isValidKeyPairDatatype(documentData, "social_situation", String.class)) {
                             moodEvent.setSocialSituation((String) documentData.get("social_situation"));
                         }
-                        if (isValidForInput(documentData, "location", String.class)) {
+                        if (isValidKeyPairDatatype(documentData, "location", String.class)) {
                             GeoHash geoHash = new GeoHash((String) documentData.get("location"));
                             moodEvent.setLocation(geoHash);
                         } else if (mapType) {
                             throw new IllegalArgumentException("location cannot be null for map query or is not a the correct datatype");
                         }
                         //todo: picture datatype and retrieving the picture as the firestore cannot store pictures in a document
-                        if (isValidForInput(documentData, "picture", Object.class)) {
+                        if (isValidKeyPairDatatype(documentData, "picture", Object.class)) {
                             Object picture = new Object();
                             moodEvent.setPicture(picture);
                         }
@@ -594,7 +594,7 @@ public class MoodList {
      * @param type The expected data type.
      * @return True if the key exists and the value is of the expected type, false otherwise.
      */
-    private static <T> boolean isValidForInput(Map<String, Object> data, String key, Class<T> type) {
+    private static <T> boolean isValidKeyPairDatatype(Map<String, Object> data, String key, Class<T> type) {
         return data.containsKey(key) && type.isInstance(data.get(key));// Return false if key doesn't exist or type mismatch
     }
     /**
@@ -710,7 +710,7 @@ public class MoodList {
                                 Map<String, Object> documentData = doc.getData();
                                 String id = doc.getId();
                                 MoodEvent moodEvent = new MoodEvent(id);
-                                if (isValidForInput(documentData, "location", String.class)) {
+                                if (isValidKeyPairDatatype(documentData, "location", String.class)) {
                                     GeoHash geoHash = new GeoHash((String) documentData.get("location"));
                                     moodEvent.setLocation(geoHash);
                                 } else if (mapType) {
@@ -723,30 +723,30 @@ public class MoodList {
                                 if (distanceInM <= 5000) {
                                     matchingDocs.add(doc);
                                 }
-                                if (isValidForInput(documentData, "emotional_state", Long.class)) {
+                                if (isValidKeyPairDatatype(documentData, "emotional_state", Long.class)) {
                                     moodEvent.setEmotionalState(EmotionalState.fromCode((Long) documentData.get("emotional_state")));
                                 } else {
                                     throw new IllegalArgumentException("emotional state cannot be null");
                                 }
-                                if (isValidForInput(documentData, "date", Timestamp.class)) {
+                                if (isValidKeyPairDatatype(documentData, "date", Timestamp.class)) {
                                     moodEvent.setTimestamp((Timestamp) documentData.get("date"));
                                 } else {
                                     throw new IllegalArgumentException("date cannot be null");
                                 }
-                                if (isValidForInput(documentData, "username", String.class)) {
+                                if (isValidKeyPairDatatype(documentData, "username", String.class)) {
                                     moodEvent.setUsername((String) documentData.get("username"));
                                 } else if (recentsType) {
                                     throw new IllegalArgumentException("username cannot be null for querys of recentMoods or is not a String");
                                 }
-                                if (isValidForInput(documentData, "trigger", String.class)) {
+                                if (isValidKeyPairDatatype(documentData, "trigger", String.class)) {
                                     moodEvent.setTrigger((String) documentData.get("trigger"));
                                 }
-                                if (isValidForInput(documentData, "social_situation", String.class)) {
+                                if (isValidKeyPairDatatype(documentData, "social_situation", String.class)) {
                                     moodEvent.setSocialSituation((String) documentData.get("social_situation"));
                                 }
 
                                 //todo: picture datatype and retrieving the picture as the firestore cannot store pictures in a document
-                                if (isValidForInput(documentData, "picture", Object.class)) {
+                                if (isValidKeyPairDatatype(documentData, "picture", Object.class)) {
                                     Object picture = new Object();
                                     moodEvent.setPicture(picture);
                                 }
@@ -761,18 +761,18 @@ public class MoodList {
     }
     /**
      * Validates a map of data to ensure it is suitable for storing a personal MoodEvent in Firestore.
-     *
+     * todo: any data validation for reason if reason has a char limit.
      * @param map The map of data to validate.
      * @return True if the data is valid, false otherwise.
      */
-    private boolean checkIfGoodToStorePersonal(Map<String,Object> map){
-        if(!isValidForInput(map,"date", Timestamp.class)){
+    private boolean isPersonalEventMapValid(Map<String,Object> map){
+        if(!isValidKeyPairDatatype(map,"date", Timestamp.class)){
             return false;
         }
-        if(!isValidForInput(map,"emotional_state", Long.class)){
+        if(!isValidKeyPairDatatype(map,"emotional_state", Long.class)){
             return false;
         }
-        if(!isValidForInput(map,"mood_id", String.class)){
+        if(!isValidKeyPairDatatype(map,"mood_id", String.class)){
             return false;
         }
         map.remove("username");
@@ -780,21 +780,21 @@ public class MoodList {
     }
     /**
      * Validates a map of data to ensure it is suitable for storing a recent MoodEvent in Firestore.
-     *
+     * todo: any data validation for reason if reason has a char limit.
      * @param map The map of data to validate.
      * @return True if the data is valid, false otherwise.
      */
-    private boolean checkIfGoodToStoreRecent(Map<String,Object> map){
-        if(!isValidForInput(map,"date", Timestamp.class)){
+    private boolean isRecentEventMapValid(Map<String,Object> map){
+        if(!isValidKeyPairDatatype(map,"date", Timestamp.class)){
             return false;
         }
-        if(!isValidForInput(map,"emotional_state", Long.class)){
+        if(!isValidKeyPairDatatype(map,"emotional_state", Long.class)){
             return false;
         }
-        if(!isValidForInput(map,"username", String.class)){
+        if(!isValidKeyPairDatatype(map,"username", String.class)){
             return false;
         }
-        if(!isValidForInput(map,"mood_id", String.class)){
+        if(!isValidKeyPairDatatype(map,"mood_id", String.class)){
             return false;
         }
         return true;
@@ -806,22 +806,22 @@ public class MoodList {
      * @return True if the data is valid, false otherwise.
      */
     private boolean checkIfGoodToStoreEdit(Map<String,Object> map){
-        if(map.containsKey("picture") && !isValidForInput(map, "picture", Object.class)){
+        if(map.containsKey("picture") && !isValidKeyPairDatatype(map, "picture", Object.class)){
             return false;
         }
-        if(map.containsKey("social_situation") && !isValidForInput(map, "social_situation", String.class)){
+        if(map.containsKey("social_situation") && !isValidKeyPairDatatype(map, "social_situation", String.class)){
             return false;
         }
-        if(map.containsKey("date") && !isValidForInput(map, "date", Timestamp.class)){
+        if(map.containsKey("date") && !isValidKeyPairDatatype(map, "date", Timestamp.class)){
             return false;
         }
-        if(map.containsKey("location") && !isValidForInput(map, "location", GeoHash.class)){
+        if(map.containsKey("location") && !isValidKeyPairDatatype(map, "location", GeoHash.class)){
             return false;
         }
-        if(map.containsKey("trigger") && !isValidForInput(map, "trigger", String.class)){
+        if(map.containsKey("trigger") && !isValidKeyPairDatatype(map, "trigger", String.class)){
             return false;
         }
-        if(map.containsKey("emotional_state") && !isValidForInput(map, "emotional_state", EmotionalState.class)){
+        if(map.containsKey("emotional_state") && !isValidKeyPairDatatype(map, "emotional_state", EmotionalState.class)){
             return false;
         }
         return true;
