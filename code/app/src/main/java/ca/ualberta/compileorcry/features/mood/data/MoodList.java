@@ -283,7 +283,7 @@ public class MoodList {
                         if(!ptrToSelf.isRecentEventMapValid(eventMap)){
                             //this error should only occur under extreme circumstances
                             //if this becomes an issue, a clone method on the event should be used
-                            throw new RuntimeException("this error shouldn't occur, if this is happening it likely the moodevent was modified improperly before the onComplete listener finished");
+                            throw new RuntimeException("the event map was incorrectly formatted");
                         }
                         recentEventDocRef.set(eventMap);
 
@@ -356,7 +356,7 @@ public class MoodList {
                                     if(!ptrToSelf.isRecentEventMapValid(eventMap)){
                                         //this error should only occur under extreme circumstances
                                         //If this happened it's likely that some bad dummy data found it's way into the db
-                                        throw new RuntimeException("the event that tried to replace most recent was incorrectly formatted");
+                                        throw new RuntimeException("the event incorrectly formatted");
                                     }
                                     recentEventDocRef.set(eventMap);
                                 } else {
@@ -380,7 +380,7 @@ public class MoodList {
                             if(!ptrToSelf.isRecentEventMapValid(eventMap)){
                                 //this error should only occur under extreme circumstances
                                 //If this happened it's likely that some bad dummy data found it's way into the db
-                                throw new RuntimeException("this error shouldn't occur, if this is happening it likely the moodevent was modified improperly before the onComplete listener finished");
+                                throw new RuntimeException("the event that tried to replace most recent was incorrectly formatted");
                             }
                             recentEventDocRef.set(eventMap);
                             }
