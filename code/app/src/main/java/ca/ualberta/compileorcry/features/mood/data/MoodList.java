@@ -320,7 +320,7 @@ public class MoodList {
             throw new IllegalArgumentException("cannot add events to read only MoodList");
         }
         if (event.getId() == null){
-            throw new IllegalArgumentException("a event needs a Id to be deleted");
+            throw new IllegalArgumentException("an event needs a Id to be deleted");
         } else {
             DocumentReference recentEventDocRef = this.moodEventsRecentRef.document(user.getUsername());
             recentEventDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
