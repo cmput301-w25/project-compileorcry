@@ -421,10 +421,10 @@ public class MoodList {
             throw new IllegalArgumentException("cannot add events to read only MoodList");
         }
         if(event.getId() == null){
-            throw new IllegalArgumentException("mood event does not have an id");
+            throw new IllegalArgumentException("mood event does not have an Id");
         }
         if(!moodEvents.contains(event)){
-            throw new IllegalArgumentException("mood event is not in moodList");
+            throw new IllegalArgumentException("mood event is not in MoodList");
         }
         Map<String,Object> map = event.toFireStoreMap();
         final List<Task<DocumentSnapshot>> tasks = new ArrayList<>();
@@ -805,7 +805,7 @@ public class MoodList {
      * @param map The map of data to validate.
      * @return True if the data is valid, false otherwise.
      */
-    private boolean checkIfGoodToStoreEdit(Map<String,Object> map){
+    private boolean isValidEditMap(Map<String,Object> map){
         if(map.containsKey("picture") && !isValidKeyPairDatatype(map, "picture", Object.class)){
             return false;
         }
@@ -835,7 +835,7 @@ public class MoodList {
      * @throws IllegalArgumentException If the update map contains invalid data.
      */
     private void updateEventFromMap(MoodEvent toBeUpdated, Map<String, Object> updateMap){
-        if(!checkIfGoodToStoreEdit(updateMap)){
+        if(!isValidEditMap(updateMap)){
             throw new IllegalArgumentException("updateMap contains incorrect datatype(s)");
         }
         ArrayList<String> updatableKeys = new ArrayList<>(Arrays.asList("picture", "social_situation", "date", "location", "trigger", "emotional_state"));
