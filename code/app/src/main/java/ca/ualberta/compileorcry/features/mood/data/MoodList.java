@@ -47,8 +47,8 @@ public class MoodList {
     private boolean recentsType, mapType;
     private final User user;
     private final DocumentReference userDocRef;
-    private final CollectionReference followingReference;
-    private final CollectionReference moodEventsReference;
+    private final CollectionReference followingRef;
+    private final CollectionReference moodEventsRef;
     private final CollectionReference moodEventsRecentRef;
     private final QueryType queryType;
     private Query query;
@@ -148,8 +148,8 @@ public class MoodList {
         this.followings = new ArrayList<String>();
         this.userDocRef = user.getUserDocRef();
         this.db = FirebaseFirestore.getInstance();
-        this.followingReference = userDocRef.collection("following");
-        this.moodEventsReference = userDocRef.collection("mood_events");
+        this.followingRef = userDocRef.collection("following");
+        this.moodEventsRef = userDocRef.collection("mood_events");
         this.moodEventsRecentRef = db.collection("most_recent_moods");
         this.ptrToSelf = this;
         switch (queryType) {
@@ -193,8 +193,8 @@ public class MoodList {
         this.followings = new ArrayList<String>();
         this.userDocRef = user.getUserDocRef();
         this.db = FirebaseFirestore.getInstance();
-        this.followingReference = userDocRef.collection("following");
-        this.moodEventsReference = userDocRef.collection("mood_events");
+        this.followingRef = userDocRef.collection("following");
+        this.moodEventsRef = userDocRef.collection("mood_events");
         this.moodEventsRecentRef = db.collection("most_recent_moods");
         this.ptrToSelf = this;
         this.filter = filter;
@@ -241,8 +241,8 @@ public class MoodList {
         if(event.getUsername() != null && !event.getUsername().equals(user.getUsername())){
             throw new IllegalArgumentException("username of event does not match username of user");
         }
-        String id = this.moodEventsReference.document().getId();
-        DocumentReference moodEventDocRef = moodEventsReference.document(id);
+        String id = this.moodEventsRef.document().getId();
+        DocumentReference moodEventDocRef = moodEventsRef.document(id);
         event.setIdFromDocRef(moodEventDocRef);
         Map<String,Object> eventMap = event.toFireStoreMap();
         if(!this.isPersonalEventMapValid(eventMap)){
@@ -384,7 +384,7 @@ public class MoodList {
                             }
                             recentEventDocRef.set(eventMap);
                             }
-                        moodEventsReference.document(event.getId()).delete();
+                        moodEventsRef.document(event.getId()).delete();
                         moodEvents.remove(event);
                         Collections.sort(moodEvents, new Comparator<MoodEvent>() {
                             @Override
@@ -428,7 +428,7 @@ public class MoodList {
         }
         Map<String,Object> map = event.toFireStoreMap();
         final List<Task<DocumentSnapshot>> tasks = new ArrayList<>();
-        tasks.add(this.moodEventsReference.document(event.getId()).get());
+        tasks.add(this.moodEventsRef.document(event.getId()).get());
         tasks.add(this.moodEventsRecentRef.document(user.getUsername()).get());
         updateEventFromMap(event,changes);
         Tasks.whenAllComplete(tasks).addOnCompleteListener(new OnCompleteListener<List<Task<?>>>() {
@@ -440,14 +440,14 @@ public class MoodList {
                 for (Task<?> task : tasks) {
                     if (task.isSuccessful() && task.getResult() instanceof DocumentSnapshot) {
                         DocumentSnapshot doc = (DocumentSnapshot) task.getResult();
-                        if (doc.getReference().equals(ptrToSelf.moodEventsReference.document(event.getId()))) {
-                            docMap.put(ptrToSelf.moodEventsReference.document(event.getId()), doc);
+                        if (doc.getReference().equals(ptrToSelf.moodEventsRef.document(event.getId()))) {
+                            docMap.put(ptrToSelf.moodEventsRef.document(event.getId()), doc);
                         } else if (doc.getReference().equals(ptrToSelf.moodEventsRecentRef.document(user.getUsername()))) {
                             docMap.put(ptrToSelf.moodEventsRecentRef.document(user.getUsername()), doc);
                         }
                     }
                 }
-                DocumentSnapshot personalDoc = docMap.get(ptrToSelf.moodEventsReference.document(event.getId()));
+                DocumentSnapshot personalDoc = docMap.get(ptrToSelf.moodEventsRef.document(event.getId()));
                 DocumentSnapshot recentDoc = docMap.get(ptrToSelf.moodEventsRecentRef.document(user.getUsername()));
                 if(personalDoc == null){
                     throw new IllegalArgumentException("no document related to this mood event");
@@ -457,7 +457,7 @@ public class MoodList {
                     throw new IllegalArgumentException("the eventMap is bad value(s)");
                 }
                 eventMap.remove("username");
-                ptrToSelf.moodEventsReference.document(event.getId()).set(eventMap);
+                ptrToSelf.moodEventsRef.document(event.getId()).set(eventMap);
                 if (personalDoc != null && recentDoc != null){
                     if(personalDoc.get("mood_id").equals(recentDoc.get("mood_id"))){
                         eventMap.put("username", user.getUsername());
@@ -490,7 +490,7 @@ public class MoodList {
      * @throws RuntimeException If the Firestore listener fails to attach or the user is not following anyone.
      */
     private void attachFollowersListener() {
-        followingReference.addSnapshotListener((value, error) -> {
+        followingRef.addSnapshotListener((value, error) -> {
             if (error != null) {
                 Log.e("Firestore", error.toString());
                 throw new RuntimeException("followers didn't attach");
@@ -612,7 +612,7 @@ public class MoodList {
         Timestamp lastWeek = new Timestamp(lastWeekDate);
 
         EmotionalState filterState;
-        Query query = this.moodEventsReference
+        Query query = this.moodEventsRef
                 .orderBy("date", Query.Direction.DESCENDING);
         switch (this.queryType) {
             case HISTORY_MODIFIABLE:
