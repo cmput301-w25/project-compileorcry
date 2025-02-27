@@ -72,6 +72,7 @@ public class LoginFragment extends Fragment {
                 findNavController(view).navigate(R.id.navigation_profile);
                 getActivity().findViewById(R.id.nav_view).setVisibility(View.VISIBLE);
                 //TODO: Save username locally
+                User.setActiveUser(user);
             });
         });
 
