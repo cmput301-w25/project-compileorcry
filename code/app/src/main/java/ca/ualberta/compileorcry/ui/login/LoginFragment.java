@@ -46,24 +46,14 @@ public class LoginFragment extends Fragment {
         binding.loginButton.setOnClickListener((View v) -> {
             String username = binding.loginUsernameText.getText().toString();
             if(username.isEmpty()){
-                Toast errorToast = Toast.makeText(
-                        getActivity(),
-                        "Username must be filled.",
-                        Toast.LENGTH_SHORT
-                );
-                errorToast.show();
+                binding.loginErrorText.setText(R.string.login_error_empty);
                 return;
             }
             disableUI();
 
             User.get_user(username, (user, error) -> { // Handle Firebase Response
                 if(error != null || user == null) { // Error Trap
-                    Toast errorToast = Toast.makeText(
-                            getActivity(),
-                            error,
-                            Toast.LENGTH_SHORT
-                    );
-                    errorToast.show();
+                    binding.loginErrorText.setText(error);
                     enableUI();
                     return;
                 }
@@ -72,6 +62,7 @@ public class LoginFragment extends Fragment {
                 findNavController(view).navigate(R.id.navigation_profile);
                 getActivity().findViewById(R.id.nav_view).setVisibility(View.VISIBLE);
                 //TODO: Save username locally
+                User.setActiveUser(user);
             });
         });
 

@@ -15,6 +15,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class User {
+
+    private static User activeUser;
+
     private final String username;
     private String name;
     private final DocumentReference userDocRef;
@@ -204,6 +207,14 @@ public class User {
                         Log.e("UserRepository", "Error getting documents: ", task.getException());
                     }
                 });
+    }
+
+    public static User getActiveUser(){
+        return activeUser;
+    }
+
+    public static void setActiveUser(User user){
+        activeUser = user;
     }
 
 }

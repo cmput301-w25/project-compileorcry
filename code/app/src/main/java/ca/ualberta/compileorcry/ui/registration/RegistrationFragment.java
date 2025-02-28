@@ -53,28 +53,18 @@ public class RegistrationFragment extends Fragment {
             String username = binding.usernameText.getText().toString();
             String name = binding.nameText.getText().toString();
             if(username.isEmpty() || name.isEmpty()){
-                Toast errorToast = Toast.makeText(
-                        getActivity(),
-                        "Username and Name must be filled.",
-                        Toast.LENGTH_SHORT
-                );
-                errorToast.show();
+                binding.registerErrorText.setText(R.string.register_error_empty);
                 return;
             }
             disableUI();
 
             User.register_user(username, name, (user, error) -> {
                 if(error != null || user == null){
-                    Toast toast;
-                    toast = Toast.makeText(
-                            getActivity(),
-                            error,
-                            Toast.LENGTH_SHORT);
-                    toast.show();
-                    enableUI();
+                    binding.registerErrorText.setText(error);
                     return;
                 }
                 //TODO: Implement saving locally username
+                User.setActiveUser(user);
 
                 // Navigate to Main App
                 findNavController(view).navigate(R.id.navigation_profile);
