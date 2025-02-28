@@ -68,14 +68,13 @@ public class User {
                         callback.onUserLoaded(null, "Username already registered");
                     }
                 } else { // Register new user
-                    User newUser = new User(username, name, userDocReference);
                     Map<String, Object> userData = new HashMap<>();
                     userData.put("username", username);
                     userData.put("name", name);
                     userDocReference.set(userData).addOnCompleteListener(utask -> {
                         if(utask.isSuccessful()){ // If added successfully return user and no error
                             if (callback != null)
-                                callback.onUserLoaded(newUser, null);
+                                callback.onUserLoaded(new User(username, name, userDocReference), null);
                             return;
                         }
                         Log.e("UserRepository", "Error Registering User");
@@ -118,7 +117,7 @@ public class User {
     }
 
     private void attachSnapshotListener() {
-        listenerRegistration = userDocRef.addSnapshotListener((documentSnapshot, error) -> {
+        listenerRegistration = this.userDocRef.addSnapshotListener((documentSnapshot, error) -> {
             if (error != null) {
                 Log.e("UserRepository", "Listen failed: " + error);
                 return;
