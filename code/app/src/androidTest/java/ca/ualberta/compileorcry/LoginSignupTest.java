@@ -48,7 +48,10 @@ public class LoginSignupTest {
         String androidLocalhost = "10.0.2.2";
 
         int portNumber = 8080;
-        FirebaseFirestore.getInstance().useEmulator(androidLocalhost, portNumber);
+        try {
+            FirebaseFirestore.getInstance().useEmulator(androidLocalhost, portNumber);
+        } catch (IllegalStateException ignored){
+        }
 
         device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
     }
@@ -62,6 +65,7 @@ public class LoginSignupTest {
         onView(withId(R.id.done_button)).perform(click());
         device.waitForIdle();
         Thread.sleep(1000);
+
         // Verify on Profile Page
         onView(withId(R.id.profile_username)).check(matches(isDisplayed()));
         onView(withId(R.id.profile_username)).check(matches(withText("newUser")));
@@ -82,7 +86,7 @@ public class LoginSignupTest {
         Thread.sleep(1000);
 
         // Verify still on registration page
-        onView(withId(R.id.text_registration)).check(matches(isDisplayed()));
+        onView(withId(R.id.register_error_text)).check(matches(withText("Username already registered")));
     }
 
     @Test
@@ -110,7 +114,7 @@ public class LoginSignupTest {
         Thread.sleep(200);
 
         // Verify still on login page
-        onView(withId(R.id.text_login)).check(matches(isDisplayed()));
+        onView(withId(R.id.login_error_text)).check(matches(withText("User does not exist.")));
     }
 
     @After

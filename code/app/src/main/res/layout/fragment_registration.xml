@@ -78,4 +78,16 @@
         app:layout_constraintStart_toEndOf="@id/back_button"
         app:layout_constraintTop_toBottomOf="@+id/name_text"
         app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/register_error_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:textColor="@android:color/holo_red_dark"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@+id/username_text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/text_registration" />
 </androidx.constraintlayout.widget.ConstraintLayout>

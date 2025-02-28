@@ -18,4 +18,6 @@
     <string name="registration_back">Back</string>
     <string name="registration_done">Done</string>
     <string name="profile_editname">Edit Name</string>
+    <string name="register_error_empty">Username and Name must be filled.</string>
+    <string name="login_error_empty">Username must be filled.</string>
 </resources>

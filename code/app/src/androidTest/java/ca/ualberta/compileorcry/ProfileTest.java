@@ -51,7 +51,10 @@ public class ProfileTest {
         String androidLocalhost = "10.0.2.2";
 
         int portNumber = 8080;
-        FirebaseFirestore.getInstance().useEmulator(androidLocalhost, portNumber);
+        try {
+            FirebaseFirestore.getInstance().useEmulator(androidLocalhost, portNumber);
+        } catch (IllegalStateException ignored){
+        }
 
         device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
     }
