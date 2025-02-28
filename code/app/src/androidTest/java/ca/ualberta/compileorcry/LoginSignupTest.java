@@ -70,14 +70,7 @@ public class LoginSignupTest {
 
     @Test
     public void registerExistingUsername() throws InterruptedException {
-        // Add Initial User
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        CollectionReference usersRef = db.collection("users");
-        Map<String, Object> userData = new HashMap<>();
-        userData.put("username", "existingUesr");
-        userData.put("name", "Existing User");
-        usersRef.document("existingUser").set(userData);
-        Thread.sleep(500);
+        addUser("existingUser", "New Existing User!");
 
         // Test
         onView(withId(R.id.register_button)).perform(click());
@@ -90,6 +83,34 @@ public class LoginSignupTest {
 
         // Verify still on registration page
         onView(withId(R.id.text_registration)).check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void loginExistingUsername() throws InterruptedException {
+        addUser("existingUser", "New Existing User!");
+
+        // Test
+        onView(withId(R.id.login_username_text)).perform(ViewActions.typeText("existingUser"));
+        onView(withId(R.id.login_button)).perform(click());
+        device.waitForIdle();
+        Thread.sleep(1000);
+
+        // Verify navigated to profile
+        onView(withId(R.id.profile_username)).check(matches(isDisplayed()));
+        onView(withId(R.id.profile_username)).check(matches(withText("existingUser")));
+        onView(withId(R.id.profile_name)).check(matches(withText("New Existing User!")));
+    }
+
+    @Test
+    public void loginInvalidUsername() throws InterruptedException {
+        // Test
+        onView(withId(R.id.login_username_text)).perform(ViewActions.typeText("existingUser"));
+        onView(withId(R.id.login_button)).perform(click());
+        device.waitForIdle();
+        Thread.sleep(200);
+
+        // Verify still on login page
+        onView(withId(R.id.text_login)).check(matches(isDisplayed()));
     }
 
     @After
@@ -114,5 +135,16 @@ public class LoginSignupTest {
                 urlConnection.disconnect();
             }
         }
+    }
+
+    public static void addUser(String username, String name) throws InterruptedException {
+        // Add Initial User
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference usersRef = db.collection("users");
+        Map<String, Object> userData = new HashMap<>();
+        userData.put("username", username);
+        userData.put("name", name);
+        usersRef.document(username).set(userData);
+        Thread.sleep(500);
     }
 }
