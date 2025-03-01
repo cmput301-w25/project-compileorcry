@@ -12,9 +12,11 @@ import androidx.fragment.app.Fragment;
 
 import ca.ualberta.compileorcry.R;
 import ca.ualberta.compileorcry.databinding.FragmentNewBinding;
+import ca.ualberta.compileorcry.domain.models.User;
 import ca.ualberta.compileorcry.features.mood.data.MoodList;
 import ca.ualberta.compileorcry.features.mood.model.EmotionalState;
 import ca.ualberta.compileorcry.features.mood.model.MoodEvent;
+import ca.ualberta.compileorcry.features.mood.data.QueryType;
 
 public class NewFragment extends Fragment {
 
@@ -32,7 +34,6 @@ public class NewFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Set up the click listener for the "Save Mood" button.
         binding.buttonSaveMood.setOnClickListener(v -> {
             // Retrieve the selected emotional state from the spinner.
             String emotionalStateStr = binding.spinnerEmotionalState.getSelectedItem().toString();
@@ -59,23 +60,30 @@ public class NewFragment extends Fragment {
             // Create a new MoodEvent.
             MoodEvent moodEvent = new MoodEvent(state, trigger, socialSituation);
 
-            // Add the event to the repository.
-            //Sorry I commented this out but it stops from building -Noah
-            //MoodList.getInstance().addMoodEvent(moodEvent);
+            // Add the event to the MoodList
+            MoodList.createMoodList(
+                    User.getActiveUser(),
+                    QueryType.HISTORY_MODIFIABLE,
+                    new MoodList.MoodListListener() {
+                        @Override
+                        public void returnMoodList(MoodList initializedMoodList) {
+                            initializedMoodList.addMoodEvent(moodEvent);
+                        }
+
+                        @Override
+                        public void updatedMoodList() {
+                            // Handle updates if needed
+                        }
+                    },
+                    null
+            );
 
             // Provide confirmation feedback.
             Toast.makeText(getContext(), "Mood event added", Toast.LENGTH_SHORT).show();
 
             // Clear inputs for a new entry.
             binding.edittextTrigger.setText("");
-            binding.spinnerEmotionalState.setSelection(0); // Assumes the first item is a hint "Select"
+            binding.spinnerEmotionalState.setSelection(0);
             binding.spinnerSocialSituation.setSelection(0);
         });
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
-    }
-}
+}}
