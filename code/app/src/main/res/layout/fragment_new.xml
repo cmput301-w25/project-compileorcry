@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#333333">
+    android:background="@color/black">
 
     <!-- Scrollable container for your mood form -->
     <ScrollView
@@ -14,53 +14,73 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/bottom_nav"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintVertical_bias="0.5">
+
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="16dp"
+            android:gravity="center_horizontal"
+            android:layout_gravity="center_vertical">
 
-            <TextView
-                android:id="@+id/title_new_event"
+            <ImageView
+                android:id="@+id/imageView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/new_event"
-                android:textSize="32sp"
-                android:textStyle="bold"
-                android:textColor="#D6D6D6"
-                android:fontFamily="sans-serif"
-                android:layout_gravity="center"
-                android:shadowColor="@android:color/black"
-                android:shadowDx="2"
-                android:shadowDy="2"
-                android:shadowRadius="4"/>
+                android:src="@drawable/txt_new_event" />
 
             <EditText
                 android:id="@+id/edittext_trigger"
-                android:layout_width="match_parent"
+                android:layout_width="300dp"
                 android:layout_height="wrap_content"
                 android:hint="@string/hint_trigger"
-                android:inputType="text" />
+                android:layout_marginVertical="8dp"
+                android:textColor="@color/light_grey"
+                android:textColorHint="@color/light_grey"
+                android:inputType="text"/>
 
+<!--            this doesn't work:(-->
+<!--            <Spinner-->
+<!--                android:id="@+id/spinner_emotional_state"-->
+<!--                android:layout_width="300dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginVertical="8dp"-->
+<!--                android:entries="@array/emotional_states"-->
+<!--                android:theme="@style/BlackSpinnerStyle"/>-->
+
+<!--            <Spinner-->
+<!--                android:id="@+id/spinner_social_situation"-->
+<!--                android:layout_width="300dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginVertical="8dp"-->
+<!--                android:entries="@array/social_situations"-->
+<!--                android:theme="@style/BlackSpinnerStyle"/>-->
             <Spinner
                 android:id="@+id/spinner_emotional_state"
-                android:layout_width="match_parent"
+                android:layout_width="300dp"
                 android:layout_height="wrap_content"
-                android:entries="@array/emotional_states" />
+                android:layout_marginVertical="8dp"
+                android:entries="@array/emotional_states"/>
 
             <Spinner
                 android:id="@+id/spinner_social_situation"
-                android:layout_width="match_parent"
+                android:layout_width="300dp"
                 android:layout_height="wrap_content"
-                android:entries="@array/social_situations" />
+                android:layout_marginVertical="8dp"
+                android:entries="@array/social_situations"/>
 
             <Button
                 android:id="@+id/button_save_mood"
-                android:layout_width="match_parent"
+                android:layout_width="300dp"
                 android:layout_height="wrap_content"
-                android:text="@string/button_save_mood" />
+                android:layout_marginVertical="8dp"
+                android:text="@string/button_save_mood"
+                android:backgroundTint="@color/light_grey"
+                android:textColor="@color/black"
+                app:cornerRadius="24dp"/>
 
         </LinearLayout>
     </ScrollView>
@@ -71,6 +91,9 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:menu="@menu/bottom_nav_menu"
+        android:background="@color/black"
+        app:itemIconTint="@color/light_grey"
+        app:itemTextColor="@color/light_grey"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />

@@ -9,5 +9,15 @@
     <string name="emotional_state">Emotional State</string>
     <string name="trigger">Trigger</string>
     <string name="social_situation">Social Situation</string>
-    <string name="new_event">New Event</string>
+    <string name="title_registration">Registration</string>
+    <string name="title_login">Login</string>
+    <string name="login_header">Moody</string>
+    <string name="registration_header">Let\'s Get\nStarted</string>
+    <string name="registration_username">Username</string>
+    <string name="registration_name">Name</string>
+    <string name="registration_back">Back</string>
+    <string name="registration_done">Done</string>
+    <string name="profile_editname">Edit Name</string>
+    <string name="register_error_empty">Username and Name must be filled.</string>
+    <string name="login_error_empty">Username must be filled.</string>
 </resources>
