@@ -4,10 +4,10 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.firebase.geofire.GeoFireUtils;
-import com.firebase.geofire.GeoLocation;
-import com.firebase.geofire.GeoQueryBounds;
-import com.firebase.geofire.core.GeoHash;
+//import com.firebase.geofire.GeoFireUtils;
+//import com.firebase.geofire.GeoLocation;
+//import com.firebase.geofire.GeoQueryBounds;
+//import com.firebase.geofire.core.GeoHash;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
@@ -218,7 +218,7 @@ public class MoodList {
             case MAP_CLOSE:
                 this.recentsType = true;
                 this.mapType = true;
-                executeGeoQuery();
+                //executeGeoQuery();
                 break;
             default:
                 throw new IllegalArgumentException("unsupported query type: " + queryType);
@@ -560,8 +560,8 @@ public class MoodList {
                             moodEvent.setSocialSituation((String) documentData.get("social_situation"));
                         }
                         if (isValidKeyPairDatatype(documentData, "location", String.class)) {
-                            GeoHash geoHash = new GeoHash((String) documentData.get("location"));
-                            moodEvent.setLocation(geoHash);
+                            //GeoHash geoHash = new GeoHash((String) documentData.get("location"));
+                            //moodEvent.setLocation(geoHash);
                         } else if (mapType) {
                             throw new IllegalArgumentException("location cannot be null for map query or is not a the correct datatype");
                         }
@@ -684,81 +684,81 @@ public class MoodList {
      * @throws IllegalArgumentException If the location filter is invalid or the query results are invalid.
      * @throws RuntimeException If Firestore operations fail or the geospatial query cannot be executed.
      */
-    private void executeGeoQuery() {
-
-        GeoLocation location = GeoHash.locationFromHash((String)this.filter);
-        List<GeoQueryBounds> bounds = GeoFireUtils.getGeoHashQueryBounds(location, 5000);
-        final List<Task<QuerySnapshot>> tasks = new ArrayList<>();
-        for (GeoQueryBounds b : bounds) {
-            Query q = this.moodEventsRecentRef
-                    .whereNotEqualTo("location",null)
-                    .orderBy("location")
-                    .startAt(b.startHash)
-                    .endAt(b.endHash);
-
-            tasks.add(q.get());
-        }
-        Tasks.whenAllComplete(tasks)
-                .addOnCompleteListener(new OnCompleteListener<List<Task<?>>>() {
-                    @Override
-                    public void onComplete(@NonNull Task<List<Task<?>>> t) {
-                        List<DocumentSnapshot> matchingDocs = new ArrayList<>();
-
-                        for (Task<QuerySnapshot> task : tasks) {
-                            QuerySnapshot snap = task.getResult();
-                            for (DocumentSnapshot doc : snap.getDocuments()) {
-                                Map<String, Object> documentData = doc.getData();
-                                String id = doc.getId();
-                                MoodEvent moodEvent = new MoodEvent(id);
-                                if (isValidKeyPairDatatype(documentData, "location", String.class)) {
-                                    GeoHash geoHash = new GeoHash((String) documentData.get("location"));
-                                    moodEvent.setLocation(geoHash);
-                                } else if (mapType) {
-                                    throw new IllegalArgumentException("location cannot be null for map query or is not a the correct datatype");
-                                }
-                                GeoLocation docLocation = GeoHash.locationFromHash(moodEvent.getLocation().getGeoHashString());
-                                // We have to filter out a few false positives due to GeoHash
-                                // accuracy, but most will match
-                                double distanceInM = GeoFireUtils.getDistanceBetween(docLocation, location);
-                                if (distanceInM <= 5000) {
-                                    matchingDocs.add(doc);
-                                }
-                                if (isValidKeyPairDatatype(documentData, "emotional_state", Long.class)) {
-                                    moodEvent.setEmotionalState(EmotionalState.fromCode((Long) documentData.get("emotional_state")));
-                                } else {
-                                    throw new IllegalArgumentException("emotional state cannot be null");
-                                }
-                                if (isValidKeyPairDatatype(documentData, "date", Timestamp.class)) {
-                                    moodEvent.setTimestamp((Timestamp) documentData.get("date"));
-                                } else {
-                                    throw new IllegalArgumentException("date cannot be null");
-                                }
-                                if (isValidKeyPairDatatype(documentData, "username", String.class)) {
-                                    moodEvent.setUsername((String) documentData.get("username"));
-                                } else if (recentsType) {
-                                    throw new IllegalArgumentException("username cannot be null for querys of recentMoods or is not a String");
-                                }
-                                if (isValidKeyPairDatatype(documentData, "trigger", String.class)) {
-                                    moodEvent.setTrigger((String) documentData.get("trigger"));
-                                }
-                                if (isValidKeyPairDatatype(documentData, "social_situation", String.class)) {
-                                    moodEvent.setSocialSituation((String) documentData.get("social_situation"));
-                                }
-
-                                //todo: picture datatype and retrieving the picture as the firestore cannot store pictures in a document
-                                if (isValidKeyPairDatatype(documentData, "picture", Object.class)) {
-                                    Object picture = new Object();
-                                    moodEvent.setPicture(picture);
-                                }
-                                if(!moodEvents.contains(moodEvent)) {
-                                    moodEvents.add(moodEvent);
-                                }
-                            }
-                        }
-                        listener.returnMoodList(ptrToSelf);
-                    }
-                });
-    }
+//    private void executeGeoQuery() {
+//
+//        GeoLocation location = GeoHash.locationFromHash((String)this.filter);
+//        List<GeoQueryBounds> bounds = GeoFireUtils.getGeoHashQueryBounds(location, 5000);
+//        final List<Task<QuerySnapshot>> tasks = new ArrayList<>();
+//        for (GeoQueryBounds b : bounds) {
+//            Query q = this.moodEventsRecentRef
+//                    .whereNotEqualTo("location",null)
+//                    .orderBy("location")
+//                    .startAt(b.startHash)
+//                    .endAt(b.endHash);
+//
+//            tasks.add(q.get());
+//        }
+//        Tasks.whenAllComplete(tasks)
+//                .addOnCompleteListener(new OnCompleteListener<List<Task<?>>>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<List<Task<?>>> t) {
+//                        List<DocumentSnapshot> matchingDocs = new ArrayList<>();
+//
+//                        for (Task<QuerySnapshot> task : tasks) {
+//                            QuerySnapshot snap = task.getResult();
+//                            for (DocumentSnapshot doc : snap.getDocuments()) {
+//                                Map<String, Object> documentData = doc.getData();
+//                                String id = doc.getId();
+//                                MoodEvent moodEvent = new MoodEvent(id);
+//                                if (isValidKeyPairDatatype(documentData, "location", String.class)) {
+//                                    GeoHash geoHash = new GeoHash((String) documentData.get("location"));
+//                                    moodEvent.setLocation(geoHash);
+//                                } else if (mapType) {
+//                                    throw new IllegalArgumentException("location cannot be null for map query or is not a the correct datatype");
+//                                }
+//                                GeoLocation docLocation = GeoHash.locationFromHash(moodEvent.getLocation().getGeoHashString());
+//                                // We have to filter out a few false positives due to GeoHash
+//                                // accuracy, but most will match
+//                                double distanceInM = GeoFireUtils.getDistanceBetween(docLocation, location);
+//                                if (distanceInM <= 5000) {
+//                                    matchingDocs.add(doc);
+//                                }
+//                                if (isValidKeyPairDatatype(documentData, "emotional_state", Long.class)) {
+//                                    moodEvent.setEmotionalState(EmotionalState.fromCode((Long) documentData.get("emotional_state")));
+//                                } else {
+//                                    throw new IllegalArgumentException("emotional state cannot be null");
+//                                }
+//                                if (isValidKeyPairDatatype(documentData, "date", Timestamp.class)) {
+//                                    moodEvent.setTimestamp((Timestamp) documentData.get("date"));
+//                                } else {
+//                                    throw new IllegalArgumentException("date cannot be null");
+//                                }
+//                                if (isValidKeyPairDatatype(documentData, "username", String.class)) {
+//                                    moodEvent.setUsername((String) documentData.get("username"));
+//                                } else if (recentsType) {
+//                                    throw new IllegalArgumentException("username cannot be null for querys of recentMoods or is not a String");
+//                                }
+//                                if (isValidKeyPairDatatype(documentData, "trigger", String.class)) {
+//                                    moodEvent.setTrigger((String) documentData.get("trigger"));
+//                                }
+//                                if (isValidKeyPairDatatype(documentData, "social_situation", String.class)) {
+//                                    moodEvent.setSocialSituation((String) documentData.get("social_situation"));
+//                                }
+//
+//                                //todo: picture datatype and retrieving the picture as the firestore cannot store pictures in a document
+//                                if (isValidKeyPairDatatype(documentData, "picture", Object.class)) {
+//                                    Object picture = new Object();
+//                                    moodEvent.setPicture(picture);
+//                                }
+//                                if(!moodEvents.contains(moodEvent)) {
+//                                    moodEvents.add(moodEvent);
+//                                }
+//                            }
+//                        }
+//                        listener.returnMoodList(ptrToSelf);
+//                    }
+//                });
+//    }
     /**
      * Validates a map of data to ensure it is suitable for storing a personal MoodEvent in Firestore.
      * todo: any data validation for reason if reason has a char limit.
@@ -815,9 +815,9 @@ public class MoodList {
         if(map.containsKey("date") && !isValidKeyPairDatatype(map, "date", Timestamp.class)){
             return false;
         }
-        if(map.containsKey("location") && !isValidKeyPairDatatype(map, "location", GeoHash.class)){
-            return false;
-        }
+//        if(map.containsKey("location") && !isValidKeyPairDatatype(map, "location", GeoHash.class)){
+//            return false;
+//        }
         if(map.containsKey("trigger") && !isValidKeyPairDatatype(map, "trigger", String.class)){
             return false;
         }
@@ -853,7 +853,7 @@ public class MoodList {
                         toBeUpdated.setTimestamp((Timestamp) updateMap.get(key)); // Set the date (timestamp)
                         break;
                     case "location":
-                        toBeUpdated.setLocation((GeoHash) updateMap.get(key)); // Set the location
+                        //toBeUpdated.setLocation((GeoHash) updateMap.get(key)); // Set the location
                         break;
                     case "trigger":
                         toBeUpdated.setTrigger((String) updateMap.get(key)); // Set the trigger
