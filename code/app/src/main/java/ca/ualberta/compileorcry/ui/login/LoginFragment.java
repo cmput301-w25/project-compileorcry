@@ -46,14 +46,14 @@ public class LoginFragment extends Fragment {
         binding.loginButton.setOnClickListener((View v) -> {
             String username = binding.loginUsernameText.getText().toString();
             if(username.isEmpty()){
-                binding.loginErrorText.setText(R.string.login_error_empty);
+                binding.loginUsernameLayout.setError(getString(R.string.username_required));
                 return;
             }
             disableUI();
 
             User.get_user(username, (user, error) -> { // Handle Firebase Response
                 if(error != null || user == null) { // Error Trap
-                    binding.loginErrorText.setText(error);
+                    binding.loginUsernameLayout.setError(error);
                     enableUI();
                     return;
                 }

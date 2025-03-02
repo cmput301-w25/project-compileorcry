@@ -1,78 +1,112 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.login.LoginFragment">
+    android:background="@color/dark">
 
-    <TextView
-        android:id="@+id/text_login"
-        android:layout_width="match_parent"
+    <!-- Logo Image -->
+
+    <!-- Text Input Field -->
+    <ImageView
+        android:id="@+id/logo_image"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:text="@string/login_header"
-        android:textAlignment="center"
-        android:textSize="48sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:contentDescription="@string/moody_logo"
+        android:src="@drawable/txt_moody"
+        app:layout_constraintBottom_toTopOf="@id/login_username_layout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.29000002" />
+        app:layout_constraintVertical_chainStyle="packed" />
 
-    <EditText
-        android:id="@+id/login_username_text"
-        android:layout_width="match_parent"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/login_username_layout"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="15dp"
-        android:layout_marginTop="30dp"
-        android:layout_marginEnd="15dp"
-        android:ems="10"
-        android:hint="Username"
-        android:inputType="text"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginHorizontal="32dp"
+        android:layout_marginTop="24dp"
+        android:hint="@string/username"
+        android:textColorHint="@color/light"
+        app:boxBackgroundMode="outline"
+        app:boxStrokeColor="@color/light_dark_selector"
+        app:boxStrokeErrorColor="@color/anger"
+        app:cursorErrorColor="@color/anger"
+        app:errorEnabled="false"
+        app:errorIconTint="@color/anger"
+        app:errorTextAppearance="@style/TextAppearance.AppCompat.Body1"
+        app:errorTextColor="@color/anger"
+        app:hintAnimationEnabled="true"
+        app:hintEnabled="true"
+        app:hintTextColor="@color/light_dark_selector"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/text_login"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintTop_toBottomOf="@id/logo_image"
+        app:startIconDrawable="@drawable/ic_person_24dp"
+        app:startIconTint="@color/light">
 
-    <Button
-        android:id="@+id/login_button"
+        <!--        android:drawableStart="@drawable/ic_user"-->
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/login_username_text"
+            style="@style/TextAppearance.CompileOrCry.Body1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/source_sans_pro_semibold"
+            android:inputType="text"
+            android:textColor="@color/light" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Buttons Container -->
+    <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
-        android:text="Log In"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/register_button"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/login_username_text"
-        app:layout_constraintVertical_bias="0.0"/>
-
-    <Button
-        android:id="@+id/register_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
-        android:text="Sign Up"
+        android:layout_marginTop="24dp"
+        android:gravity="center"
+        android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/login_button"
-        app:layout_constraintTop_toBottomOf="@+id/login_username_text"
-        app:layout_constraintVertical_bias="0.0"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/login_username_layout">
+
+        <!-- Log In Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/login_button"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="125dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:text="@string/log_in"
+            android:textColor="@color/light"
+            app:strokeColor="@color/light" />
+
+        <!-- Sign Up Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/register_button"
+            style="@style/Widget.Material3.Button"
+            android:layout_width="125dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:backgroundTint="@color/light"
+            android:text="@string/sign_up"
+            android:textColor="@color/dark" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/login_error_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAlignment="center"
-        android:textColor="@android:color/holo_red_dark"
+        android:textColor="@color/anger"
         android:textSize="18sp"
-        app:layout_constraintBottom_toTopOf="@+id/login_username_text"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/text_login" />
-
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout"
+        app:layout_constraintVertical_bias="0.124" />
 </androidx.constraintlayout.widget.ConstraintLayout>

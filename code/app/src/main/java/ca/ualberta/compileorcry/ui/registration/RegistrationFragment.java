@@ -52,10 +52,10 @@ public class RegistrationFragment extends Fragment {
         binding.doneButton.setOnClickListener((View v) -> { // Attempt to register user
             String username = binding.usernameText.getText().toString();
             String name = binding.nameText.getText().toString();
-            if(username.isEmpty() || name.isEmpty()){
-                binding.registerErrorText.setText(R.string.register_error_empty);
-                return;
-            }
+//            if(username.isEmpty() || name.isEmpty()){
+//                binding.registerErrorText.setText(R.string.register_error_empty);
+//                return;
+//            }
             disableUI();
 
             User.register_user(username, name, (user, error) -> {
