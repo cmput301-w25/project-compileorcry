@@ -10,24 +10,28 @@
         android:id="@+id/textview_timestamp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/timestamp" />
+        android:text="@string/timestamp"
+        android:textColor="@color/light"/>
 
     <TextView
         android:id="@+id/textview_emotional_state"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/emotional_state" />
+        android:text="@string/emotional_state"
+        android:textColor="@color/light"/>
 
     <TextView
         android:id="@+id/textview_trigger"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/trigger" />
+        android:text="@string/trigger"
+        android:textColor="@color/light"/>
 
     <TextView
         android:id="@+id/textview_social_situation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/social_situation" />
+        android:text="@string/social_situation"
+        android:textColor="@color/light"/>
 
 </LinearLayout>
