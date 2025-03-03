@@ -63,9 +63,9 @@ public class User {
             if (task.isSuccessful()) {
                 DocumentSnapshot document = task.getResult();
                 if(document.exists()){ // User already exists
-                    Log.i("UserRepository", "Username already registered in firebase");
+                    Log.i("UserRepository", "Username already registered in firebase.");
                     if (callback != null) {
-                        callback.onUserLoaded(null, "Username already registered");
+                        callback.onUserLoaded(null, "Username already registered.");
                     }
                 } else { // Register new user
                     Map<String, Object> userData = new HashMap<>();
@@ -79,13 +79,13 @@ public class User {
                         }
                         Log.e("UserRepository", "Error Registering User");
                         if (callback != null)
-                            callback.onUserLoaded(null, "Error occurred during registration");
+                            callback.onUserLoaded(null, "Error occurred during registration.");
                     });
                 }
             } else {
                 Log.e("UserRepository", "Error Registering User");
                 if (callback != null)
-                    callback.onUserLoaded(null, "Error occurred during registration");
+                    callback.onUserLoaded(null, "Error occurred during registration.");
             }
         });
     }
