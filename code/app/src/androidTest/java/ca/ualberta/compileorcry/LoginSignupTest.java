@@ -87,7 +87,7 @@ public class LoginSignupTest {
         Thread.sleep(1000);
 
         // Verify still on registration page
-        onView(withId(R.id.login_username_layout)).check(matches(hasErrorText("Username .")));
+        onView(withId(R.id.login_username_layout)).check(matches(hasErrorText("Username already registered.")));
     }
 
     @Test
@@ -115,7 +115,7 @@ public class LoginSignupTest {
         Thread.sleep(200);
 
         // Verify still on login page
-        onView(withId(R.id.login_username_layout)).check(matches(hasErrorText("Username is required.")));
+        onView(withId(R.id.login_username_layout)).check(matches(hasErrorText("User does not exist.")));
     }
 
     @After
