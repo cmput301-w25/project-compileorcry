@@ -29,14 +29,14 @@ public class RegistrationFragment extends Fragment {
     }
 
     public void disableUI(){
-        binding.usernameText.setEnabled(false);
-        binding.nameText.setEnabled(false);
+        binding.registrationUsernameLayout.setEnabled(false);
+        binding.registrationNameLayout.setEnabled(false);
         binding.backButton.setEnabled(false);
         binding.doneButton.setEnabled(false);
     }
     public void enableUI(){
-        binding.usernameText.setEnabled(true);
-        binding.nameText.setEnabled(true);
+        binding.registrationUsernameLayout.setEnabled(true);
+        binding.registrationNameLayout.setEnabled(true);
         binding.backButton.setEnabled(true);
         binding.doneButton.setEnabled(true);
     }
@@ -50,18 +50,28 @@ public class RegistrationFragment extends Fragment {
         });
 
         binding.doneButton.setOnClickListener((View v) -> { // Attempt to register user
-            String username = binding.usernameText.getText().toString();
-            String name = binding.nameText.getText().toString();
-//            if(username.isEmpty() || name.isEmpty()){
-//                binding.registerErrorText.setText(R.string.register_error_empty);
-//                return;
-//            }
+            String username = binding.registrationUsernameText.getText().toString();
+            String name = binding.registrationNameText.getText().toString();
+            if(username.isEmpty()){
+                binding.registrationUsernameLayout.setError(getString(R.string.username_required));
+                binding.registrationUsernameLayout.setStartIconTintList(
+                        getResources().getColorStateList(R.color.anger, getContext().getTheme())
+                );
+            }
+            if(name.isEmpty()){
+                binding.registrationNameLayout.setError(getString(R.string.name_required));
+                binding.registrationNameLayout.setStartIconTintList(
+                        getResources().getColorStateList(R.color.anger, getContext().getTheme())
+                );
+            }
             disableUI();
 
             User.register_user(username, name, (user, error) -> {
                 if(error != null || user == null){
-                    binding.registerErrorText.setText(error);
-                    return;
+                    binding.registrationUsernameLayout.setError(error);
+                    binding.registrationUsernameLayout.setStartIconTintList(
+                            getResources().getColorStateList(R.color.anger, getContext().getTheme())
+                    );
                 }
                 //TODO: Implement saving locally username
                 User.setActiveUser(user);
