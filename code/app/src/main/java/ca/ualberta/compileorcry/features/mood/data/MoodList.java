@@ -28,7 +28,9 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,26 +38,57 @@ import java.util.Set;
 import ca.ualberta.compileorcry.domain.models.User;
 import ca.ualberta.compileorcry.features.mood.model.EmotionalState;
 import ca.ualberta.compileorcry.features.mood.model.MoodEvent;
-
+//Comment creation assisted using deepseek
+//From: deepseek.com
+//Prompt: suggest a class comment for this
+//When: March 2nd 2025
+/**
+ * The MoodList class manages a collection of MoodEvent objects and interacts with Firestore to perform CRUD operations.
+ * It supports various query types to filter and retrieve mood events based on different criteria such as emotional state,
+ * reason, recency, and geographical proximity. The class also handles real-time updates through Firestore listeners,
+ * ensuring that the mood list is always synchronized with the database.
+ *
+ * Key Features:
+ * - Supports multiple query types defined in QueryType
+ * - Allows adding, deleting, and editing mood events while ensuring data integrity and validity.
+ * - Handles real-time updates through Firestore listeners, notifying the listener when changes occur.
+ * - Manages the most recent mood event for the user and updates it automatically when new events are added or deleted.
+ * - Supports geospatial queries to retrieve mood events within a specified radius of a location.
+ * - Ensures that mood events are sorted by timestamp in descending order.
+ *
+ * Usage:
+ * - Use the `createMoodList` factory method to initialize a MoodList instance with the desired query type and filter.
+ * - Implement the `MoodListListener` interface to receive callbacks when the mood list is initialized or updated.
+ * - Use the provided methods (`addMoodEvent`, `deleteMoodEvent`, `editMoodEvent`) to modify the mood list.
+ *
+ * Note:
+ * - Certain operations (e.g., adding or editing events) are restricted based on the query type and write permissions.
+ * - The class performs extensive validation to ensure that mood events and their associated data are valid before
+ *   performing any Firestore operations.
+ * @see MoodEvent
+ * @see QueryType
+ * @see MoodListListener
+ */
 public class MoodList {
-    private final ArrayList<MoodEvent> moodEvents;
-    private final MoodList ptrToSelf;
-    private boolean writeAllowed = false;
-    private boolean dontUpdate = false;
-    private boolean isMade = false;
-    private boolean followingLoaded = false;
-    private boolean recentsType, mapType;
-    private final User user;
-    private final DocumentReference userDocRef;
-    private final CollectionReference followingRef;
-    private final CollectionReference moodEventsRef;
-    private final CollectionReference moodEventsRecentRef;
-    private final QueryType queryType;
-    private Query query;
-    private final MoodListListener listener;
-    private final FirebaseFirestore db;
-    private final ArrayList<String> followings;
-    private Object filter;
+    private final ArrayList<MoodEvent> moodEvents;  //a list of moodEvents, don't modify it outside of this class
+    private final MoodList ptrToSelf;   //a reference to itself
+    private boolean writeAllowed = false;   //internal boolean that prevents usage of add/delete/edit methods when using filtered queries
+    private boolean dontUpdate = false;     //boolean that can be set true to prevent it from calling the update in the listener
+    private boolean isMade = false;     //internal boolean to track if initialization is complete
+    private boolean followingLoaded = false;    //internal boolean to determine if a following list has been initialized
+    private boolean recentsType, mapType;       //booleans that are true if the query is from recents collection or require location respectively
+    private final User user;        //the user that is logged in
+    private final DocumentReference userDocRef;     //docref to the user
+    private final CollectionReference followingRef;     //colref to the following subcollection
+    private final CollectionReference moodEventsRef;    //colref to the mood_events subcollection
+    private final CollectionReference moodEventsRecentRef;      //colref to the most_recent_moods collection
+    private final QueryType queryType;      //the query type of this moodlist
+    private Query query;        //firestore query for loading data
+    private final MoodListListener listener;        //listener for callbacks
+    private final FirebaseFirestore db;     //reference to the database
+    private final ArrayList<String> followings;     //list of username of who the user follows
+    private static final EnumSet<QueryType> reasonQueryTypes = EnumSet.of(QueryType.FOLLOWING_REASON,QueryType.HISTORY_REASON);     //a EnumSet of the reason query types
+    private Object filter;      //the criteria for filtering in state and reason query types
 
     public interface MoodListListener {
         void returnMoodList(MoodList initalizedMoodList);
@@ -208,7 +241,6 @@ public class MoodList {
                 attachFollowersListener();
                 break;
             case HISTORY_REASON:
-                this.recentsType = true;
                 attachFollowersListener();
                 break;
             case FOLLOWING_REASON:
@@ -575,6 +607,11 @@ public class MoodList {
                         }
                     }
                 }
+                //runs the function to remove moodEvents that don't contain the reasonString
+                if (reasonQueryTypes.contains(ptrToSelf.queryType)){
+                    //filter should cast to String as the constructor ensures instanceOf
+                    reasonStringSearch((String) filter);
+                }
                 if (!isMade) {
                     isMade = true;
                     listener.returnMoodList(ptrToSelf);
@@ -865,6 +902,22 @@ public class MoodList {
                         // Handle unexpected keys (if any)
                         break;
                 }
+            }
+        }
+    }
+    //firestore doesn't have a feature to do this using queries.
+    //The only options are to do it serverside which we cant, use a third party software which can cost $$, or do filtering clientside
+    /**
+     * removes all moodEvents that do not contain the reasonString
+     *
+     * @param reasonString The substring to search
+     */
+    private void reasonStringSearch(String reasonString){
+        Iterator<MoodEvent> iter = moodEvents.iterator();
+        while(iter.hasNext()) {
+            MoodEvent event = iter.next();
+            if(!event.getTrigger().contains(reasonString)) {
+                iter.remove(); // Removes the 'current' item
             }
         }
     }
