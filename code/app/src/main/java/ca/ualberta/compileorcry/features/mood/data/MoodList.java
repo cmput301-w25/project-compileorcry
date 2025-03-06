@@ -84,16 +84,14 @@ public class MoodList {
     private final CollectionReference moodEventsRecentRef;      //colref to the most_recent_moods collection
     private final QueryType queryType;      //the query type of this moodlist
     private Query query;        //firestore query for loading data
-    private final MoodListListener listener;        //listener for callbacks
+    private final MoodListListener listener;    // listener for MoodList initialization and updates
     private final FirebaseFirestore db;     //reference to the database
     private final ArrayList<String> followings;     //list of username of who the user follows
     private static final EnumSet<QueryType> reasonQueryTypes = EnumSet.of(QueryType.FOLLOWING_REASON,QueryType.HISTORY_REASON);     //a EnumSet of the reason query types
     private Object filter;      //the criteria for filtering in state and reason query types
 
     public interface MoodListListener {
-        void returnMoodList(MoodList initalizedMoodList);
-
-        void updatedMoodList();
+        void moodListListener(MoodList moodList);
     }
     /**
      * Factory method to create a MoodList instance based on the specified query type and filter.
@@ -336,7 +334,7 @@ public class MoodList {
             }
         });
         if(!dontUpdate) {
-            listener.updatedMoodList();
+            listener.moodListListener(ptrToSelf);
         }
     }
     /**
@@ -425,7 +423,7 @@ public class MoodList {
                             }
                         });
                         if(!dontUpdate) {
-                            listener.updatedMoodList();
+                            listener.moodListListener(ptrToSelf);
                         }
                     } else {
                         Exception e = task.getException();
@@ -502,7 +500,7 @@ public class MoodList {
 
                 }
                 if(!ptrToSelf.dontUpdate){
-                    listener.updatedMoodList();
+                    listener.moodListListener(ptrToSelf);
                 }
             }
         });
@@ -614,10 +612,10 @@ public class MoodList {
                 }
                 if (!isMade) {
                     isMade = true;
-                    listener.returnMoodList(ptrToSelf);
+                    listener.moodListListener(ptrToSelf);
                 }
                 if (!dontUpdate) {
-                    listener.updatedMoodList();
+                    listener.moodListListener(ptrToSelf);
                 }
             }
         });
@@ -792,7 +790,7 @@ public class MoodList {
                                 }
                             }
                         }
-                        listener.returnMoodList(ptrToSelf);
+                        listener.moodListListener(ptrToSelf);
                     }
                 });
     }
