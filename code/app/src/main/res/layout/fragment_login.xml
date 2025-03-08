@@ -8,9 +8,6 @@
     android:background="@color/dark"
     tools:context=".ui.login.LoginFragment">
 
-    <!-- Logo Image -->
-
-    <!-- Text Input Field -->
     <ImageView
         android:id="@+id/logo_image"
         android:layout_width="wrap_content"
