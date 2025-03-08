@@ -32,8 +32,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
                 android:contentDescription="@string/new_event"
-                android:src="@drawable/txt_new_event"
-                app:layout_constraintVertical_chainStyle="packed" />
+                android:src="@drawable/txt_new_event" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/new_event_emotional_state_layout"

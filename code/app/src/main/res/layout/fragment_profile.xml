@@ -6,73 +6,176 @@
     android:layout_height="match_parent"
     tools:context=".ui.profile.ProfileFragment">
 
-    <TextView
-        android:id="@+id/profile_name"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:gravity="center_horizontal|center_vertical"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_nav"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/profile_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:contentDescription="@string/profile_image"
+            android:src="@drawable/img_profile" />
+
+        <TextView
+            android:id="@+id/profile_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:fontFamily="@font/source_sans_pro_semibold"
+            android:text="@string/name"
+            android:textColor="@color/light"
+            android:textSize="24sp" />
+
+        <TextView
+            android:id="@+id/profile_username"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="@font/source_sans_pro"
+            android:text="@string/username_placeholder"
+            android:textColor="@color/light"
+            android:textSize="24sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="24dp"
+                android:gravity="center_horizontal"
+                android:orientation="vertical">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/requests_button"
+                    style="@style/Widget.Material3.Button.IconButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:insetTop="8dp"
+                    android:insetBottom="0dp"
+                    app:icon="@drawable/ic_star_outline_40dp"
+                    app:iconTint="@color/light"
+                    app:strokeColor="@color/light" />
+
+                <TextView
+                    android:id="@+id/requests_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/source_sans_pro_semibold"
+                    android:text="@string/requests"
+                    android:textColor="@color/light"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="24dp"
+                android:gravity="center_horizontal"
+                android:orientation="vertical">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/history_button"
+                    style="@style/Widget.Material3.Button.IconButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:insetTop="8dp"
+                    android:insetBottom="0dp"
+                    app:icon="@drawable/ic_history_40dp"
+                    app:iconTint="@color/light"
+                    app:strokeColor="@color/light" />
+
+                <TextView
+                    android:id="@+id/history_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/source_sans_pro_semibold"
+                    android:text="@string/history"
+                    android:textColor="@color/light"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:orientation="vertical">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/edit_button"
+                    style="@style/Widget.Material3.Button.IconButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:insetTop="8dp"
+                    android:insetBottom="0dp"
+                    app:icon="@drawable/ic_edit_40dp"
+                    app:iconTint="@color/light"
+                    app:strokeColor="@color/light" />
+
+                <TextView
+                    android:id="@+id/edit_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/source_sans_pro_semibold"
+                    android:text="@string/edit"
+                    android:textColor="@color/light"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:layout_marginStart="16dp"
+                android:orientation="vertical">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/friends_button"
+                    style="@style/Widget.Material3.Button.IconButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:insetTop="8dp"
+                    android:insetBottom="0dp"
+                    android:textSize="14sp"
+                    app:icon="@drawable/ic_friends_40dp"
+                    app:iconTint="@color/light"
+                    app:strokeColor="@color/light" />
+
+                <TextView
+                    android:id="@+id/friends_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/source_sans_pro_semibold"
+                    android:text="@string/friends"
+                    android:textColor="@color/light"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_nav"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="name"
-        android:textSize="24sp"
+        app:menu="@menu/bottom_nav_menu"
+        android:background="@color/dark"
+        app:itemIconTint="@color/light"
+        app:itemTextColor="@color/light"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.29000002" />
-
-    <TextView
-        android:id="@+id/profile_username"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="username"
-        android:textSize="24sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/profile_name" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/button_history"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:clickable="true"
-        android:src="@android:drawable/ic_menu_recent_history"
-        app:layout_constraintEnd_toStartOf="@id/button_edit"
-        app:layout_constraintStart_toEndOf="@id/button_requests"
-        app:layout_constraintTop_toBottomOf="@+id/profile_username" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/button_requests"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="40dp"
-        android:clickable="true"
-        android:src="@android:drawable/btn_star"
-        app:layout_constraintEnd_toStartOf="@+id/button_history"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/profile_username" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/button_edit"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:clickable="true"
-        android:src="@android:drawable/ic_menu_edit"
-        app:layout_constraintEnd_toStartOf="@id/button_friends"
-        app:layout_constraintStart_toEndOf="@+id/button_history"
-        app:layout_constraintTop_toBottomOf="@+id/profile_username" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/button_friends"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:layout_marginEnd="24dp"
-        android:clickable="true"
-        android:src="@android:drawable/ic_menu_myplaces"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/button_edit"
-        app:layout_constraintTop_toBottomOf="@+id/profile_username" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
