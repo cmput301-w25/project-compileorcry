@@ -6,15 +6,86 @@
     android:layout_height="match_parent"
     tools:context=".ui.feed.FeedFragment">
 
-    <Spinner
-        android:id="@+id/filter_spinner"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:layout_marginBottom="20dp"
+        android:src="@drawable/txt_feed"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayoutFilters"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/feed_recycler"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+    <!-- Add Floating Action Button -->
 
-    </androidx.recyclerview.widget.RecyclerView>
+    <LinearLayout
+        android:id="@+id/linearLayoutFilters"
+        android:layout_width="400dp"
+        android:layout_height="70dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="10dp"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayoutFeed"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView">
+
+        <Spinner
+            android:id="@+id/feed_spinner"
+            android:layout_width="150dp"
+            android:layout_height="match_parent"
+            android:background="@drawable/spinner_bg"
+            android:layout_marginEnd="18dp"
+            android:prompt="Sort"
+            />
+
+        <Spinner
+            android:id="@+id/filter_spinner"
+            android:layout_width="150dp"
+            android:layout_height="match_parent"
+            android:background="@drawable/spinner_bg"
+            android:layout_marginStart="18dp"
+            android:prompt="Filter"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayoutFeed"
+        android:layout_width="413dp"
+        android:layout_height="477dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout4"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayoutFilters">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/feed_recycler"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        </androidx.recyclerview.widget.RecyclerView>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout4"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/linearLayoutFeed"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabAddMood"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="28dp"
+            android:layout_marginBottom="18dp"
+            android:backgroundTint="@color/light"
+            android:src="@drawable/baseline_add_24"
+            app:tint="@color/dark"
+            android:contentDescription="Add friends"/>
+    </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

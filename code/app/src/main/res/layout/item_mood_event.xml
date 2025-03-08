@@ -1,37 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="8dp">
+    android:orientation="horizontal"
+    android:padding="8dp"
+    android:background="@drawable/mood_item_background"
+    android:clipToOutline="true">
 
-    <TextView
-        android:id="@+id/textview_timestamp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/timestamp"
-        android:textColor="@color/light"/>
+    <ImageView
+        android:id="@+id/mood_icon"
+        android:layout_width="76dp"
+        android:layout_height="83dp"
+        android:layout_weight="1"
+        app:srcCompat="@drawable/ic_smiley_24dp" />
 
-    <TextView
-        android:id="@+id/textview_emotional_state"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="318dp"
         android:layout_height="wrap_content"
-        android:text="@string/emotional_state"
-        android:textColor="@color/light"/>
+        android:orientation="vertical"
+        android:padding="8dp">
 
-    <TextView
-        android:id="@+id/textview_trigger"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/trigger"
-        android:textColor="@color/light"/>
+        <TextView
+            android:id="@+id/textview_emotional_state"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/open_sans_bold"
+            android:text="@string/emotional_state"
+            android:textColor="@color/dark"
+            android:textSize="16sp"
+            android:textStyle="bold" />
 
-    <TextView
-        android:id="@+id/textview_social_situation"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/social_situation"
-        android:textColor="@color/light"/>
+        <TextView
+            android:id="@+id/textview_timestamp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/source_sans_pro_semibold"
+            android:text="@string/timestamp"
+            android:textColor="@color/dark" />
+
+        <TextView
+            android:id="@+id/textview_social_situation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/source_sans_pro_semibold"
+            android:text="@string/social_situation"
+            android:textColor="@color/dark" />
+
+        <TextView
+            android:id="@+id/textview_trigger"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/source_sans_pro"
+            android:text="@string/trigger"
+            android:textColor="@color/dark" />
+    </LinearLayout>
 
 </LinearLayout>
