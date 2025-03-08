@@ -1,5 +1,6 @@
 package ca.ualberta.compileorcry.ui.profile;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
@@ -29,12 +30,13 @@ public class ProfileFragment extends Fragment {
     private ListenerRegistration nameListenerRegistration;
 
 
+    @SuppressLint("SetTextI18n")
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentProfileBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        binding.profileUsername.setText(User.getActiveUser().getUsername());
+        binding.profileUsername.setText("@" + User.getActiveUser().getUsername());
         binding.profileName.setText(User.getActiveUser().getName());
 
         // Listener to update account Name if changes
@@ -55,20 +57,20 @@ public class ProfileFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        binding.buttonRequests.setOnClickListener((View v) -> {
+        binding.requestsButton.setOnClickListener((View v) -> {
             //TODO: Implement Request Function
         });
 
-        binding.buttonHistory.setOnClickListener((View v) -> {
+        binding.historyButton.setOnClickListener((View v) -> {
             //TODO: Implement History Function
         });
 
-        binding.buttonEdit.setOnClickListener((View v) -> { // Edit Name Dialog
+        binding.editButton.setOnClickListener((View v) -> { // Edit Name Dialog
             DialogFragment editNameDialog = new ChangeNameDialog();
             editNameDialog.show(getActivity().getSupportFragmentManager(), "editName");
         });
 
-        binding.buttonFriends.setOnClickListener((View v) -> {
+        binding.friendsButton.setOnClickListener((View v) -> {
             //TODO: Implement Friends Function
         });
     }
