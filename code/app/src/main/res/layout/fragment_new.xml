@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/dark">
@@ -17,7 +18,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintVertical_bias="0.5">
 
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -26,66 +26,223 @@
             android:gravity="center_horizontal"
             android:layout_gravity="center_vertical">
 
-<!--            <ImageView-->
-<!--                android:id="@+id/imageView"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:src="@drawable/txt_new_event" />-->
-
-            <EditText
-                android:id="@+id/edittext_trigger"
-                android:layout_width="300dp"
+            <ImageView
+                android:id="@+id/new_event_image"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:hint="@string/hint_trigger"
-                android:layout_marginVertical="8dp"
-                android:textColor="@color/light"
+                android:layout_marginTop="24dp"
+                android:contentDescription="@string/new_event"
+                android:src="@drawable/txt_new_event"
+                app:layout_constraintVertical_chainStyle="packed" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/new_event_emotional_state_layout"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="347dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="32dp"
+                android:layout_marginTop="12dp"
+                android:hint="@string/emotional_state"
                 android:textColorHint="@color/light"
-                android:inputType="text"/>
+                app:boxBackgroundMode="outline"
+                app:boxStrokeColor="@color/light_dark_selector"
+                app:boxStrokeErrorColor="@color/anger"
+                app:cursorErrorColor="@color/anger"
+                app:errorEnabled="false"
+                app:errorIconTint="@color/anger"
+                app:errorTextAppearance="@style/TextAppearance.AppCompat.Body1"
+                app:errorTextColor="@color/anger"
+                app:hintAnimationEnabled="true"
+                app:hintEnabled="true"
+                app:hintTextColor="@color/light_dark_selector">
 
-<!--            this doesn't work:(-->
-<!--            <Spinner-->
-<!--                android:id="@+id/spinner_emotional_state"-->
-<!--                android:layout_width="300dp"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_marginVertical="8dp"-->
-<!--                android:entries="@array/emotional_states"-->
-<!--                android:theme="@style/BlackSpinnerStyle"/>-->
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/new_event_emotional_state_text"
+                    style="@style/TextAppearance.CompileOrCry.Body1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/source_sans_pro_semibold"
+                    android:inputType="text"
+                    android:textColor="@color/light" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-<!--            <Spinner-->
-<!--                android:id="@+id/spinner_social_situation"-->
-<!--                android:layout_width="300dp"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_marginVertical="8dp"-->
-<!--                android:entries="@array/social_situations"-->
-<!--                android:theme="@style/BlackSpinnerStyle"/>-->
-            <Spinner
-                android:id="@+id/spinner_emotional_state"
-                android:layout_width="300dp"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/new_event_date_layout"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="347dp"
                 android:layout_height="wrap_content"
-                android:layout_marginVertical="8dp"
-                android:entries="@array/emotional_states"/>
+                android:layout_marginHorizontal="32dp"
+                android:layout_marginTop="20dp"
+                android:hint="@string/date_amp_time"
+                android:textColorHint="@color/light"
+                android:clickable="true"
+                android:focusable="false"
+                android:inputType="none"
+                app:boxBackgroundMode="outline"
+                app:boxStrokeColor="@color/light_dark_selector"
+                app:boxStrokeErrorColor="@color/anger"
+                app:cursorErrorColor="@color/anger"
+                app:errorEnabled="false"
+                app:errorIconTint="@color/anger"
+                app:errorTextAppearance="@style/TextAppearance.AppCompat.Body1"
+                app:errorTextColor="@color/anger"
+                app:hintAnimationEnabled="true"
+                app:hintEnabled="true"
+                app:hintTextColor="@color/light_dark_selector"
+                tools:ignore="KeyboardInaccessibleWidget">
 
-            <Spinner
-                android:id="@+id/spinner_social_situation"
-                android:layout_width="300dp"
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/new_event_date_text"
+                    style="@style/TextAppearance.CompileOrCry.Body1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/source_sans_pro_semibold"
+                    android:textColor="@color/light"
+                    android:clickable="true"
+                    android:focusable="false"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/new_event_description_layout"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="347dp"
                 android:layout_height="wrap_content"
-                android:layout_marginVertical="8dp"
-                android:entries="@array/social_situations"/>
+                android:layout_marginHorizontal="32dp"
+                android:layout_marginTop="20dp"
+                android:hint="@string/description"
+                android:textColorHint="@color/light"
+                app:boxBackgroundMode="outline"
+                app:boxStrokeColor="@color/light_dark_selector"
+                app:boxStrokeErrorColor="@color/anger"
+                app:cursorErrorColor="@color/anger"
+                app:errorEnabled="false"
+                app:errorIconTint="@color/anger"
+                app:errorTextAppearance="@style/TextAppearance.AppCompat.Body1"
+                app:errorTextColor="@color/anger"
+                app:hintAnimationEnabled="true"
+                app:hintEnabled="true"
+                app:hintTextColor="@color/light_dark_selector">
 
-            <Button
-                android:id="@+id/button_save_mood"
-                android:layout_width="300dp"
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/new_event_description_text"
+                    style="@style/TextAppearance.CompileOrCry.Body1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/source_sans_pro_semibold"
+                    android:inputType="text"
+                    android:textColor="@color/light" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/new_event_trigger_layout"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="347dp"
                 android:layout_height="wrap_content"
-                android:layout_marginVertical="8dp"
-                android:text="@string/button_save_mood"
-                android:backgroundTint="@color/light"
-                android:textColor="@color/dark"
-                app:cornerRadius="24dp"/>
+                android:layout_marginHorizontal="32dp"
+                android:layout_marginTop="20dp"
+                android:hint="@string/trigger_optional"
+                android:textColorHint="@color/light"
+                app:boxBackgroundMode="outline"
+                app:boxStrokeColor="@color/light_dark_selector"
+                app:boxStrokeErrorColor="@color/anger"
+                app:cursorErrorColor="@color/anger"
+                app:errorEnabled="false"
+                app:errorIconTint="@color/anger"
+                app:errorTextAppearance="@style/TextAppearance.AppCompat.Body1"
+                app:errorTextColor="@color/anger"
+                app:hintAnimationEnabled="true"
+                app:hintEnabled="true"
+                app:hintTextColor="@color/light_dark_selector">
 
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/new_event_trigger_text"
+                    style="@style/TextAppearance.CompileOrCry.Body1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/source_sans_pro_semibold"
+                    android:inputType="text"
+                    android:textColor="@color/light" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/new_event_social_situation_layout"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="347dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="32dp"
+                android:layout_marginTop="20dp"
+                android:hint="@string/social_situation_optional"
+                android:textColorHint="@color/light"
+                app:boxBackgroundMode="outline"
+                app:boxStrokeColor="@color/light_dark_selector"
+                app:boxStrokeErrorColor="@color/anger"
+                app:cursorErrorColor="@color/anger"
+                app:errorEnabled="false"
+                app:errorIconTint="@color/anger"
+                app:errorTextAppearance="@style/TextAppearance.AppCompat.Body1"
+                app:errorTextColor="@color/anger"
+                app:hintAnimationEnabled="true"
+                app:hintEnabled="true"
+                app:hintTextColor="@color/light_dark_selector">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/new_event_social_situation_text"
+                    style="@style/TextAppearance.CompileOrCry.Body1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/source_sans_pro_semibold"
+                    android:inputType="text"
+                    android:textColor="@color/light" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/image_upload_button"
+                style="@style/Widget.Material3.Button.IconButton"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:layout_marginTop="12dp"
+                app:icon="@drawable/ic_image_40dp"
+                app:iconTint="@color/light"
+                app:strokeColor="@color/light" />
+
+            <LinearLayout
+                android:id="@+id/button_layout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:gravity="center"
+                android:orientation="horizontal"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/login_username_layout">
+
+                <!-- Back Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/login_button"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="125dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:text="@string/back"
+                    android:textColor="@color/light"
+                    app:strokeColor="@color/light" />
+
+                <!-- Create Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/register_button"
+                    style="@style/Widget.Material3.Button"
+                    android:layout_width="125dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:backgroundTint="@color/light"
+                    android:text="@string/create"
+                    android:textColor="@color/dark" />
+            </LinearLayout>
         </LinearLayout>
     </ScrollView>
 
-    <!-- Bottom Navigation Bar (if you want to keep it in the fragment) -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_nav"
         android:layout_width="0dp"
