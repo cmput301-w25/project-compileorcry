@@ -24,4 +24,5 @@
     <string name="sign_up">Sign Up</string>
     <string name="moody_logo">Moody Logo</string>
     <string name="username">Username</string>
+    <string name="name">Name</string>
 </resources>

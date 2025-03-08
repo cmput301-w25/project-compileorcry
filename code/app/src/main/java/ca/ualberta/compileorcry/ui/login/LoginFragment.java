@@ -47,6 +47,9 @@ public class LoginFragment extends Fragment {
             String username = binding.loginUsernameText.getText().toString();
             if(username.isEmpty()){
                 binding.loginUsernameLayout.setError(getString(R.string.username_required));
+                binding.loginUsernameLayout.setStartIconTintList(
+                        getResources().getColorStateList(R.color.anger, getContext().getTheme())
+                );
                 return;
             }
             disableUI();
@@ -54,6 +57,9 @@ public class LoginFragment extends Fragment {
             User.get_user(username, (user, error) -> { // Handle Firebase Response
                 if(error != null || user == null) { // Error Trap
                     binding.loginUsernameLayout.setError(error);
+                    binding.loginUsernameLayout.setStartIconTintList(
+                            getResources().getColorStateList(R.color.anger, getContext().getTheme())
+                    );
                     enableUI();
                     return;
                 }

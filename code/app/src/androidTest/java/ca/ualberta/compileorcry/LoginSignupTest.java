@@ -61,8 +61,8 @@ public class LoginSignupTest {
     public void registerValidUser() throws InterruptedException {
         onView(withId(R.id.register_button)).perform(click());
         device.waitForIdle();
-        onView(withId(R.id.username_text)).perform(ViewActions.typeText("newUser"));
-        onView(withId(R.id.name_text)).perform(ViewActions.typeText("New User"));
+        onView(withId(R.id.registration_username_text)).perform(ViewActions.typeText("newUser"));
+        onView(withId(R.id.registration_name_text)).perform(ViewActions.typeText("New User"));
         onView(withId(R.id.done_button)).perform(click());
         device.waitForIdle();
         Thread.sleep(1000);
@@ -80,14 +80,14 @@ public class LoginSignupTest {
         // Test
         onView(withId(R.id.register_button)).perform(click());
         device.waitForIdle();
-        onView(withId(R.id.username_text)).perform(ViewActions.typeText("existingUser"));
-        onView(withId(R.id.name_text)).perform(ViewActions.typeText("New Existing User!"));
+        onView(withId(R.id.registration_username_text)).perform(ViewActions.typeText("existingUser"));
+        onView(withId(R.id.registration_name_text)).perform(ViewActions.typeText("New Existing User!"));
         onView(withId(R.id.done_button)).perform(click());
         device.waitForIdle();
         Thread.sleep(1000);
 
         // Verify still on registration page
-        onView(withId(R.id.register_error_text)).check(matches(withText("Username already registered")));
+        onView(withId(R.id.login_username_layout)).check(matches(hasErrorText("Username already registered.")));
     }
 
     @Test
@@ -115,7 +115,7 @@ public class LoginSignupTest {
         Thread.sleep(200);
 
         // Verify still on login page
-        onView(withId(R.id.login_username_layout)).check(matches(hasErrorText("Username is required.")));
+        onView(withId(R.id.login_username_layout)).check(matches(hasErrorText("User does not exist.")));
     }
 
     @After
