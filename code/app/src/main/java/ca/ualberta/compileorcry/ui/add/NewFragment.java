@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.Calendar;
 import java.util.Objects;
@@ -24,12 +25,18 @@ public class NewFragment extends Fragment {
 
     private TextInputEditText emotionalStateEditText;
     private TextInputEditText dateEditText;
-    private TextInputEditText reasonEditText;
+    private TextInputEditText descriptionEditText;
     private TextInputEditText triggerEditText;
     private TextInputEditText socialSituationEditText;
     private MaterialButton uploadImageButton;
     private MaterialButton backButton;
     private MaterialButton createButton;
+
+    TextInputLayout emotionalStateLayout;
+
+    TextInputLayout dateLayout;
+
+    TextInputLayout descriptionLayout;
 
     public NewFragment() {
         // Required empty public constructor
@@ -48,17 +55,22 @@ public class NewFragment extends Fragment {
         // Initialize UI components
         emotionalStateEditText = view.findViewById(R.id.new_event_emotional_state_text);
         dateEditText = view.findViewById(R.id.new_event_date_text);
-        reasonEditText = view.findViewById(R.id.new_event_reason_text);
+        descriptionEditText = view.findViewById(R.id.new_event_description_text);
         triggerEditText = view.findViewById(R.id.new_event_trigger_text);
         socialSituationEditText = view.findViewById(R.id.new_event_social_situation_text);
         uploadImageButton = view.findViewById(R.id.image_upload_button);
         backButton = view.findViewById(R.id.login_button);
         createButton = view.findViewById(R.id.register_button);
 
+        // Get the TextInputLayout references
+        emotionalStateLayout = getView().findViewById(R.id.new_event_emotional_state_layout);
+        dateLayout = getView().findViewById(R.id.new_event_date_layout);
+        descriptionLayout = getView().findViewById(R.id.new_event_description_layout);
+
         // Handle date picker dialog
         dateEditText.setOnClickListener(v -> showDatePickerDialog());
 
-        // Handle image upload (Placeholder action)
+        // Handle image upload (TODO)
         uploadImageButton.setOnClickListener(v ->
                 Toast.makeText(getContext(), "Image upload feature coming soon!", Toast.LENGTH_SHORT).show()
         );
@@ -68,7 +80,7 @@ public class NewFragment extends Fragment {
                 requireActivity().onBackPressed()
         );
 
-        // Handle create button (Validates input before submission)
+        // Handle create button (w/ validation)
         createButton.setOnClickListener(v -> submitNewEvent());
     }
 
@@ -88,14 +100,37 @@ public class NewFragment extends Fragment {
     }
 
     private void submitNewEvent() {
+        boolean isValid = true;
+
         String emotionalState = emotionalStateEditText.getText().toString().trim();
         String date = dateEditText.getText().toString().trim();
-        String reason = reasonEditText.getText().toString().trim();
-        String trigger = triggerEditText.getText().toString().trim();
-        String socialSituation = socialSituationEditText.getText().toString().trim();
+        String description = descriptionEditText.getText().toString().trim();
 
-        if (emotionalState.isEmpty() || date.isEmpty() || reason.isEmpty()) {
-            Toast.makeText(getContext(), "Please fill in all required fields.", Toast.LENGTH_SHORT).show();
+        // Validate Emotional State
+        if (emotionalState.isEmpty()) {
+             emotionalStateLayout.setError("This field is required");
+            isValid = false;
+        } else {
+            emotionalStateLayout.setError(null);
+        }
+
+        // Validate Date
+        if (date.isEmpty()) {
+            dateLayout.setError("Please select a date");
+            isValid = false;
+        } else {
+            dateLayout.setError(null);
+        }
+
+        // Validate Description
+        if (description.isEmpty()) {
+            descriptionLayout.setError("This field is required");
+            isValid = false;
+        } else {
+            descriptionLayout.setError(null);
+        }
+
+        if (!isValid) {
             return;
         }
 

@@ -97,12 +97,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/source_sans_pro_semibold"
-                    android:inputType="text"
-                    android:textColor="@color/light" />
+                    android:textColor="@color/light"
+                    android:clickable="true"
+                    android:focusable="false"
+                    android:inputType="none" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/new_event_reason_layout"
+                android:id="@+id/new_event_description_layout"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="347dp"
                 android:layout_height="wrap_content"
@@ -123,7 +125,7 @@
                 app:hintTextColor="@color/light_dark_selector">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/new_event_reason_text"
+                    android:id="@+id/new_event_description_text"
                     style="@style/TextAppearance.CompileOrCry.Body1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
