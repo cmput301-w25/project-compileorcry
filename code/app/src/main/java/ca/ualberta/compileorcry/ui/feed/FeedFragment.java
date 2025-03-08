@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
@@ -27,6 +28,11 @@ public class FeedFragment extends Fragment {
     private MoodEventAdapter adapter;
     private Spinner filterSpinner; // filter by recency, state, reason, etc
     private Spinner feedSpinner; // feed type personal history, following, or map
+    // Feed type options
+    private static final String[] FEED_TYPES = {"History", "Following"};
+    // Filter options
+    private static final String[] FILTER_OPTIONS = {"None", "Recent", "State", "Reason"};
+
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -38,6 +44,31 @@ public class FeedFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        // Find Spinners
+        Spinner feedSpinner = binding.feedSpinner;
+        Spinner filterSpinner = binding.filterSpinner;
+
+        // Create Adapter using Java Array
+        ArrayAdapter<String> feedAdapter = new ArrayAdapter<>(
+                requireContext(),
+                R.layout.custom_spinner,
+                FEED_TYPES
+        );
+        feedAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        feedSpinner.setAdapter(feedAdapter);
+
+        ArrayAdapter<String> filterAdapter = new ArrayAdapter<>(
+                requireContext(),
+                R.layout.custom_spinner,
+                FILTER_OPTIONS
+        );
+        filterAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        filterSpinner.setAdapter(filterAdapter);
+        // Prevent selection of the first item (Sort or Filter)
+        feedSpinner.setSelection(0, false);
+        filterSpinner.setSelection(0, false);
+
 
         // Initialize RecyclerView with empty list
         adapter = new MoodEventAdapter(new ArrayList<>());
@@ -66,30 +97,49 @@ public class FeedFragment extends Fragment {
             }
         });
 
-        loadMoodHistory();
+        // Handle feed queries from spinner values
+        loadFeed();
     }
 
-    private void loadMoodHistory() {
+    private void loadFeed() {
+        String feedType = (String) binding.feedSpinner.getSelectedItem();
+        String filter = (String) binding.filterSpinner.getSelectedItem();
         if (User.getActiveUser() != null) {
-            MoodList.createMoodList(User.getActiveUser(), QueryType.HISTORY_MODIFIABLE,
-                    new MoodList.MoodListListener() {
-                        @Override
-                        public void returnMoodList(MoodList moodList) {
-                            if (feedViewModel != null) {
-                                feedViewModel.setMoodEvents(moodList.getMoodEvents());
-                            }
-                        }
+            QueryType selectedQueryType = QueryType.HISTORY_MODIFIABLE; // Personal history is default value
 
-                        @Override
-                        public void updatedMoodList() {
-                            // Handled automatically
-                        }
-                    }, null);
-        }
-    }
-    private void loadFollowingFeed() {
-        if (User.getActiveUser() != null) {
-            MoodList.createMoodList(User.getActiveUser(), QueryType.FOLLOWING,
+            if (feedType.equals("History")) {
+                switch (filter) {
+                    case "None":
+                        selectedQueryType = QueryType.HISTORY_MODIFIABLE;
+                        break;
+                    case "Recent":
+                        selectedQueryType = QueryType.HISTORY_RECENT;
+                        break;
+                    case "State":
+                        selectedQueryType = QueryType.HISTORY_STATE;
+                        break;
+                    case "Reason":
+                        selectedQueryType = QueryType.HISTORY_REASON;
+                        break;
+                }
+            } else if (feedType.equals("Following")) {
+                switch (filter) {
+                    case "None":
+                        selectedQueryType = QueryType.FOLLOWING;
+                        break;
+                    case "Recent":
+                        selectedQueryType = QueryType.FOLLOWING_RECENT;
+                        break;
+                    case "State":
+                        selectedQueryType = QueryType.FOLLOWING_STATE;
+                        break;
+                    case "Reason":
+                        selectedQueryType = QueryType.FOLLOWING_REASON;
+                        break;
+                }
+            }
+
+            MoodList.createMoodList(User.getActiveUser(), selectedQueryType,
                     new MoodList.MoodListListener() {
                         @Override
                         public void returnMoodList(MoodList moodList) {
