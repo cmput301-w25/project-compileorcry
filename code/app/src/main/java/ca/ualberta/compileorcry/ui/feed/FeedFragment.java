@@ -4,7 +4,9 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
@@ -24,14 +26,15 @@ import ca.ualberta.compileorcry.features.mood.data.QueryType;
 
 public class FeedFragment extends Fragment {
     private FragmentFeedBinding binding;
+    private ImageView feedOrHistory;
     private FeedViewModel feedViewModel;
     private MoodEventAdapter adapter;
     private Spinner filterSpinner; // filter by recency, state, reason, etc
     private Spinner feedSpinner; // feed type personal history, following, or map
     // Feed type options
-    private static final String[] FEED_TYPES = {"History", "Following"};
+    private static final String[] FEED_TYPES = {"Feed...","History", "Following"};
     // Filter options
-    private static final String[] FILTER_OPTIONS = {"None", "Recent", "State", "Reason"};
+    private static final String[] FILTER_OPTIONS = {"Filter...", "Recent", "State", "Reason"};
 
 
     @Override
@@ -45,11 +48,13 @@ public class FeedFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        ImageView feedOrHistory = binding.imageView;
+
         // Find Spinners
         Spinner feedSpinner = binding.feedSpinner;
         Spinner filterSpinner = binding.filterSpinner;
 
-        // Create Adapter using Java Array
+        // Create Adapters using Java Array
         ArrayAdapter<String> feedAdapter = new ArrayAdapter<>(
                 requireContext(),
                 R.layout.custom_spinner,
@@ -65,9 +70,45 @@ public class FeedFragment extends Fragment {
         );
         filterAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         filterSpinner.setAdapter(filterAdapter);
-        // Prevent selection of the first item (Sort or Filter)
-        feedSpinner.setSelection(0, false);
-        filterSpinner.setSelection(0, false);
+
+        // Prevent onItemSelected from triggering when setting default selection
+        feedSpinner.post(() -> feedSpinner.setSelection(0, false));
+        filterSpinner.post(() -> filterSpinner.setSelection(0, false));
+
+        // Handle spinner selections
+        feedSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (position == 0) return;
+                feedOrHistory.setImageResource(R.drawable.txt_feed);
+                String selectedType = parent.getItemAtPosition(position).toString();
+
+                switch (selectedType) {
+                    case "History":
+                        feedOrHistory.setImageResource(R.drawable.txt_history);
+                        break;
+                    default:
+                        feedOrHistory.setImageResource(R.drawable.txt_feed);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // Optional: Set a default image when nothing is selected
+                feedOrHistory.setImageResource(R.drawable.txt_feed);
+            }
+        });
+
+        filterSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (position == 0) return; // Ignore placeholder selection
+                // Handle actual selection here
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) { }
+        });
 
 
         // Initialize RecyclerView with empty list
@@ -105,7 +146,7 @@ public class FeedFragment extends Fragment {
         String feedType = (String) binding.feedSpinner.getSelectedItem();
         String filter = (String) binding.filterSpinner.getSelectedItem();
         if (User.getActiveUser() != null) {
-            QueryType selectedQueryType = QueryType.HISTORY_MODIFIABLE; // Personal history is default value
+            QueryType selectedQueryType = QueryType.FOLLOWING; // Unfiltered following posts is default value
 
             if (feedType.equals("History")) {
                 switch (filter) {

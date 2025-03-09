@@ -23,6 +23,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="@color/dark"
+        android:color="@color/light"
         app:itemIconTint="@color/light_dark_selector"
         app:itemTextColor="@color/light"
         app:layout_constraintBottom_toBottomOf="parent"

@@ -37,7 +37,7 @@
             android:layout_height="match_parent"
             android:background="@drawable/spinner_bg"
             android:layout_marginEnd="18dp"
-            android:prompt="@string/sort_prompt"
+            android:spinnerMode="dialog"
             />
 
         <Spinner
@@ -46,7 +46,7 @@
             android:layout_height="match_parent"
             android:background="@drawable/spinner_bg"
             android:layout_marginStart="18dp"
-            android:prompt="@string/filter_prompt"
+            android:spinnerMode="dialog"
             />
 
     </LinearLayout>
@@ -56,7 +56,9 @@
         android:layout_width="413dp"
         android:layout_height="477dp"
         android:orientation="vertical"
+        android:padding="30dp"
         app:layout_constraintBottom_toTopOf="@+id/linearLayout4"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayoutFilters">
 
@@ -84,6 +86,18 @@
             android:layout_marginBottom="18dp"
             android:backgroundTint="@color/light"
             android:src="@drawable/baseline_add_24"
+            app:tint="@color/dark"
+            android:contentDescription="Add friends"/>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabMap"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="238dp"
+            android:layout_marginBottom="18dp"
+            android:backgroundTint="@color/light"
+            android:src="@drawable/ic_map_24"
             app:tint="@color/dark"
             android:contentDescription="Add friends"/>
     </LinearLayout>

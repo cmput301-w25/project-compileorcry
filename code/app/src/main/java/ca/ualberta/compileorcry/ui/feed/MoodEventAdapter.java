@@ -1,17 +1,20 @@
 package ca.ualberta.compileorcry.ui.feed;
 
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import ca.ualberta.compileorcry.R;
+import ca.ualberta.compileorcry.features.mood.model.EmotionalState;
 import ca.ualberta.compileorcry.features.mood.model.MoodEvent;
 
 // MoodEventAdapter.java
@@ -38,6 +41,19 @@ public class MoodEventAdapter extends RecyclerView.Adapter<MoodEventAdapter.View
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         MoodEvent event = moodEvents.get(position);
+
+        // Space out list items (mood events)
+        ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) holder.itemView.getLayoutParams();
+        layoutParams.bottomMargin = 22; // Add space between items
+        holder.itemView.setLayoutParams(layoutParams);
+
+        // Get color of mood event
+        EmotionalState state = event.getEmotionalState();
+        int moodColor = state.getColor(holder.itemView.getContext());
+        Drawable background = holder.itemView.getBackground();
+        Drawable wrappedDrawable = DrawableCompat.wrap(background);
+        DrawableCompat.setTint(wrappedDrawable, moodColor);
+        holder.itemView.setBackground(wrappedDrawable);
         holder.bind(event);
     }
 
