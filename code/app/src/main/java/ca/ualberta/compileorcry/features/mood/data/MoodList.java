@@ -89,12 +89,17 @@ public class MoodList {
     private final ArrayList<String> followings;     //list of username of who the user follows
     private static final EnumSet<QueryType> reasonQueryTypes = EnumSet.of(QueryType.FOLLOWING_REASON,QueryType.HISTORY_REASON);     //a EnumSet of the reason query types
     private Object filter;      //the criteria for filtering in state and reason query types
-
+    /**
+     * Callback listener to handle returning data from asyn events
+     */
     public interface MoodListListener {
         void returnMoodList(MoodList initalizedMoodList);
 
         void updatedMoodList();
+
+        void onError(Exception e);
     }
+
     /**
      * Factory method to create a MoodList instance based on the specified query type and filter.
      * This method initializes a MoodList object with the appropriate configuration for the given query type.
@@ -299,12 +304,13 @@ public class MoodList {
                                 if(!ptrToSelf.isRecentEventMapValid(eventMap)){
                                     //this error should only occur under extreme circumstances
                                     //if this becomes an issue, a clone method on the event should be used
-                                    throw new RuntimeException("recent event is invalid");
+                                    listener.onError(new RuntimeException("recent event is invalid"));
+                                    return;
                                 }
                                 recentEventDocRef.set(eventMap);
                             }
                         } else {
-                            throw new IllegalArgumentException("the recent document for the user has an invalid timestamp");
+                            listener.onError(new IllegalArgumentException("the recent document for the user has an invalid timestamp"));
                         }
 
                     } else {
@@ -388,7 +394,8 @@ public class MoodList {
                                     if(!ptrToSelf.isRecentEventMapValid(eventMap)){
                                         //this error should only occur under extreme circumstances
                                         //If this happened it's likely that some bad dummy data found it's way into the db
-                                        throw new RuntimeException("the event incorrectly formatted");
+                                        listener.onError(new RuntimeException("the event incorrectly formatted"));
+                                        return;
                                     }
                                     recentEventDocRef.set(eventMap);
                                 } else {
@@ -412,7 +419,8 @@ public class MoodList {
                             if(!ptrToSelf.isRecentEventMapValid(eventMap)){
                                 //this error should only occur under extreme circumstances
                                 //If this happened it's likely that some bad dummy data found it's way into the db
-                                throw new RuntimeException("the event that tried to replace most recent was incorrectly formatted");
+                                listener.onError(new RuntimeException("the event that tried to replace most recent was incorrectly formatted"));
+                                return;
                             }
                             recentEventDocRef.set(eventMap);
                             }
@@ -482,11 +490,13 @@ public class MoodList {
                 DocumentSnapshot personalDoc = docMap.get(ptrToSelf.moodEventsRef.document(event.getId()));
                 DocumentSnapshot recentDoc = docMap.get(ptrToSelf.moodEventsRecentRef.document(user.getUsername()));
                 if(personalDoc == null){
-                    throw new IllegalArgumentException("no document related to this mood event");
+                    listener.onError(new IllegalArgumentException("no document related to this mood event"));
+                    return;
                 }
                 Map<String,Object> eventMap  = event.toFireStoreMap();
                 if(!ptrToSelf.isPersonalEventMapValid(eventMap)){
-                    throw new IllegalArgumentException("the eventMap is bad value(s)");
+                    listener.onError(new IllegalArgumentException("the eventMap is bad value(s)"));
+                    return;
                 }
                 eventMap.remove("username");
                 ptrToSelf.moodEventsRef.document(event.getId()).set(eventMap);
@@ -495,7 +505,8 @@ public class MoodList {
                         eventMap.put("username", user.getUsername());
                         eventMap.put("mood_id", event.getId());
                         if(!ptrToSelf.isRecentEventMapValid(eventMap)){
-                            throw new IllegalArgumentException("the eventMap is bad value(s)");
+                            listener.onError(new IllegalArgumentException("the eventMap has bad value(s)"));
+                            return;
                         }
                         ptrToSelf.moodEventsRecentRef.document(user.getUsername()).set(eventMap);
                     }
@@ -525,7 +536,8 @@ public class MoodList {
         followingRef.addSnapshotListener((value, error) -> {
             if (error != null) {
                 Log.e("Firestore", error.toString());
-                throw new RuntimeException("followers didn't attach");
+                listener.onError(new RuntimeException("followers didn't attach"));
+                return;
             }
             if (value != null) {
                 followings.clear();
@@ -535,7 +547,8 @@ public class MoodList {
                 }
             }
             if (followings.isEmpty()) {
-                throw new RuntimeException("user is following nobody");
+                listener.onError(new RuntimeException("user is following nobody"));
+                return;
             }
             if (!followingLoaded) {
                 ptrToSelf.getQuery();
@@ -561,7 +574,8 @@ public class MoodList {
                 if (e != null) {
                     // Handle errors
                     Log.w("Firestore", "Listen failed.", e);
-                    throw new RuntimeException("moodEvents didn't attach");
+                    listener.onError(new RuntimeException("moodEvents didn't attach"));
+                    return;
                 }
                 moodEvents.clear();
                 // Process the documents
@@ -573,17 +587,20 @@ public class MoodList {
                         if (isValidKeyPairDatatype(documentData, "emotional_state", Long.class)) {
                             moodEvent.setEmotionalState(EmotionalState.fromCode((Long) documentData.get("emotional_state")));
                         } else {
-                            throw new IllegalArgumentException("emotional state cannot be null");
+                            listener.onError(new IllegalArgumentException("emotional state cannot be null"));
+                            return;
                         }
                         if (isValidKeyPairDatatype(documentData, "date", Timestamp.class)) {
                             moodEvent.setTimestamp((Timestamp) documentData.get("date"));
                         } else {
-                            throw new IllegalArgumentException("date cannot be null");
+                            listener.onError(new IllegalArgumentException("date cannot be null"));
+                            return;
                         }
                         if (isValidKeyPairDatatype(documentData, "username", String.class)) {
                             moodEvent.setUsername((String) documentData.get("username"));
                         } else if (recentsType) {
-                            throw new IllegalArgumentException("username cannot be null for querys of recentMoods or is not a String");
+                            listener.onError(new IllegalArgumentException("username cannot be null for querys of recentMoods or is not a String"));
+                            return;
                         }
                         if (isValidKeyPairDatatype(documentData, "trigger", String.class)) {
                             moodEvent.setTrigger((String) documentData.get("trigger"));
@@ -595,7 +612,8 @@ public class MoodList {
                             GeoHash geoHash = new GeoHash((String) documentData.get("location"));
                             moodEvent.setLocation(geoHash);
                         } else if (mapType) {
-                            throw new IllegalArgumentException("location cannot be null for map query or is not a the correct datatype");
+                            listener.onError(new IllegalArgumentException("location cannot be null for map query or is not a the correct datatype"));
+                            return;
                         }
                         //todo: picture datatype and retrieving the picture as the firestore cannot store pictures in a document
                         if (isValidKeyPairDatatype(documentData, "picture", Object.class)) {
@@ -751,7 +769,8 @@ public class MoodList {
                                     GeoHash geoHash = new GeoHash((String) documentData.get("location"));
                                     moodEvent.setLocation(geoHash);
                                 } else if (mapType) {
-                                    throw new IllegalArgumentException("location cannot be null for map query or is not a the correct datatype");
+                                    listener.onError(new IllegalArgumentException("location cannot be null for map query or is not a the correct datatype"));
+                                    return;
                                 }
                                 GeoLocation docLocation = GeoHash.locationFromHash(moodEvent.getLocation().getGeoHashString());
                                 // We have to filter out a few false positives due to GeoHash
@@ -763,17 +782,20 @@ public class MoodList {
                                 if (isValidKeyPairDatatype(documentData, "emotional_state", Long.class)) {
                                     moodEvent.setEmotionalState(EmotionalState.fromCode((Long) documentData.get("emotional_state")));
                                 } else {
-                                    throw new IllegalArgumentException("emotional state cannot be null");
+                                    listener.onError(new IllegalArgumentException("emotional state cannot be null"));
+                                    return;
                                 }
                                 if (isValidKeyPairDatatype(documentData, "date", Timestamp.class)) {
                                     moodEvent.setTimestamp((Timestamp) documentData.get("date"));
                                 } else {
-                                    throw new IllegalArgumentException("date cannot be null");
+                                    listener.onError(new IllegalArgumentException("date cannot be null"));
+                                    return;
                                 }
                                 if (isValidKeyPairDatatype(documentData, "username", String.class)) {
                                     moodEvent.setUsername((String) documentData.get("username"));
                                 } else if (recentsType) {
-                                    throw new IllegalArgumentException("username cannot be null for querys of recentMoods or is not a String");
+                                    listener.onError(new IllegalArgumentException("username cannot be null for querys of recentMoods or is not a String"));
+                                    return;
                                 }
                                 if (isValidKeyPairDatatype(documentData, "trigger", String.class)) {
                                     moodEvent.setTrigger((String) documentData.get("trigger"));
