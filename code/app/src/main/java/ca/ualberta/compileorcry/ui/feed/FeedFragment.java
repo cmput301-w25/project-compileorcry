@@ -77,7 +77,7 @@ public class FeedFragment extends Fragment {
         );
         binding.recyclerViewMoodHistory.setAdapter(adapter);
 
-        // Setup FAB with null safety
+         // Setup FAB with null safety
         if (binding.fabAddMood != null) {
             binding.fabAddMood.setOnClickListener(v -> {
                 if (getView() != null) {

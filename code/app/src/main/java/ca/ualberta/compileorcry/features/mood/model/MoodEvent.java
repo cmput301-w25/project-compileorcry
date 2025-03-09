@@ -4,7 +4,9 @@ import com.firebase.geofire.core.GeoHash;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
@@ -123,4 +125,10 @@ public class MoodEvent {
             map.put(key, value);
         }
     }
+
+    public String getFormattedDate() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+        return sdf.format(timestamp.toDate());
+    }
+
 }

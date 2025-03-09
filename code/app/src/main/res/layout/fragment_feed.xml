@@ -37,7 +37,7 @@
             android:layout_height="match_parent"
             android:background="@drawable/spinner_bg"
             android:layout_marginEnd="18dp"
-            android:prompt="Sort"
+            android:prompt="@string/sort_prompt"
             />
 
         <Spinner
@@ -46,7 +46,8 @@
             android:layout_height="match_parent"
             android:background="@drawable/spinner_bg"
             android:layout_marginStart="18dp"
-            android:prompt="Filter"/>
+            android:prompt="@string/filter_prompt"
+            />
 
     </LinearLayout>
 
@@ -60,7 +61,7 @@
         app:layout_constraintTop_toBottomOf="@+id/linearLayoutFilters">
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/feed_recycler"
+            android:id="@+id/recyclerViewMoodHistory"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -74,7 +75,6 @@
         android:orientation="horizontal"
         app:layout_constraintTop_toBottomOf="@id/linearLayoutFeed"
         app:layout_constraintBottom_toBottomOf="parent">
-
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fabAddMood"
             style="@style/Widget.Material3.Button.OutlinedButton"

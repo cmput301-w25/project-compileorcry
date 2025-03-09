@@ -38,4 +38,6 @@
     <string name="friends">Friends</string>
     <string name="history">History</string>
     <string name="requests">Requests</string>
+    <string name="sort_prompt">Sort</string>
+    <string name="filter_prompt">Filter</string>
 </resources>
