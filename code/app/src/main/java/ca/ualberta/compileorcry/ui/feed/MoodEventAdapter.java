@@ -17,19 +17,50 @@ import ca.ualberta.compileorcry.R;
 import ca.ualberta.compileorcry.features.mood.model.EmotionalState;
 import ca.ualberta.compileorcry.features.mood.model.MoodEvent;
 
-// MoodEventAdapter.java
+/**
+ * Adapter for displaying MoodEvent objects in a RecyclerView.
+ * This adapter handles the creation and binding of ViewHolders that display
+ * mood events with appropriate styling based on their emotional state.
+ *
+ * Features:
+ * - Displays emotional state with corresponding color
+ * - Shows timestamp, trigger text, and social situation
+ * - Handles proper spacing between items
+ * - Safely handles null references and optional fields
+ */
 public class MoodEventAdapter extends RecyclerView.Adapter<MoodEventAdapter.ViewHolder> {
+    /** The current list of mood events to display */
     private List<MoodEvent> moodEvents;
 
+    /**
+     * Constructs a new adapter with the given list of mood events.
+     * If the provided list is null, an empty list will be used.
+     *
+     * @param moodEvents List of mood events to display
+     */
     public MoodEventAdapter(List<MoodEvent> moodEvents) {
         this.moodEvents = moodEvents != null ? moodEvents : new ArrayList<>();
     }
 
+    /**
+     * Updates the adapter's data with a new list of mood events.
+     * If the provided list is null, an empty list will be used.
+     * This method also triggers UI updates through notifyDataSetChanged().
+     *
+     * @param newEvents New list of mood events to display
+     */
     public void updateData(List<MoodEvent> newEvents) {
         moodEvents = newEvents != null ? newEvents : new ArrayList<>();
         notifyDataSetChanged();
     }
 
+    /**
+     * Creates a new ViewHolder by inflating the item layout.
+     *
+     * @param parent The ViewGroup into which the new View will be added
+     * @param viewType The view type of the new View (not used in this implementation)
+     * @return A new ViewHolder that holds the View for each mood event item
+     */
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -38,6 +69,16 @@ public class MoodEventAdapter extends RecyclerView.Adapter<MoodEventAdapter.View
         return new ViewHolder(view);
     }
 
+    /**
+     * Binds data to a ViewHolder at the specified position.
+     * This method:
+     * 1. Sets proper spacing between items
+     * 2. Applies the appropriate background color based on emotional state
+     * 3. Binds all mood event data to the ViewHolder
+     *
+     * @param holder The ViewHolder to bind data to
+     * @param position The position of the item in the data set
+     */
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         MoodEvent event = moodEvents.get(position);
@@ -57,11 +98,20 @@ public class MoodEventAdapter extends RecyclerView.Adapter<MoodEventAdapter.View
         holder.bind(event);
     }
 
+    /**
+     * Returns the total number of items in the data set.
+     *
+     * @return The total number of mood events
+     */
     @Override
     public int getItemCount() {
         return moodEvents.size();
     }
 
+    /**
+     * ViewHolder class that contains the UI elements for a single mood event item.
+     * This class is responsible for binding MoodEvent data to the UI elements.
+     */
     static class ViewHolder extends RecyclerView.ViewHolder {
         private final TextView emotionalStateTextView;
         private final TextView timestampTextView;
