@@ -147,7 +147,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="32dp"
                 android:layout_marginTop="12dp"
-                android:hint="@string/emotional_state"
+                android:hint="@string/social_situation"
                 android:textColorHint="@color/light"
                 app:boxBackgroundMode="outline"
                 app:boxStrokeColor="@color/light_dark_selector"

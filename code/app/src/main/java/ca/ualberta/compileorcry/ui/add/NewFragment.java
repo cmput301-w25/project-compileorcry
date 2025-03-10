@@ -2,6 +2,7 @@ package ca.ualberta.compileorcry.ui.add;
 
 import android.app.DatePickerDialog;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,13 +18,20 @@ import androidx.fragment.app.Fragment;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.Timestamp;
 
-import java.util.Arrays;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Objects;
+import java.util.Date;
+import java.util.Locale;
 
 import ca.ualberta.compileorcry.R;
+import ca.ualberta.compileorcry.domain.models.User;
+import ca.ualberta.compileorcry.features.mood.data.MoodList;
+import ca.ualberta.compileorcry.features.mood.data.QueryType;
 import ca.ualberta.compileorcry.features.mood.model.EmotionalState;
+import ca.ualberta.compileorcry.features.mood.model.MoodEvent;
 
 public class NewFragment extends Fragment {
 
@@ -38,6 +46,9 @@ public class NewFragment extends Fragment {
     TextInputLayout emotionalStateLayout;
 
     TextInputLayout dateLayout;
+
+    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+
 
     public NewFragment() {
         // Required empty public constructor
@@ -97,7 +108,9 @@ public class NewFragment extends Fragment {
 
         DatePickerDialog datePickerDialog = new DatePickerDialog(requireContext(),
                 (DatePicker view, int selectedYear, int selectedMonth, int selectedDay) -> {
-                    String selectedDate = selectedYear + "-" + (selectedMonth + 1) + "-" + selectedDay;
+                    String formattedMonth = (selectedMonth + 1) < 10 ? "0" + (selectedMonth + 1) : String.valueOf(selectedMonth + 1);
+                    String formattedDay = selectedDay < 10 ? "0" + selectedDay : String.valueOf(selectedDay);
+                    String selectedDate = selectedYear + "-" + formattedMonth + "-" + formattedDay;
                     dateEditText.setText(selectedDate);
                 }, year, month, day);
 
@@ -108,7 +121,19 @@ public class NewFragment extends Fragment {
         boolean isValid = true;
 
         String emotionalState = emotionalStateAutoCompleteText.getText().toString().trim();
-        String date = dateEditText.getText().toString().trim();
+
+        // Parse date
+        Date date = null;
+        try {
+            date = dateFormat.parse(dateEditText.getText().toString().trim());
+            dateLayout.setError(null);
+        } catch (ParseException e) {
+            dateLayout.setError("Please enter a valid date");
+            isValid = false;
+        }
+
+        String trigger = triggerEditText.getText().toString().trim();
+        String socialSituation = socialSituationAutoCompleteText.getText().toString().trim();
 
         // Validate Emotional State
         if (emotionalState.isEmpty()) {
@@ -118,20 +143,32 @@ public class NewFragment extends Fragment {
             emotionalStateLayout.setError(null);
         }
 
-        // Validate Date
-        if (date.isEmpty()) {
-            dateLayout.setError("Please select a date");
-            isValid = false;
-        } else {
-            dateLayout.setError(null);
-        }
-
         if (!isValid) {
             return;
         }
 
-        // TODO: Implement data submission (e.g., Firebase, SQLite)
-        Toast.makeText(getContext(), "New event created!", Toast.LENGTH_SHORT).show();
+        Timestamp timestamp = new Timestamp(date);
+        MoodEvent event = new MoodEvent(EmotionalState.valueOf(emotionalState.toUpperCase()), timestamp, trigger, socialSituation);
+
+        MoodList.createMoodList(User.getActiveUser(), QueryType.HISTORY_MODIFIABLE,
+                new MoodList.MoodListListener() {
+                    @Override
+                    public void returnMoodList(MoodList moodList) {
+                        moodList.addMoodEvent(event);
+                        clear();
+                        Toast.makeText(getContext(), "Mood event created successfully!", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void updatedMoodList() {
+                        // Handled automatically
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        Log.e("DataList",e.getMessage());
+                    }
+                }, null);
     }
 
     private void setupEmotionalStateDropdown() {
@@ -147,12 +184,6 @@ public class NewFragment extends Fragment {
 
         // Set the adapter to the AutoCompleteTextView
         emotionalStateAutoCompleteText.setAdapter(adapter);
-
-        // Handle selection
-        emotionalStateAutoCompleteText.setOnItemClickListener((parent, view, position, id) -> {
-            String selectedState = (String) parent.getItemAtPosition(position);
-            // Do something with the selected state
-        });
     }
 
     private void setupSocialSituationDropdown() {
@@ -168,11 +199,30 @@ public class NewFragment extends Fragment {
 
         // Set the adapter to the AutoCompleteTextView
         socialSituationAutoCompleteText.setAdapter(adapter);
+    }
 
-        // Handle selection
-        socialSituationAutoCompleteText.setOnItemClickListener((parent, view, position, id) -> {
-            String selectedState = (String) parent.getItemAtPosition(position);
-            // Do something with the selected state
-        });
+    public void clear() {
+        // Clear the emotional state dropdown
+        emotionalStateAutoCompleteText.setText("", false);
+        emotionalStateAutoCompleteText.clearFocus();
+
+        // Clear the date/time field
+        dateEditText.setText("");
+        dateEditText.clearFocus();
+
+        // Clear the trigger text field
+        triggerEditText.setText("");
+        triggerEditText.clearFocus();
+
+        // Clear the social situation dropdown
+        socialSituationAutoCompleteText.setText("", false);
+        socialSituationAutoCompleteText.clearFocus();
+
+        // TODO: Clear image text
+
+        // Clear any error states if they exist
+        emotionalStateLayout.setError(null);
+
+        dateLayout.setError(null);
     }
 }

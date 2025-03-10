@@ -9,7 +9,7 @@
         <item name="textAppearanceBodyLarge">@style/TextAppearance.CompileOrCry.Body1</item>
         <item name="textAppearanceBodyMedium">@style/TextAppearance.CompileOrCry.Body2</item>
 
-        <item name="android:dropDownItemStyle">@style/DropDownItemStyle</item>
+        <item name="android:dropDownItemStyle">@style/TextAppearance.CompileOrCry.DropDownItem.Light</item>
     </style>
 
     <!-- Custom Text Styles -->
