@@ -34,6 +34,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * UI Test to verify the functionality of the Login and Register fragments.
+ * <p>
+ * Requires firebase datastore emulator to be running on port 8080.
+ */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class LoginSignupTest {
@@ -57,6 +62,9 @@ public class LoginSignupTest {
         device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
     }
 
+    /**
+     * Test registering a new user with a unique username. Registration is expected to succeed.
+     */
     @Test
     public void registerValidUser() throws InterruptedException {
         onView(withId(R.id.register_button)).perform(click());
@@ -73,6 +81,9 @@ public class LoginSignupTest {
         onView(withId(R.id.profile_name)).check(matches(withText("New User")));
     }
 
+    /**
+     * Test registering a user with a pre-existing username. Registration is expected to fail and an error message is checked.
+     */
     @Test
     public void registerExistingUsername() throws InterruptedException {
         addUser("existingUser", "New Existing User!");
@@ -90,6 +101,9 @@ public class LoginSignupTest {
         onView(withId(R.id.login_username_layout)).check(matches(hasErrorText("Username already registered.")));
     }
 
+    /**
+     * Test logging in with a valid username. Test is expected to succeed.
+     */
     @Test
     public void loginExistingUsername() throws InterruptedException {
         addUser("existingUser", "New Existing User!");
@@ -106,6 +120,9 @@ public class LoginSignupTest {
         onView(withId(R.id.profile_name)).check(matches(withText("New Existing User!")));
     }
 
+    /**
+     * Test logging in with a non-existent username. Test is expected to fail and an error message is checked.
+     */
     @Test
     public void loginInvalidUsername() throws InterruptedException {
         // Test
@@ -142,6 +159,11 @@ public class LoginSignupTest {
         }
     }
 
+    /**
+     * Function to manually add user to the firebase datastore to be used when setting up for tests.
+     * @param username Username of new user
+     * @param name Display of new user
+     */
     public static void addUser(String username, String name) throws InterruptedException {
         // Add Initial User
         FirebaseFirestore db = FirebaseFirestore.getInstance();
