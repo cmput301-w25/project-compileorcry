@@ -2,6 +2,7 @@ package ca.ualberta.compileorcry.ui.feed;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,7 +29,7 @@ import ca.ualberta.compileorcry.features.mood.data.QueryType;
 import ca.ualberta.compileorcry.features.mood.model.MoodEvent;
 import ca.ualberta.compileorcry.ui.MoodInfoDialogFragment;
 
-public class FeedFragment extends Fragment implements MoodInfoDialogFragment.MoodDialogListener {
+public class FeedFragment extends Fragment {
     private FragmentFeedBinding binding;
     private FeedViewModel feedViewModel;
     private MoodEventAdapter adapter;
@@ -109,42 +110,29 @@ public class FeedFragment extends Fragment implements MoodInfoDialogFragment.Moo
         loadFeed();
     }
     private void onMoodEventClick(MoodEvent clickedEvent) {
-        MoodInfoDialogFragment dialog = MoodInfoDialogFragment.newInstance(clickedEvent);
+        if (clickedEvent != null) {
+            // Create a Bundle to pass data
+            Bundle args = new Bundle();
+            args.putString("moodId", clickedEvent.getId());
+            args.putString("emotionalState", clickedEvent.getEmotionalState().getDescription());
+            args.putString("trigger", clickedEvent.getTrigger());
+            args.putString("socialSituation", clickedEvent.getSocialSituation());
 
-        dialog.show(requireActivity().getSupportFragmentManager(), "Edit Mood Event");
-    }
-    @Override
-    public void updateMoodEvent(MoodEvent event, String emotionalState, String trigger, String socialSituation) {
-        Map<String, Object> updatedData = new HashMap<>();
-        updatedData.put("emotional_state", event.getEmotionalState().getCode());
-        updatedData.put("trigger", trigger);
-        updatedData.put("social_situation", socialSituation);
+            // Create an instance of MoodInfoDialogFragment and pass the arguments
+            MoodInfoDialogFragment dialog = new MoodInfoDialogFragment();
+            dialog.setArguments(args);
 
-        if (moodList != null) {
-            moodList.editMoodEvent(event, updatedData);
-            Toast.makeText(getContext(), "Mood event updated!", Toast.LENGTH_SHORT).show();
-            adapter.updateData(moodList.getMoodEvents()); // Refresh RecyclerView
+            // Show the dialog
+            dialog.show(requireActivity().getSupportFragmentManager(), "ViewMoodEvent");
         } else {
-            Toast.makeText(getContext(), "Error: MoodList is not initialized.", Toast.LENGTH_SHORT).show();
+            Log.e("FeedFragment", "Clicked MoodEvent is null!"); // Debugging log
         }
-        adapter.updateData(moodList.getMoodEvents()); // Refresh RecyclerView
     }
 
 
 
-    @Override
-    public void deleteMoodEvent(MoodEvent event) {
-        new AlertDialog.Builder(getContext())
-                .setTitle("Delete Mood Event")
-                .setMessage("Are you sure you want to delete this mood event?")
-                .setPositiveButton("Delete", (dialog, which) -> {
-                    moodList.deleteMoodEvent(event);
-                    Toast.makeText(getContext(), "Mood event deleted", Toast.LENGTH_SHORT).show();
-                    adapter.updateData(moodList.getMoodEvents()); // Refresh RecyclerView
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
-    }
+
+
 
 
 
