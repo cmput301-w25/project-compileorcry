@@ -100,10 +100,10 @@ public class NewFragment extends Fragment {
         emotionalStateAutoCompleteText = view.findViewById(R.id.new_event_emotional_state_autocomplete);
         dateEditText = view.findViewById(R.id.new_event_date_text);
         triggerEditText = view.findViewById(R.id.new_event_trigger_text);
-        socialSituationAutoCompleteText = view.findViewById(R.id.new_event_social_situation_text);
+        socialSituationAutoCompleteText = view.findViewById(R.id.new_event_social_situation_autocomplete);
         uploadImageButton = view.findViewById(R.id.image_upload_button);
-        backButton = view.findViewById(R.id.login_button);
-        createButton = view.findViewById(R.id.register_button);
+        backButton = view.findViewById(R.id.back_button);
+        createButton = view.findViewById(R.id.create_button);
 
         // Get AutoComplete references
         emotionalStateLayout = getView().findViewById(R.id.new_event_emotional_state_layout);

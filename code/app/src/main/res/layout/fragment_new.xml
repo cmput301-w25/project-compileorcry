@@ -163,7 +163,7 @@
                 app:hintTextColor="@color/light_dark_selector">
 
                 <AutoCompleteTextView
-                    android:id="@+id/new_event_social_situation_text"
+                    android:id="@+id/new_event_social_situation_autocomplete"
                     style="@style/TextAppearance.CompileOrCry.Body1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -202,7 +202,7 @@
 
                 <!-- Back Button -->
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/login_button"
+                    android:id="@+id/back_button"
                     style="@style/Widget.Material3.Button.OutlinedButton"
                     android:layout_width="125dp"
                     android:layout_height="wrap_content"
@@ -213,7 +213,7 @@
 
                 <!-- Create Button -->
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/register_button"
+                    android:id="@+id/create_button"
                     style="@style/Widget.Material3.Button"
                     android:layout_width="125dp"
                     android:layout_height="wrap_content"
