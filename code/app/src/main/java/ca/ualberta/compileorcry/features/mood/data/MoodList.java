@@ -620,9 +620,8 @@ public class MoodList {
                             return;
                         }
                         //todo: picture datatype and retrieving the picture as the firestore cannot store pictures in a document
-                        if (isValidKeyPairDatatype(documentData, "picture", Object.class)) {
-                            Object picture = new Object();
-                            moodEvent.setPicture(picture);
+                        if (isValidKeyPairDatatype(documentData, "picture", String.class)) {
+                            moodEvent.setPicture((String) documentData.get("picture"));
                         }
                         if(!moodEvents.contains(moodEvent)) {
                             moodEvents.add(moodEvent);
@@ -812,9 +811,8 @@ public class MoodList {
                                 }
 
                                 //todo: picture datatype and retrieving the picture as the firestore cannot store pictures in a document
-                                if (isValidKeyPairDatatype(documentData, "picture", Object.class)) {
-                                    Object picture = new Object();
-                                    moodEvent.setPicture(picture);
+                                if (isValidKeyPairDatatype(documentData, "picture", String.class)) {
+                                    moodEvent.setPicture((String) documentData.get("picture"));
                                 }
                                 if(!moodEvents.contains(moodEvent)) {
                                     moodEvents.add(moodEvent);
@@ -910,7 +908,7 @@ public class MoodList {
             if (updatableKeys.contains(key)) {
                 switch (key) {
                     case "picture":
-                        toBeUpdated.setPicture(updateMap.get(key)); // Set the picture
+                        toBeUpdated.setPicture((String) updateMap.get(key)); // Set the picture
                         break;
                     case "social_situation":
                         toBeUpdated.setSocialSituation((String) updateMap.get(key)); // Set the social situation

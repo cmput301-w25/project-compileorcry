@@ -1,6 +1,10 @@
 package ca.ualberta.compileorcry.ui.add;
 
+import static android.app.Activity.RESULT_OK;
+
 import android.app.DatePickerDialog;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.DatePicker;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -19,12 +24,15 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.Timestamp;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.UUID;
 
 import ca.ualberta.compileorcry.R;
 import ca.ualberta.compileorcry.domain.models.User;
@@ -51,14 +59,18 @@ public class NewFragment extends Fragment {
     private TextInputEditText triggerEditText;
     private AutoCompleteTextView  socialSituationAutoCompleteText;
     private MaterialButton uploadImageButton;
+    private TextView imagePathText;
     private MaterialButton backButton;
     private MaterialButton createButton;
+    private TextInputLayout emotionalStateLayout;
+    private TextInputLayout dateLayout;
+    private Uri imagePath;
+    private String uploadedImagePath;
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+    // Const for image upload
 
-    TextInputLayout emotionalStateLayout;
+    private static final int PICK_IMAGE_REQUEST = 71;
 
-    TextInputLayout dateLayout;
-
-    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
     /**
      * Default constructor required for fragments.
@@ -102,6 +114,7 @@ public class NewFragment extends Fragment {
         triggerEditText = view.findViewById(R.id.new_event_trigger_text);
         socialSituationAutoCompleteText = view.findViewById(R.id.new_event_social_situation_autocomplete);
         uploadImageButton = view.findViewById(R.id.image_upload_button);
+        imagePathText = view.findViewById(R.id.image_path_text);
         backButton = view.findViewById(R.id.back_button);
         createButton = view.findViewById(R.id.create_button);
 
@@ -119,9 +132,13 @@ public class NewFragment extends Fragment {
         dateEditText.setOnClickListener(v -> showDatePickerDialog());
 
         // Handle image upload (TODO)
-        uploadImageButton.setOnClickListener(v ->
-                Toast.makeText(getContext(), "Image upload feature coming soon!", Toast.LENGTH_SHORT).show()
-        );
+        uploadImageButton.setOnClickListener(v -> {
+            Intent intent = new Intent();
+            intent.setType("image/*");
+            intent.setAction(Intent.ACTION_GET_CONTENT);
+            startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+        });
+
 
         // Handle back button
         backButton.setOnClickListener(v ->
@@ -190,8 +207,9 @@ public class NewFragment extends Fragment {
         }
 
         Timestamp timestamp = new Timestamp(date);
+
         MoodEvent event = new MoodEvent(EmotionalState.valueOf(emotionalState.toUpperCase()),
-                timestamp, trigger, socialSituation);
+                timestamp, trigger, socialSituation, uploadedImagePath);
 
         MoodList.createMoodList(User.getActiveUser(), QueryType.HISTORY_MODIFIABLE,
                 new MoodList.MoodListListener() {
@@ -277,11 +295,45 @@ public class NewFragment extends Fragment {
         socialSituationAutoCompleteText.setText("", false);
         socialSituationAutoCompleteText.clearFocus();
 
-        // TODO: Clear image text
+        // Clear the image path
+        imagePathText.setText("");
+        imagePathText.setVisibility(View.GONE);
 
         // Clear any error states if they exist
         emotionalStateLayout.setError(null);
 
         dateLayout.setError(null);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK
+                && data != null && data.getData() != null) {
+            imagePath = data.getData();
+            imagePathText.setVisibility(View.VISIBLE);
+            imagePathText.setText(imagePath.toString());
+            uploadImage();
+        }
+    }
+
+    private void uploadImage() {
+        if (imagePath != null) {
+            // Create a reference to the file location in Firebase Storage
+            String fileName = UUID.randomUUID().toString();
+            StorageReference ref = FirebaseStorage.getInstance().getReference()
+                    .child(User.getActiveUser().getUsername() + "/" + fileName);
+
+            ref.putFile(imagePath)
+                    .addOnSuccessListener(taskSnapshot -> {
+                        Toast.makeText(getContext(), "Image Uploaded", Toast.LENGTH_SHORT).show();
+
+                        // Save the URL
+                        ref.getDownloadUrl().addOnSuccessListener(uri -> {
+                            uploadedImagePath = uri.toString();
+                        });
+                    })
+                    .addOnFailureListener(e -> Toast.makeText(getContext() , "Image Upload Failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+        }
     }
 }
