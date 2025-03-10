@@ -536,6 +536,7 @@ public class MoodList {
             }
             if (followings.isEmpty()) {
                 throw new RuntimeException("user is following nobody");
+
             }
             if (!followingLoaded) {
                 ptrToSelf.getQuery();
@@ -555,6 +556,7 @@ public class MoodList {
      * @throws RuntimeException If the Firestore listener fails to attach or the query results are invalid.
      */
     private void attachMoodEventsListener(Query query) {
+        Log.d("Firestore", "attachMoodEventsListener() called");
         query.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
@@ -563,7 +565,10 @@ public class MoodList {
                     Log.w("Firestore", "Listen failed.", e);
                     throw new RuntimeException("moodEvents didn't attach");
                 }
-                moodEvents.clear();
+                if (queryDocumentSnapshots != null) {
+                    moodEvents.clear();
+                }
+                Log.d("Firestore", "Number of documents retrieved: " + queryDocumentSnapshots.size());
                 // Process the documents
                 for (DocumentSnapshot document : queryDocumentSnapshots) {
                     if (document.exists()) {
@@ -615,6 +620,9 @@ public class MoodList {
                 if (!isMade) {
                     isMade = true;
                     listener.returnMoodList(ptrToSelf);
+                }
+                if (moodEvents.isEmpty()) {
+                    Log.d("Firestore", "No moods found for this query.");
                 }
                 if (!dontUpdate) {
                     listener.updatedMoodList();
@@ -921,4 +929,16 @@ public class MoodList {
             }
         }
     }
+
+    public void clearMoodEvents() {
+        Log.d("MoodList", "clearMoodEvents() called, but delaying actual clearing until new data is fetched.");
+
+        if (query != null) {
+            attachMoodEventsListener(query);
+        } else {
+            Log.d("MoodList", "Query is null, cannot re-fetch.");
+        }
+    }
+
+
 }
