@@ -1,11 +1,13 @@
 package ca.ualberta.compileorcry.ui.feed;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -15,6 +17,8 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import ca.ualberta.compileorcry.R;
 import ca.ualberta.compileorcry.databinding.FragmentFeedBinding;
@@ -24,7 +28,7 @@ import ca.ualberta.compileorcry.features.mood.data.QueryType;
 import ca.ualberta.compileorcry.features.mood.model.MoodEvent;
 import ca.ualberta.compileorcry.ui.MoodInfoDialogFragment;
 
-public class FeedFragment extends Fragment {
+public class FeedFragment extends Fragment implements MoodInfoDialogFragment.MoodDialogListener {
     private FragmentFeedBinding binding;
     private FeedViewModel feedViewModel;
     private MoodEventAdapter adapter;
@@ -34,6 +38,8 @@ public class FeedFragment extends Fragment {
     private static final String[] FEED_TYPES = {"History", "Following"};
     // Filter options
     private static final String[] FILTER_OPTIONS = {"None", "Recent", "State", "Reason"};
+
+    private MoodList moodList;
 
 
     @Override
@@ -73,7 +79,7 @@ public class FeedFragment extends Fragment {
 
 
         // Initialize RecyclerView with empty list
-        adapter = new MoodEventAdapter(new ArrayList<>());
+        adapter = new MoodEventAdapter(new ArrayList<>(), this::onMoodEventClick);
         binding.recyclerViewMoodHistory.setLayoutManager(
                 new LinearLayoutManager(requireContext())  // Use requireContext()
         );
@@ -102,11 +108,45 @@ public class FeedFragment extends Fragment {
         // Handle feed queries from spinner values
         loadFeed();
     }
-
     private void onMoodEventClick(MoodEvent clickedEvent) {
         MoodInfoDialogFragment dialog = MoodInfoDialogFragment.newInstance(clickedEvent);
+
         dialog.show(requireActivity().getSupportFragmentManager(), "Edit Mood Event");
     }
+    @Override
+    public void updateMoodEvent(MoodEvent event, String emotionalState, String trigger, String socialSituation) {
+        Map<String, Object> updatedData = new HashMap<>();
+        updatedData.put("emotional_state", event.getEmotionalState().getCode());
+        updatedData.put("trigger", trigger);
+        updatedData.put("social_situation", socialSituation);
+
+        if (moodList != null) {
+            moodList.editMoodEvent(event, updatedData);
+            Toast.makeText(getContext(), "Mood event updated!", Toast.LENGTH_SHORT).show();
+            adapter.updateData(moodList.getMoodEvents()); // Refresh RecyclerView
+        } else {
+            Toast.makeText(getContext(), "Error: MoodList is not initialized.", Toast.LENGTH_SHORT).show();
+        }
+        adapter.updateData(moodList.getMoodEvents()); // Refresh RecyclerView
+    }
+
+
+
+    @Override
+    public void deleteMoodEvent(MoodEvent event) {
+        new AlertDialog.Builder(getContext())
+                .setTitle("Delete Mood Event")
+                .setMessage("Are you sure you want to delete this mood event?")
+                .setPositiveButton("Delete", (dialog, which) -> {
+                    moodList.deleteMoodEvent(event);
+                    Toast.makeText(getContext(), "Mood event deleted", Toast.LENGTH_SHORT).show();
+                    adapter.updateData(moodList.getMoodEvents()); // Refresh RecyclerView
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+
 
     private void loadFeed() {
         String feedType = (String) binding.feedSpinner.getSelectedItem();
@@ -150,6 +190,7 @@ public class FeedFragment extends Fragment {
                     new MoodList.MoodListListener() {
                         @Override
                         public void returnMoodList(MoodList moodList) {
+                            FeedFragment.this.moodList = moodList;
                             if (feedViewModel != null) {
                                 feedViewModel.setMoodEvents(moodList.getMoodEvents());
                             }
@@ -158,6 +199,11 @@ public class FeedFragment extends Fragment {
                         @Override
                         public void updatedMoodList() {
                             // Handled automatically
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+
                         }
                     }, null);
         }

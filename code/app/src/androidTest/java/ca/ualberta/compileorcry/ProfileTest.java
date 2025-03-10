@@ -83,7 +83,7 @@ public class ProfileTest {
 
     @Test
     public void changeName() throws InterruptedException {
-        onView(withId(R.id.button_edit)).perform(click());
+        onView(withId(R.id.edit_button)).perform(click());
         device.waitForIdle();
         onView(withId(R.id.editname_text)).check(matches(isDisplayed()));
         onView(withId(R.id.editname_text)).perform(ViewActions.replaceText("New Test User"));

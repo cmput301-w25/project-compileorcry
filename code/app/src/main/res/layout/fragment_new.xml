@@ -36,7 +36,7 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/new_event_emotional_state_layout"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:layout_width="347dp"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="32dp"
@@ -47,6 +47,7 @@
                 app:boxStrokeColor="@color/light_dark_selector"
                 app:boxStrokeErrorColor="@color/anger"
                 app:cursorErrorColor="@color/anger"
+                app:endIconTint="@color/light"
                 app:errorEnabled="false"
                 app:errorIconTint="@color/anger"
                 app:errorTextAppearance="@style/TextAppearance.AppCompat.Body1"
@@ -55,14 +56,20 @@
                 app:hintEnabled="true"
                 app:hintTextColor="@color/light_dark_selector">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/new_event_emotional_state_text"
+                <AutoCompleteTextView
+                    android:id="@+id/new_event_emotional_state_autocomplete"
                     style="@style/TextAppearance.CompileOrCry.Body1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:backgroundTint="@color/dark"
+                    android:dropDownWidth="347dp"
+                    android:dropDownHeight="200dp"
                     android:fontFamily="@font/source_sans_pro_semibold"
-                    android:inputType="text"
-                    android:textColor="@color/light" />
+                    android:inputType="none"
+                    android:textAppearance="@style/TextAppearance.CompileOrCry.DropDownItem.Light"
+                    android:textColor="@color/light"
+                    app:dropDownBackgroundTint="@color/dark"
+                    app:endIconTint="@color/light" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -103,37 +110,6 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/new_event_description_layout"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                android:layout_width="347dp"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="32dp"
-                android:layout_marginTop="20dp"
-                android:hint="@string/description"
-                android:textColorHint="@color/light"
-                app:boxBackgroundMode="outline"
-                app:boxStrokeColor="@color/light_dark_selector"
-                app:boxStrokeErrorColor="@color/anger"
-                app:cursorErrorColor="@color/anger"
-                app:errorEnabled="false"
-                app:errorIconTint="@color/anger"
-                app:errorTextAppearance="@style/TextAppearance.AppCompat.Body1"
-                app:errorTextColor="@color/anger"
-                app:hintAnimationEnabled="true"
-                app:hintEnabled="true"
-                app:hintTextColor="@color/light_dark_selector">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/new_event_description_text"
-                    style="@style/TextAppearance.CompileOrCry.Body1"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/source_sans_pro_semibold"
-                    android:inputType="text"
-                    android:textColor="@color/light" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/new_event_trigger_layout"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="347dp"
@@ -166,17 +142,18 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/new_event_social_situation_layout"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:layout_width="347dp"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="32dp"
-                android:layout_marginTop="20dp"
-                android:hint="@string/social_situation_optional"
+                android:layout_marginTop="12dp"
+                android:hint="@string/social_situation"
                 android:textColorHint="@color/light"
                 app:boxBackgroundMode="outline"
                 app:boxStrokeColor="@color/light_dark_selector"
                 app:boxStrokeErrorColor="@color/anger"
                 app:cursorErrorColor="@color/anger"
+                app:endIconTint="@color/light"
                 app:errorEnabled="false"
                 app:errorIconTint="@color/anger"
                 app:errorTextAppearance="@style/TextAppearance.AppCompat.Body1"
@@ -185,14 +162,20 @@
                 app:hintEnabled="true"
                 app:hintTextColor="@color/light_dark_selector">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/new_event_social_situation_text"
+                <AutoCompleteTextView
+                    android:id="@+id/new_event_social_situation_autocomplete"
                     style="@style/TextAppearance.CompileOrCry.Body1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:backgroundTint="@color/dark"
+                    android:dropDownWidth="347dp"
+                    android:dropDownHeight="200dp"
                     android:fontFamily="@font/source_sans_pro_semibold"
-                    android:inputType="text"
-                    android:textColor="@color/light" />
+                    android:inputType="none"
+                    android:textAppearance="@style/TextAppearance.CompileOrCry.DropDownItem.Light"
+                    android:textColor="@color/light"
+                    app:dropDownBackgroundTint="@color/dark"
+                    app:endIconTint="@color/light" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.button.MaterialButton
@@ -219,7 +202,7 @@
 
                 <!-- Back Button -->
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/login_button"
+                    android:id="@+id/back_button"
                     style="@style/Widget.Material3.Button.OutlinedButton"
                     android:layout_width="125dp"
                     android:layout_height="wrap_content"
@@ -230,7 +213,7 @@
 
                 <!-- Create Button -->
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/register_button"
+                    android:id="@+id/create_button"
                     style="@style/Widget.Material3.Button"
                     android:layout_width="125dp"
                     android:layout_height="wrap_content"

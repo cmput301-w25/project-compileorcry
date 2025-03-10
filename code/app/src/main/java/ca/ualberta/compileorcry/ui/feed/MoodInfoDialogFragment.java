@@ -24,7 +24,7 @@ import ca.ualberta.compileorcry.features.mood.model.MoodEvent;
 public class MoodInfoDialogFragment extends DialogFragment {
 
     public interface MoodDialogListener {
-        void updateMoodEvent(MoodEvent event, String emotionalState, String description, String trigger, String socialSituation);
+        void updateMoodEvent(MoodEvent event, String emotionalState, String trigger, String socialSituation);
         void deleteMoodEvent(MoodEvent event);
     }
 
@@ -48,10 +48,16 @@ public class MoodInfoDialogFragment extends DialogFragment {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        if (context instanceof MoodDialogListener) {
-            listener = (MoodDialogListener) context;
-        } else {
-            throw new RuntimeException("Implement MoodDialogListener in your activity or fragment.");
+        try {
+            if (getParentFragment() instanceof MoodDialogListener) {
+                listener = (MoodDialogListener) getParentFragment();
+            } else if (context instanceof MoodDialogListener) {
+                listener = (MoodDialogListener) context;
+            } else {
+                throw new RuntimeException("Implement MoodDialogListener in your activity or fragment.");
+            }
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString() + " must implement MoodDialogListener");
         }
     }
     private FragmentMoodInfoDialogBinding binding;
@@ -65,7 +71,6 @@ public class MoodInfoDialogFragment extends DialogFragment {
             moodEvent = (MoodEvent) getArguments().getSerializable("MoodEvent");
             if (moodEvent != null) {
                 binding.moodinfoStateText.setText(moodEvent.getEmotionalState().getDescription());
-                binding.moodinfoDescriptionText.setText(moodEvent.getTrigger());
                 binding.moodinfoTriggerText.setText(moodEvent.getTrigger());
                 binding.moodinfoSituationText.setText(moodEvent.getSocialSituation());
             }
@@ -83,18 +88,17 @@ public class MoodInfoDialogFragment extends DialogFragment {
                 })
                 .setPositiveButton("Save", (dialog, which) -> {
                     String emotionalState = binding.moodinfoStateText.getText().toString();
-                    String description = binding.moodinfoDescriptionText.getText().toString();
                     String trigger = binding.moodinfoTriggerText.getText().toString();
                     String socialSituation = binding.moodinfoSituationText.getText().toString();
 
                     // Modify the existing MoodEvent directly
                     moodEvent.setEmotionalState(EmotionalState.fromDescription(emotionalState));
 
-                    moodEvent.setTrigger(description);
+                    moodEvent.setTrigger(trigger);
                     moodEvent.setSocialSituation(socialSituation);
 
                     if (listener != null && moodEvent != null) {
-                        listener.updateMoodEvent(moodEvent, emotionalState, description, trigger, socialSituation);
+                        listener.updateMoodEvent(moodEvent, emotionalState, trigger, socialSituation);
                     }
                 })
                 .create();
