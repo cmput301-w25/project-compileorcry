@@ -1,10 +1,7 @@
 package ca.ualberta.compileorcry.ui.feed;
 
-import static androidx.navigation.Navigation.findNavController;
-
 import android.app.AlertDialog;
 import android.os.Bundle;
-import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +11,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -29,24 +27,9 @@ import ca.ualberta.compileorcry.databinding.FragmentFeedBinding;
 import ca.ualberta.compileorcry.domain.models.User;
 import ca.ualberta.compileorcry.features.mood.data.MoodList;
 import ca.ualberta.compileorcry.features.mood.data.QueryType;
-import ca.ualberta.compileorcry.features.mood.model.EmotionalState;
+import ca.ualberta.compileorcry.features.mood.model.MoodEvent;
+import ca.ualberta.compileorcry.ui.feed.MoodInfoDialogFragment;
 
-/**
- * The FeedFragment class displays a feed of mood events, either from the user's
- * history or from followed users. It implements filtering capabilities based on
- * recency, emotional state, and reason.
- *
- * The fragment handles:
- * - RecyclerView setup for displaying mood events
- * - Spinner controls for selecting feed type and filters
- * - Navigation to create new mood events
- * - Querying mood events based on selected filters
- *
- * Outstanding issues:
- * - Some filter combinations may not be properly handled
- * - Error handling could be improved for empty result sets
- * - UI feedback during data loading could be enhanced
- */
 public class FeedFragment extends Fragment {
     private FragmentFeedBinding binding;
     private ImageView feedOrHistory;
@@ -71,7 +54,9 @@ public class FeedFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        ImageView feedOrHistory = binding.imageView;
+        getParentFragmentManager().setFragmentResultListener("moodEventUpdated", this, (requestKey, result) -> {
+            refreshMoodList();
+        });
 
         // Find Spinners
         Spinner feedSpinner = binding.feedSpinner;
@@ -99,7 +84,7 @@ public class FeedFragment extends Fragment {
         filterSpinner.post(() -> filterSpinner.setSelection(0, false));
 
         // Initialize RecyclerView with empty list
-        adapter = new MoodEventAdapter(new ArrayList<>());
+        adapter = new MoodEventAdapter(new ArrayList<>(), this::onMoodEventClick);
         binding.recyclerViewMoodHistory.setLayoutManager(
                 new LinearLayoutManager(requireContext())  // Use requireContext()
         );
@@ -126,6 +111,15 @@ public class FeedFragment extends Fragment {
                 binding.recyclerViewMoodHistory.smoothScrollToPosition(0);
             }
         });
+
+        getParentFragmentManager().setFragmentResultListener("moodEventUpdated", getViewLifecycleOwner(),
+                (requestKey, result) -> {
+                    Log.d("FeedFragment", "Received update from MoodInfoDialogFragment");
+                    Toast.makeText(requireContext(), "Mood updated", Toast.LENGTH_SHORT).show();
+                    refreshMoodList();
+                    loadFeed();
+                });
+
 
         // Handle feed queries from spinner values and update feed as they change
         feedSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -162,6 +156,55 @@ public class FeedFragment extends Fragment {
             @Override
             public void onNothingSelected(AdapterView<?> parent) { }
         });
+    }
+    private void onMoodEventClick(MoodEvent clickedEvent) {
+        if (clickedEvent != null) {
+            // Create a Bundle to pass data
+            Bundle args = new Bundle();
+            args.putString("moodId", clickedEvent.getId());
+            args.putString("emotionalState", clickedEvent.getEmotionalState().getDescription());
+            args.putString("trigger", clickedEvent.getTrigger());
+            args.putString("socialSituation", clickedEvent.getSocialSituation());
+
+            // Create an instance of MoodInfoDialogFragment and pass the arguments
+            MoodInfoDialogFragment dialog = new MoodInfoDialogFragment();
+            dialog.setArguments(args);
+
+
+            // Show the dialog
+            dialog.show(requireActivity().getSupportFragmentManager(), "ViewMoodEvent");
+        } else {
+            Log.e("FeedFragment", "Clicked MoodEvent is null!"); // Debugging log
+        }
+    }
+
+    private void refreshMoodList() {
+        if (User.getActiveUser() != null) {
+            QueryType selectedQueryType = QueryType.HISTORY_MODIFIABLE; // Default to modifiable history
+
+            MoodList.createMoodList(User.getActiveUser(), selectedQueryType, new MoodList.MoodListListener() {
+                @Override
+                public void returnMoodList(MoodList initializedMoodList) {
+                    FeedFragment.this.moodList = initializedMoodList;
+
+                    if (feedViewModel != null) {
+                        feedViewModel.setMoodEvents(moodList.getMoodEvents());
+                    }
+                }
+
+                @Override
+                public void updatedMoodList() {
+                    if (feedViewModel != null) {
+                        feedViewModel.setMoodEvents(moodList.getMoodEvents());
+                    }
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    Log.e("FeedFragment", "Error refreshing mood list: " + e.getMessage());
+                }
+            }, null);
+        }
     }
 
     /**

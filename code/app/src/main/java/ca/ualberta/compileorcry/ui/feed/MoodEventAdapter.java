@@ -4,6 +4,7 @@ import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -31,6 +32,17 @@ import ca.ualberta.compileorcry.features.mood.model.MoodEvent;
 public class MoodEventAdapter extends RecyclerView.Adapter<MoodEventAdapter.ViewHolder> {
     /** The current list of mood events to display */
     private List<MoodEvent> moodEvents;
+    private OnItemClickListener clickListener;
+
+    // Interface for Handling Click Events
+    public interface OnItemClickListener {
+        void onItemClick(MoodEvent moodEvent);
+    }
+
+    public MoodEventAdapter(List<MoodEvent> moodEvents) {
+        this.moodEvents = moodEvents != null ? moodEvents : new ArrayList<>();
+        this.clickListener = clickListener;
+    }
 
     /**
      * Constructs a new adapter with the given list of mood events.
@@ -38,8 +50,9 @@ public class MoodEventAdapter extends RecyclerView.Adapter<MoodEventAdapter.View
      *
      * @param moodEvents List of mood events to display
      */
-    public MoodEventAdapter(List<MoodEvent> moodEvents) {
+    public MoodEventAdapter(List<MoodEvent> moodEvents, OnItemClickListener clickListener) {
         this.moodEvents = moodEvents != null ? moodEvents : new ArrayList<>();
+        this.clickListener = clickListener;
     }
 
     /**
@@ -96,6 +109,12 @@ public class MoodEventAdapter extends RecyclerView.Adapter<MoodEventAdapter.View
         DrawableCompat.setTint(wrappedDrawable, moodColor);
         holder.itemView.setBackground(wrappedDrawable);
         holder.bind(event);
+
+        holder.itemView.setOnClickListener(v -> {
+            if (clickListener != null) {
+                clickListener.onItemClick(event);
+            }
+        });
     }
 
     /**
@@ -120,6 +139,9 @@ public class MoodEventAdapter extends RecyclerView.Adapter<MoodEventAdapter.View
             super(itemView);
             emotionalStateTextView = itemView.findViewById(R.id.textview_emotional_state);
             timestampTextView = itemView.findViewById(R.id.textview_timestamp);
+            triggerTextView = itemView.findViewById(R.id.textview_trigger);
+            socialSituationTextView = itemView.findViewById(R.id.textview_social_situation);
+
         }
 
         public void bind(MoodEvent event) {

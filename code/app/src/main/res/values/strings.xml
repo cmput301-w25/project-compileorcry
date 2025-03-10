@@ -34,6 +34,7 @@
     <string name="profile_image">Profile Image</string>
     <string name="username_placeholder">\@username</string>
     <string name="edit">Edit</string>
+    <string name="edit_mood">Edit Mood Event</string>
     <string name="friends">Friends</string>
     <string name="history">History</string>
     <string name="requests">Requests</string>
@@ -42,5 +43,7 @@
     <string name="filter_prompt">Filter</string>
     <string name="add_friends">Add Friends</string>
     <string name="view_map">View Map</string>
-    <string name="exit_map">Exit Map</string>
+    <string name="edit_event">Edit Mood Event</string>
+    <string name="button_delete">Delete</string>
+
 </resources>
