@@ -3,6 +3,7 @@ package ca.ualberta.compileorcry.ui.feed;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -17,9 +18,16 @@ import ca.ualberta.compileorcry.features.mood.model.MoodEvent;
 // MoodEventAdapter.java
 public class MoodEventAdapter extends RecyclerView.Adapter<MoodEventAdapter.ViewHolder> {
     private List<MoodEvent> moodEvents;
+    private OnItemClickListener clickListener;
+
+    // Interface for Handling Click Events
+    public interface OnItemClickListener {
+        void onItemClick(MoodEvent moodEvent);
+    }
 
     public MoodEventAdapter(List<MoodEvent> moodEvents) {
         this.moodEvents = moodEvents != null ? moodEvents : new ArrayList<>();
+        this.clickListener = clickListener;
     }
 
     public void updateData(List<MoodEvent> newEvents) {
@@ -39,6 +47,12 @@ public class MoodEventAdapter extends RecyclerView.Adapter<MoodEventAdapter.View
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         MoodEvent event = moodEvents.get(position);
         holder.bind(event);
+
+        holder.itemView.setOnClickListener(v -> {
+            if (clickListener != null) {
+                clickListener.onItemClick(event);
+            }
+        });
     }
 
     @Override
@@ -58,6 +72,7 @@ public class MoodEventAdapter extends RecyclerView.Adapter<MoodEventAdapter.View
             timestampTextView = itemView.findViewById(R.id.textview_timestamp);
             triggerTextView = itemView.findViewById(R.id.textview_trigger);
             socialSituationTextView = itemView.findViewById(R.id.textview_social_situation);
+
         }
 
         public void bind(MoodEvent event) {

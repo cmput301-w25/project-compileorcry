@@ -21,6 +21,8 @@ import ca.ualberta.compileorcry.databinding.FragmentFeedBinding;
 import ca.ualberta.compileorcry.domain.models.User;
 import ca.ualberta.compileorcry.features.mood.data.MoodList;
 import ca.ualberta.compileorcry.features.mood.data.QueryType;
+import ca.ualberta.compileorcry.features.mood.model.MoodEvent;
+import ca.ualberta.compileorcry.ui.MoodInfoDialogFragment;
 
 public class FeedFragment extends Fragment {
     private FragmentFeedBinding binding;
@@ -99,6 +101,11 @@ public class FeedFragment extends Fragment {
 
         // Handle feed queries from spinner values
         loadFeed();
+    }
+
+    private void onMoodEventClick(MoodEvent clickedEvent) {
+        MoodInfoDialogFragment dialog = MoodInfoDialogFragment.newInstance(clickedEvent);
+        dialog.show(requireActivity().getSupportFragmentManager(), "Edit Mood Event");
     }
 
     private void loadFeed() {
