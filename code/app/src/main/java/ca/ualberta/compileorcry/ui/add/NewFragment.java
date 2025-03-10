@@ -1,7 +1,13 @@
 package ca.ualberta.compileorcry.ui.add;
 
+import static android.app.Activity.RESULT_OK;
+
 import android.app.DatePickerDialog;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.DatePicker;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -20,6 +27,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.Timestamp;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -51,6 +59,7 @@ public class NewFragment extends Fragment {
     private TextInputEditText triggerEditText;
     private AutoCompleteTextView  socialSituationAutoCompleteText;
     private MaterialButton uploadImageButton;
+    private TextView imagePathText;
     private MaterialButton backButton;
     private MaterialButton createButton;
 
@@ -59,6 +68,9 @@ public class NewFragment extends Fragment {
     TextInputLayout dateLayout;
 
     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+
+    // Const for image upload
+    private static final int PICK_IMAGE_REQUEST = 71;
 
     /**
      * Default constructor required for fragments.
@@ -102,6 +114,7 @@ public class NewFragment extends Fragment {
         triggerEditText = view.findViewById(R.id.new_event_trigger_text);
         socialSituationAutoCompleteText = view.findViewById(R.id.new_event_social_situation_autocomplete);
         uploadImageButton = view.findViewById(R.id.image_upload_button);
+        imagePathText = view.findViewById(R.id.image_path_text);
         backButton = view.findViewById(R.id.back_button);
         createButton = view.findViewById(R.id.create_button);
 
@@ -119,9 +132,13 @@ public class NewFragment extends Fragment {
         dateEditText.setOnClickListener(v -> showDatePickerDialog());
 
         // Handle image upload (TODO)
-        uploadImageButton.setOnClickListener(v ->
-                Toast.makeText(getContext(), "Image upload feature coming soon!", Toast.LENGTH_SHORT).show()
-        );
+        uploadImageButton.setOnClickListener(v -> {
+            Intent intent = new Intent();
+            intent.setType("image/*");
+            intent.setAction(Intent.ACTION_GET_CONTENT);
+            startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+        });
+
 
         // Handle back button
         backButton.setOnClickListener(v ->
@@ -277,11 +294,24 @@ public class NewFragment extends Fragment {
         socialSituationAutoCompleteText.setText("", false);
         socialSituationAutoCompleteText.clearFocus();
 
-        // TODO: Clear image text
+        // Clear the image path
+        imagePathText.setText("");
+        imagePathText.setVisibility(View.GONE);
 
         // Clear any error states if they exist
         emotionalStateLayout.setError(null);
 
         dateLayout.setError(null);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK
+                && data != null && data.getData() != null) {
+            Uri filePath = data.getData();
+            imagePathText.setVisibility(View.VISIBLE);
+            imagePathText.setText(filePath.toString());
+        }
     }
 }
