@@ -57,6 +57,6 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     androidTestImplementation("androidx.test.uiautomator:uiautomator:2.2.0")
 
-    implementation(files("${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar")) // For javadocs
+    //implementation(files("${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar")) // For javadocs
 
 }
