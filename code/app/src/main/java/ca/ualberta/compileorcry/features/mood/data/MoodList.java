@@ -500,7 +500,7 @@ public class MoodList {
                 }
                 eventMap.remove("username");
                 ptrToSelf.moodEventsRef.document(event.getId()).set(eventMap);
-                if (personalDoc != null && recentDoc != null){
+                if (personalDoc != null && personalDoc.exists() && recentDoc != null && recentDoc.exists()){
                     if(personalDoc.get("mood_id").equals(recentDoc.get("mood_id"))){
                         eventMap.put("username", user.getUsername());
                         eventMap.put("mood_id", event.getId());
@@ -938,6 +938,10 @@ public class MoodList {
         Iterator<MoodEvent> iter = moodEvents.iterator();
         while(iter.hasNext()) {
             MoodEvent event = iter.next();
+            if(event.getTrigger() == null){
+                iter.remove();
+                continue;
+            }
             if(!event.getTrigger().contains(reasonString)) {
                 iter.remove(); // Removes the 'current' item
             }
