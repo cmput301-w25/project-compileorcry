@@ -52,4 +52,10 @@ public class FeedViewModel extends ViewModel {
         }
         moodEvents.setValue(events);
     }
+
+//    public void refreshMoodEvents(List<MoodEvent> events) {
+//        moodEvents.setValue(new ArrayList<>());  // Clear first to ensure UI updates
+//        moodEvents.setValue(events);  // Then update with new values
+//    }
+
 }
