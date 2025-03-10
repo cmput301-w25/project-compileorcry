@@ -1,5 +1,7 @@
 package ca.ualberta.compileorcry.ui.feed;
 
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -42,6 +44,8 @@ public class FeedViewModel extends ViewModel {
      * @param events The new list of mood events to display
      */
     public void setMoodEvents(List<MoodEvent> events) {
+        Log.d("FeedViewModel", "setMoodEvents() called with " + events.size() + " moods.");
+
         // Always return list in rev. chron. order
         if (events != null) {
             Collections.sort(events, (m1, m2) -> m2.getTimestamp().compareTo(m1.getTimestamp()));

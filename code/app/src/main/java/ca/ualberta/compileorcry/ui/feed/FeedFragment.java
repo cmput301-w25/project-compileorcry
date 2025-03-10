@@ -1,12 +1,15 @@
 package ca.ualberta.compileorcry.ui.feed;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
 
@@ -24,6 +27,7 @@ import ca.ualberta.compileorcry.databinding.FragmentFeedBinding;
 import ca.ualberta.compileorcry.domain.models.User;
 import ca.ualberta.compileorcry.features.mood.data.MoodList;
 import ca.ualberta.compileorcry.features.mood.data.QueryType;
+import ca.ualberta.compileorcry.features.mood.model.EmotionalState;
 
 /**
  * The FeedFragment class displays a feed of mood events, either from the user's
@@ -92,41 +96,6 @@ public class FeedFragment extends Fragment {
         feedSpinner.post(() -> feedSpinner.setSelection(0, false));
         filterSpinner.post(() -> filterSpinner.setSelection(0, false));
 
-        // Handle spinner selections
-        feedSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (position == 0) return;
-                feedOrHistory.setImageResource(R.drawable.txt_feed);
-                String selectedType = parent.getItemAtPosition(position).toString();
-
-                switch (selectedType) {
-                    case "History":
-                        feedOrHistory.setImageResource(R.drawable.txt_history);
-                        break;
-                    default:
-                        feedOrHistory.setImageResource(R.drawable.txt_feed);
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                feedOrHistory.setImageResource(R.drawable.txt_feed);
-            }
-        });
-
-        filterSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (position == 0) return; // Ignore placeholder selection
-                // Handle actual selection here
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) { }
-        });
-
-
         // Initialize RecyclerView with empty list
         adapter = new MoodEventAdapter(new ArrayList<>());
         binding.recyclerViewMoodHistory.setLayoutManager(
@@ -148,14 +117,48 @@ public class FeedFragment extends Fragment {
 
         // Observe LiveData with lifecycle awareness
         feedViewModel.getMoodEvents().observe(getViewLifecycleOwner(), moodEvents -> {
+            Log.d("RecyclerView", "Observer triggered, updating RecyclerView with " + moodEvents.size() + " moods.");
             if (moodEvents != null && adapter != null) {
                 adapter.updateData(moodEvents);
                 binding.recyclerViewMoodHistory.smoothScrollToPosition(0);
             }
         });
 
-        // Handle feed queries from spinner values
-        loadFeed();
+        // Handle feed queries from spinner values and update feed as they change
+        feedSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (position == 0) return; // Ignore placeholder selection
+                feedOrHistory.setImageResource(R.drawable.txt_feed);
+                String selectedType = parent.getItemAtPosition(position).toString();
+
+                switch (selectedType) {
+                    case "History":
+                        feedOrHistory.setImageResource(R.drawable.txt_history);
+                        break;
+                    default:
+                        feedOrHistory.setImageResource(R.drawable.txt_feed);
+                }
+                loadFeed();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                feedOrHistory.setImageResource(R.drawable.txt_feed);
+            }
+        });
+
+        filterSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (position == 0) return; // Ignore placeholder selection
+                loadFeed();
+                // Handle actual selection here
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) { }
+        });
     }
 
     /**
@@ -168,62 +171,124 @@ public class FeedFragment extends Fragment {
      * - Filter type (None, Recent, State, or Reason)
      */
     private void loadFeed() {
+        Log.d("FeedFragment", "loadFeed() triggered");
         String feedType = (String) binding.feedSpinner.getSelectedItem();
         String filter = (String) binding.filterSpinner.getSelectedItem();
+        Log.d("FeedFragment", "Selected Feed Type: " + feedType + ", Filter: " + filter);
         if (User.getActiveUser() != null) {
-            QueryType selectedQueryType = QueryType.FOLLOWING; // Unfiltered following posts is default value
+            Object filterValue = null;
+            QueryType selectedQueryType ;// = QueryType.FOLLOWING; // Unfiltered following posts is default value
 
-            if (feedType.equals("History")) {
-                switch (filter) {
-                    case "None":
-                        selectedQueryType = QueryType.HISTORY_MODIFIABLE;
-                        break;
-                    case "Recent":
-                        selectedQueryType = QueryType.HISTORY_RECENT;
-                        break;
-                    case "State":
-                        selectedQueryType = QueryType.HISTORY_STATE;
-                        break;
-                    case "Reason":
-                        selectedQueryType = QueryType.HISTORY_REASON;
-                        break;
-                }
-            } else if (feedType.equals("Following")) {
-                switch (filter) {
-                    case "None":
-                        selectedQueryType = QueryType.FOLLOWING;
-                        break;
-                    case "Recent":
-                        selectedQueryType = QueryType.FOLLOWING_RECENT;
-                        break;
-                    case "State":
-                        selectedQueryType = QueryType.FOLLOWING_STATE;
-                        break;
-                    case "Reason":
-                        selectedQueryType = QueryType.FOLLOWING_REASON;
-                        break;
-                }
+            // Determine the base QueryType (History or Following)
+            boolean isFollowing = feedType.equals("Following");
+
+            switch (filter) {
+                case "Filter...":  // Reset to default based on feed type
+                    selectedQueryType = isFollowing ? QueryType.FOLLOWING : QueryType.HISTORY_MODIFIABLE;
+                    break;
+                case "Recent":
+                    selectedQueryType = isFollowing ? QueryType.FOLLOWING_RECENT : QueryType.HISTORY_RECENT;
+                    break;
+                case "State":
+                    showEmotionalStateDialog(isFollowing);  // 🔹 Open state selection dialog
+                    return;
+                case "Reason":
+                    showReasonInputDialog(isFollowing);  // 🔹 Open reason input dialog
+                    return;
+                default:
+                    selectedQueryType = isFollowing ? QueryType.FOLLOWING : QueryType.HISTORY_MODIFIABLE;
             }
 
+            Log.d("FeedFragment", "Selected QueryType: " + selectedQueryType);
             MoodList.createMoodList(User.getActiveUser(), selectedQueryType,
                     new MoodList.MoodListListener() {
                         @Override
                         public void returnMoodList(MoodList moodList) {
+                            Log.d("FeedFragment", "returnMoodList() called");
+                            moodList.clearMoodEvents(); // Clear old moods and then also refetch
+
                             if (feedViewModel != null) {
+                                Log.d("FeedFragment", "Setting MoodEvents in ViewModel");
                                 feedViewModel.setMoodEvents(moodList.getMoodEvents());
                             }
                         }
-
-                        @Override
-                        public void updatedMoodList() {
-                            // Handled automatically
-                        }
-
+                      
                         @Override
                         public void onError(Exception e) {
                             Log.e("DataList",e.getMessage());
                         }
-                    }, null);
+
+                        @Override
+                        public void updatedMoodList() {
+                            Log.d("FeedFragment", "updatedMoodList() called");
+                            // Handled automatically
+                        }
+                    }, filterValue);
         }
     }
+    private void showReasonInputDialog(boolean isFollowing) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Enter Reason to Filter");
+
+        // Create input field
+        final EditText input = new EditText(requireContext());
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        builder.setView(input);
+
+        builder.setPositiveButton("OK", (dialog, which) -> {
+            String reasonKeyword = input.getText().toString().trim();
+            Log.d("FeedFragment", "User entered reason: " + reasonKeyword);
+
+            if (!reasonKeyword.isEmpty()) {
+                applySelectedFilter(isFollowing ? QueryType.FOLLOWING_REASON : QueryType.HISTORY_REASON, reasonKeyword);
+            }
+        });
+
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+        builder.show();
+    }
+
+    private void showEmotionalStateDialog(boolean isFollowing) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Select Emotional State");
+
+        // Convert enum values to a list of strings
+        EmotionalState[] states = EmotionalState.values();
+        String[] stateNames = new String[states.length];
+        for (int i = 0; i < states.length; i++) {
+            stateNames[i] = states[i].getDescription();  // Use user-friendly names
+        }
+
+        builder.setItems(stateNames, (dialog, which) -> {
+            EmotionalState selectedState = states[which];  // Get selected state
+            Log.d("FeedFragment", "User selected state: " + selectedState);
+
+            // Now trigger loadFeed() with the selected state
+            applySelectedFilter(isFollowing ? QueryType.FOLLOWING_STATE : QueryType.HISTORY_STATE, selectedState);
+        });
+
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+        builder.show();
+    }
+
+
+    private void applySelectedFilter(QueryType queryType, Object filterValue) {
+        Log.d("FeedFragment", "Applying filter: " + queryType + " | " + filterValue);
+
+        MoodList.createMoodList(User.getActiveUser(), queryType, new MoodList.MoodListListener() {
+            @Override
+            public void returnMoodList(MoodList initializedMoodList) {
+                Log.d("FeedFragment", "returnMoodList() called");
+                if (feedViewModel != null) {
+                    feedViewModel.setMoodEvents(initializedMoodList.getMoodEvents());
+                }
+            }
+
+            @Override
+            public void updatedMoodList() {
+                Log.d("FeedFragment", "updatedMoodList() called");
+            }
+        }, filterValue);
+    }
+
 }
