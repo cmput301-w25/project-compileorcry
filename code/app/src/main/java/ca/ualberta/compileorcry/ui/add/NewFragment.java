@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.DatePicker;
 import android.widget.Toast;
 
@@ -16,18 +18,19 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Objects;
 
 import ca.ualberta.compileorcry.R;
+import ca.ualberta.compileorcry.features.mood.model.EmotionalState;
 
 public class NewFragment extends Fragment {
 
-    private TextInputEditText emotionalStateEditText;
+    private AutoCompleteTextView emotionalStateAutoCompleteText;
     private TextInputEditText dateEditText;
-    private TextInputEditText descriptionEditText;
     private TextInputEditText triggerEditText;
-    private TextInputEditText socialSituationEditText;
+    private AutoCompleteTextView  socialSituationAutoCompleteText;
     private MaterialButton uploadImageButton;
     private MaterialButton backButton;
     private MaterialButton createButton;
@@ -35,8 +38,6 @@ public class NewFragment extends Fragment {
     TextInputLayout emotionalStateLayout;
 
     TextInputLayout dateLayout;
-
-    TextInputLayout descriptionLayout;
 
     public NewFragment() {
         // Required empty public constructor
@@ -53,19 +54,23 @@ public class NewFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         // Initialize UI components
-        emotionalStateEditText = view.findViewById(R.id.new_event_emotional_state_text);
+        emotionalStateAutoCompleteText = view.findViewById(R.id.new_event_emotional_state_autocomplete);
         dateEditText = view.findViewById(R.id.new_event_date_text);
-        descriptionEditText = view.findViewById(R.id.new_event_description_text);
         triggerEditText = view.findViewById(R.id.new_event_trigger_text);
-        socialSituationEditText = view.findViewById(R.id.new_event_social_situation_text);
+        socialSituationAutoCompleteText = view.findViewById(R.id.new_event_social_situation_text);
         uploadImageButton = view.findViewById(R.id.image_upload_button);
         backButton = view.findViewById(R.id.login_button);
         createButton = view.findViewById(R.id.register_button);
 
-        // Get the TextInputLayout references
+        // Get AutoComplete references
         emotionalStateLayout = getView().findViewById(R.id.new_event_emotional_state_layout);
         dateLayout = getView().findViewById(R.id.new_event_date_layout);
-        descriptionLayout = getView().findViewById(R.id.new_event_description_layout);
+
+        // Initialize emotional state dropdown
+        setupEmotionalStateDropdown();
+
+        // Initialize social situation dropdown
+        setupSocialSituationDropdown();
 
         // Handle date picker dialog
         dateEditText.setOnClickListener(v -> showDatePickerDialog());
@@ -102,13 +107,12 @@ public class NewFragment extends Fragment {
     private void submitNewEvent() {
         boolean isValid = true;
 
-        String emotionalState = emotionalStateEditText.getText().toString().trim();
+        String emotionalState = emotionalStateAutoCompleteText.getText().toString().trim();
         String date = dateEditText.getText().toString().trim();
-        String description = descriptionEditText.getText().toString().trim();
 
         // Validate Emotional State
         if (emotionalState.isEmpty()) {
-             emotionalStateLayout.setError("This field is required");
+            emotionalStateLayout.setError("This field is required");
             isValid = false;
         } else {
             emotionalStateLayout.setError(null);
@@ -122,19 +126,53 @@ public class NewFragment extends Fragment {
             dateLayout.setError(null);
         }
 
-        // Validate Description
-        if (description.isEmpty()) {
-            descriptionLayout.setError("This field is required");
-            isValid = false;
-        } else {
-            descriptionLayout.setError(null);
-        }
-
         if (!isValid) {
             return;
         }
 
         // TODO: Implement data submission (e.g., Firebase, SQLite)
         Toast.makeText(getContext(), "New event created!", Toast.LENGTH_SHORT).show();
+    }
+
+    private void setupEmotionalStateDropdown() {
+        // Get emotional states from arrays resource
+        String[] emotionalStates = getResources().getStringArray(R.array.emotional_states);
+
+        // Create the adapter using the resource array
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                requireContext(),
+                android.R.layout.simple_dropdown_item_1line,
+                emotionalStates
+        );
+
+        // Set the adapter to the AutoCompleteTextView
+        emotionalStateAutoCompleteText.setAdapter(adapter);
+
+        // Handle selection
+        emotionalStateAutoCompleteText.setOnItemClickListener((parent, view, position, id) -> {
+            String selectedState = (String) parent.getItemAtPosition(position);
+            // Do something with the selected state
+        });
+    }
+
+    private void setupSocialSituationDropdown() {
+        // Get social situations from arrays resource
+        String[] socialSituations = getResources().getStringArray(R.array.social_situations);
+
+        // Create the adapter using the resource array
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                requireContext(),
+                android.R.layout.simple_dropdown_item_1line,
+                socialSituations
+        );
+
+        // Set the adapter to the AutoCompleteTextView
+        socialSituationAutoCompleteText.setAdapter(adapter);
+
+        // Handle selection
+        socialSituationAutoCompleteText.setOnItemClickListener((parent, view, position, id) -> {
+            String selectedState = (String) parent.getItemAtPosition(position);
+            // Do something with the selected state
+        });
     }
 }

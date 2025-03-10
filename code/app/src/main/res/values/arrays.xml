@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="emotional_states">
-        <item>Select</item>
         <item>Anger</item>
         <item>Confusion</item>
         <item>Disgust</item>
@@ -13,7 +12,6 @@
     </string-array>
 
     <string-array name="social_situations">
-        <item>Select</item>
         <item>Alone</item>
         <item>With one person</item>
         <item>With few people</item>
