@@ -4,8 +4,10 @@ import static android.app.Activity.RESULT_OK;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.OpenableColumns;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -54,6 +56,7 @@ import ca.ualberta.compileorcry.features.mood.model.MoodEvent;
  */
 public class NewFragment extends Fragment {
 
+    private static final long MAX_FILE_SIZE_BYTES = 65536;
     private AutoCompleteTextView emotionalStateAutoCompleteText;
     private TextInputEditText dateEditText;
     private TextInputEditText triggerEditText;
@@ -311,9 +314,18 @@ public class NewFragment extends Fragment {
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK
                 && data != null && data.getData() != null) {
             imagePath = data.getData();
-            imagePathText.setVisibility(View.VISIBLE);
-            imagePathText.setText(imagePath.toString());
-            uploadImage();
+
+            // Check file size before proceeding
+            if (isFileSizeValid(imagePath)) {
+                imagePathText.setVisibility(View.VISIBLE);
+                imagePathText.setText(imagePath.toString());
+                uploadImage();
+            } else {
+                Toast.makeText(getContext(), "File size exceeds the limit of 64KB.",
+                        Toast.LENGTH_LONG).show();
+                imagePath = null;
+                uploadedImagePath = null;
+            }
         }
     }
 
@@ -334,6 +346,24 @@ public class NewFragment extends Fragment {
                         });
                     })
                     .addOnFailureListener(e -> Toast.makeText(getContext() , "Image Upload Failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+        }
+    }
+
+    private boolean isFileSizeValid(Uri uri) {
+        try {
+            Cursor cursor = requireContext().getContentResolver().query(uri, null, null, null, null);
+            if (cursor != null && cursor.moveToFirst()) {
+                int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
+                long fileSize = cursor.getLong(sizeIndex);
+                cursor.close();
+
+                Log.d("FileSize", "Selected file size: " + fileSize + " bytes");
+                return fileSize <= MAX_FILE_SIZE_BYTES;
+            }
+            return true;
+        } catch (Exception e) {
+            Log.e("FileSize", "Error checking file size: " + e.getMessage());
+            return true;
         }
     }
 }
