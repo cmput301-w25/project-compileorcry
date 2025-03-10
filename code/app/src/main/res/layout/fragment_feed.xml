@@ -17,8 +17,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Add Floating Action Button -->
-
     <LinearLayout
         android:id="@+id/linearLayoutFilters"
         android:layout_width="400dp"
@@ -50,11 +48,13 @@
 
     <LinearLayout
         android:id="@+id/linearLayoutFeed"
-        android:layout_width="413dp"
-        android:layout_height="475dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:orientation="vertical"
-        android:padding="30dp"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout4"
+        android:paddingHorizontal="30dp"
+        android:paddingTop="20dp"
+        android:paddingBottom="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayoutFilters">
@@ -67,39 +67,34 @@
         </androidx.recyclerview.widget.RecyclerView>
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/linearLayout4"
-        android:layout_width="0dp"
-        android:layout_height="100dp"
-        android:orientation="horizontal"
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabAddMood"
+        style="@style/Widget.Material3.FloatingActionButton.Primary"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="40dp"
+        android:layout_marginBottom="18dp"
+        android:backgroundTint="@color/dark"
+        android:contentDescription="@string/add_friends"
+        android:src="@drawable/baseline_add_24"
+        app:elevation="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:tint="@color/light" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabMap"
+        style="@style/Widget.Material3.FloatingActionButton.Primary"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="40dp"
+        android:layout_marginBottom="18dp"
+        android:backgroundTint="@color/dark"
+        android:contentDescription="@string/view_map"
+        android:src="@drawable/ic_map_24"
+        app:elevation="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/linearLayoutFeed">
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fabAddMood"
-            style="@style/Widget.Material3.Button.OutlinedButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="40dp"
-            android:layout_marginBottom="18dp"
-            android:backgroundTint="@color/light"
-            android:contentDescription="@string/add_friends"
-            android:src="@drawable/baseline_add_24"
-            app:tint="@color/dark" />
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fabMap"
-            style="@style/Widget.Material3.Button.OutlinedButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="220dp"
-            android:layout_marginBottom="10dp"
-            android:backgroundTint="@color/light"
-            android:contentDescription="@string/view_map"
-            android:src="@drawable/ic_map_24"
-            app:tint="@color/dark" />
-    </LinearLayout>
+        app:tint="@color/light" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
