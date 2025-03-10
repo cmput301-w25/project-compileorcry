@@ -136,13 +136,26 @@ public class User {
         });
     }
 
+    /**
+     * Returns username of the user as a string.
+     * @return Username of user.
+     */
     public String getUsername() {
         return username;
     }
 
+    /**
+     * Returns the display name of the user as a string.
+     * @return Display name of the user.
+     */
     public String getName() {
         return name;
     }
+
+    /**
+     * Returns a reference to the user document in firestore
+     * @return DocumentReference to user in firestore.
+     */
     public DocumentReference getUserDocRef() {
         return userDocRef;
     }
@@ -160,7 +173,10 @@ public class User {
     Input: On the android java dev. If I have a document with sub collections. How do I delete all its sub collections considering the limits on the api for java android.
     At:  16:00, Feb 18, 2025
      */
-    //This is for deleting the user from the DB.
+
+    /**
+     * Deletes the user object and related entries from the user collection and sub-collections.
+     */
     public void deleteUserFromDB() {
         deleteSubcollections(this.userDocRef.collection("mood_events"));
         deleteSubcollections(this.userDocRef.collection("follow_request"));
@@ -177,7 +193,7 @@ public class User {
     }
 
     // Helper method to delete subcollections
-    public void deleteSubcollections(CollectionReference collectionRef) {
+    private void deleteSubcollections(CollectionReference collectionRef) {
         // Get all documents in the collection
         collectionRef.get()
                 .addOnCompleteListener(task -> {
@@ -208,10 +224,21 @@ public class User {
                 });
     }
 
+    /**
+     * Returns the object of the currently logged in user.
+     * @return Logged-in user object
+     */
     public static User getActiveUser(){
         return activeUser;
     }
 
+    /**
+     * Set's the currently active user object
+     * <p> 
+     * Should only be used by  login, register, or logout actions.
+     *
+     * @param user User object of the currently logged-in user.
+     */
     public static void setActiveUser(User user){
         activeUser = user;
     }
