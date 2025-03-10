@@ -29,7 +29,6 @@
     <string name="social_situation_optional">Social Situation (Optional)</string>
     <string name="trigger_optional">Trigger (Optional)</string>
     <string name="date_amp_time"><![CDATA[Date & Time]]></string>
-    <string name="description">Description</string>
     <string name="create">Create</string>
     <string name="back">Back</string>
     <string name="profile_image">Profile Image</string>
@@ -40,4 +39,6 @@
     <string name="requests">Requests</string>
     <string name="sort_prompt">Sort</string>
     <string name="filter_prompt">Filter</string>
+    <string name="add_friends">Add Friends</string>
+    <string name="view_map">View Map</string>
 </resources>
