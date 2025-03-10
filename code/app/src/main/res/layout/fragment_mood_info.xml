@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    tools:context=".ui.MoodInfoFragment">
+
+    <!-- CardView for Mood Info -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/moodinfo_card"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        app:cardBackgroundColor="@color/light"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="6dp"
+        app:cardUseCompatPadding="true"
+        app:contentPadding="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_percent="0.9">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Emotion Display -->
+            <TextView
+                android:id="@+id/moodinfo_edit_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="left"
+                android:paddingBottom="8dp"
+                android:text="Edit Emotion Event"
+                android:textColor="@android:color/black"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/moodinfo_state_layout"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="260dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="32dp"
+                android:layout_marginTop="24dp"
+                android:hint="Emotional State"
+                android:textColorHint="@color/dark"
+                app:boxBackgroundMode="outline"
+                app:boxStrokeColor="@color/dark"
+                app:boxStrokeErrorColor="@color/anger"
+                app:cursorErrorColor="@color/anger"
+                app:errorEnabled="false"
+                app:errorTextAppearance="@style/TextAppearance.AppCompat.Body1"
+                app:errorTextColor="@color/dark"
+                app:hintAnimationEnabled="true"
+                app:hintEnabled="true"
+                app:hintTextColor="@color/light_dark_selector"
+                app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent">
+
+                <!--        android:drawableStart="@drawable/ic_user"-->
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/moodinfo_state_text"
+                    style="@style/TextAppearance.CompileOrCry.Body1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/source_sans_pro_semibold"
+                    android:inputType="text"
+                    android:textColor="@color/light" />
+            </com.google.android.material.textfield.TextInputLayout>
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/moodinfo_description_layout"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="260dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="32dp"
+                android:layout_marginTop="24dp"
+                android:hint="Description"
+                android:textColorHint="@color/dark"
+                app:boxBackgroundMode="outline"
+                app:boxStrokeColor="@color/dark"
+                app:boxStrokeErrorColor="@color/anger"
+                app:cursorErrorColor="@color/anger"
+                app:errorEnabled="false"
+                app:errorTextAppearance="@style/TextAppearance.AppCompat.Body1"
+                app:errorTextColor="@color/dark"
+                app:hintAnimationEnabled="true"
+                app:hintEnabled="true"
+                app:hintTextColor="@color/light_dark_selector"
+                app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent">
+
+                <!--        android:drawableStart="@drawable/ic_user"-->
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/moodinfo_description_text"
+                    style="@style/TextAppearance.CompileOrCry.Body1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/source_sans_pro_semibold"
+                    android:inputType="text"
+                    android:textColor="@color/light" />
+            </com.google.android.material.textfield.TextInputLayout>
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/moodinfo_trigger_layout"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="260dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="32dp"
+                android:layout_marginTop="24dp"
+                android:hint="Trigger(Optional)"
+                android:textColorHint="@color/dark"
+                app:boxBackgroundMode="outline"
+                app:boxStrokeColor="@color/dark"
+                app:boxStrokeErrorColor="@color/anger"
+                app:cursorErrorColor="@color/anger"
+                app:errorEnabled="false"
+                app:errorTextAppearance="@style/TextAppearance.AppCompat.Body1"
+                app:errorTextColor="@color/dark"
+                app:hintAnimationEnabled="true"
+                app:hintEnabled="true"
+                app:hintTextColor="@color/light_dark_selector"
+                app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent">
+
+                <!--        android:drawableStart="@drawable/ic_user"-->
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/moodinfo_trigger_text"
+                    style="@style/TextAppearance.CompileOrCry.Body1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/source_sans_pro_semibold"
+                    android:inputType="text"
+                    android:textColor="@color/light" />
+            </com.google.android.material.textfield.TextInputLayout>
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/moodinfo_situation_layout"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="260dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="32dp"
+                android:layout_marginTop="24dp"
+                android:hint="Social Situation (Optional)"
+                android:textColorHint="@color/dark"
+                app:boxBackgroundMode="outline"
+                app:boxStrokeColor="@color/dark"
+                app:boxStrokeErrorColor="@color/anger"
+                app:cursorErrorColor="@color/anger"
+                app:errorEnabled="false"
+                app:errorTextAppearance="@style/TextAppearance.AppCompat.Body1"
+                app:errorTextColor="@color/dark"
+                app:hintAnimationEnabled="true"
+                app:hintEnabled="true"
+                app:hintTextColor="@color/light_dark_selector"
+                app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent">
+
+                <!--        android:drawableStart="@drawable/ic_user"-->
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/moodinfo_situation_text"
+                    style="@style/TextAppearance.CompileOrCry.Body1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/source_sans_pro_semibold"
+                    android:inputType="text"
+                    android:textColor="@color/light" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/image_upload_button"
+                style="@style/Widget.Material3.Button.IconButton"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:layout_marginTop="12dp"
+                app:icon="@drawable/ic_image_40dp"
+                app:iconTint="@color/dark"
+                app:strokeColor="@color/dark" />
+
+            <!-- Button Row (Edit & Delete) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:paddingTop="8dp">
+
+                <!-- Edit Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/delete_button"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="125dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:text="Delete"
+                    android:textColor="@color/dark"
+                    app:strokeColor="@color/dark" />
+
+                <!-- Delete Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/save_button"
+                    style="@style/Widget.Material3.Button"
+                    android:layout_width="125dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:backgroundTint="@color/dark"
+                    android:text="Save"
+                    android:textColor="@color/light"/>
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
