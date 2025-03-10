@@ -13,12 +13,33 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import ca.ualberta.compileorcry.domain.models.User;
 
-public class MainActivity extends AppCompatActivity {
+/**
+ * Main activity that serves as the entry point for the application.
+ * This class sets up the navigation controller, manages the bottom navigation bar,
+ * and handles the initial navigation based on user authentication status.
+ *
+ * Features:
+ * - Configures the navigation components
+ * - Hides the default action bar for custom UI
+ * - Handles authentication state by showing appropriate initial screen
+ * - Controls visibility of the bottom navigation bar
+ * - Provides a method for showing navigation after successful login
+ */
 
+public class MainActivity extends AppCompatActivity {
+    /** for logging purposes */
     private static final String TAG = "MainActivity";
+    /** Navigation controller for managing navigation between fragments */
     private NavController navController;
+    /** Bottom navigation view for main app navigation */
     private BottomNavigationView navView;
 
+    /**
+     * Initializes the activity, sets up the navigation components,
+     * and navigates to the appropriate starting screen.
+     *
+     * @param savedInstanceState If non-null, this activity is being re-constructed from a previous saved state
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,28 +61,7 @@ public class MainActivity extends AppCompatActivity {
             navView = findViewById(R.id.nav_view);
 
             // Just connect the nav view to controller, no action bar setup
-            // NavigationUI.setupWithNavController(navView, navController);
-
-            // Manual navigation handling for debugging (optional)
-            navView.setOnItemSelectedListener(item -> {
-                int id = item.getItemId();
-                Log.d(TAG, "Navigation item selected: " + id);
-
-                if (id == R.id.navigation_feed) {
-                    Log.d(TAG, "Navigating to feed");
-                    navController.navigate(R.id.navigation_feed);
-                    return true;
-                } else if (id == R.id.navigation_new) {
-                    Log.d(TAG, "Navigating to new");
-                    navController.navigate(R.id.navigation_new);
-                    return true;
-                } else if (id == R.id.navigation_profile) {
-                    Log.d(TAG, "Navigating to profile");
-                    navController.navigate(R.id.navigation_profile);
-                    return true;
-                }
-                return false;
-            });
+            NavigationUI.setupWithNavController(navView, navController);
 
             // Handle login navigation if needed
             if (User.getActiveUser() == null) {
@@ -77,7 +77,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // Method to show navigation after login
+    /**
+     * Shows the bottom navigation bar and navigates to the feed screen.
+     * This method is typically called after a successful login or registration.
+     */
     public void showNavigation() {
         if (navView != null) {
             navView.setVisibility(View.VISIBLE);

@@ -8,10 +8,9 @@
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="218dp"
-        android:layout_height="58dp"
-        android:layout_marginTop="30dp"
-        android:layout_marginBottom="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dp"
         android:src="@drawable/txt_feed"
         app:layout_constraintBottom_toTopOf="@+id/linearLayoutFilters"
         app:layout_constraintEnd_toEndOf="parent"
@@ -26,7 +25,7 @@
         android:layout_height="70dp"
         android:gravity="center"
         android:orientation="horizontal"
-        android:padding="10dp"
+        android:padding="12dp"
         app:layout_constraintBottom_toTopOf="@+id/linearLayoutFeed"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView">
@@ -35,26 +34,24 @@
             android:id="@+id/feed_spinner"
             android:layout_width="150dp"
             android:layout_height="match_parent"
-            android:background="@drawable/spinner_bg"
             android:layout_marginEnd="18dp"
-            android:spinnerMode="dialog"
-            />
+            android:background="@drawable/spinner_bg"
+            android:spinnerMode="dialog" />
 
         <Spinner
             android:id="@+id/filter_spinner"
             android:layout_width="150dp"
             android:layout_height="match_parent"
-            android:background="@drawable/spinner_bg"
             android:layout_marginStart="18dp"
-            android:spinnerMode="dialog"
-            />
+            android:background="@drawable/spinner_bg"
+            android:spinnerMode="dialog" />
 
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/linearLayoutFeed"
         android:layout_width="413dp"
-        android:layout_height="477dp"
+        android:layout_height="475dp"
         android:orientation="vertical"
         android:padding="30dp"
         app:layout_constraintBottom_toTopOf="@+id/linearLayout4"
@@ -72,34 +69,37 @@
 
     <LinearLayout
         android:id="@+id/linearLayout4"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="100dp"
         android:orientation="horizontal"
-        app:layout_constraintTop_toBottomOf="@id/linearLayoutFeed"
-        app:layout_constraintBottom_toBottomOf="parent">
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/linearLayoutFeed">
+
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fabAddMood"
             style="@style/Widget.Material3.Button.OutlinedButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="28dp"
+            android:layout_marginStart="40dp"
             android:layout_marginBottom="18dp"
             android:backgroundTint="@color/light"
+            android:contentDescription="@string/add_friends"
             android:src="@drawable/baseline_add_24"
-            app:tint="@color/dark"
-            android:contentDescription="Add friends"/>
+            app:tint="@color/dark" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fabMap"
             style="@style/Widget.Material3.Button.OutlinedButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="238dp"
-            android:layout_marginBottom="18dp"
+            android:layout_marginStart="220dp"
+            android:layout_marginBottom="10dp"
             android:backgroundTint="@color/light"
+            android:contentDescription="@string/view_map"
             android:src="@drawable/ic_map_24"
-            app:tint="@color/dark"
-            android:contentDescription="Add friends"/>
+            app:tint="@color/dark" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

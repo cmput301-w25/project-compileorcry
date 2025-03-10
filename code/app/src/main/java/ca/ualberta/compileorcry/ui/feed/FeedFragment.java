@@ -29,6 +29,22 @@ import ca.ualberta.compileorcry.features.mood.data.MoodList;
 import ca.ualberta.compileorcry.features.mood.data.QueryType;
 import ca.ualberta.compileorcry.features.mood.model.EmotionalState;
 
+/**
+ * The FeedFragment class displays a feed of mood events, either from the user's
+ * history or from followed users. It implements filtering capabilities based on
+ * recency, emotional state, and reason.
+ *
+ * The fragment handles:
+ * - RecyclerView setup for displaying mood events
+ * - Spinner controls for selecting feed type and filters
+ * - Navigation to create new mood events
+ * - Querying mood events based on selected filters
+ *
+ * Outstanding issues:
+ * - Some filter combinations may not be properly handled
+ * - Error handling could be improved for empty result sets
+ * - UI feedback during data loading could be enhanced
+ */
 public class FeedFragment extends Fragment {
     private FragmentFeedBinding binding;
     private ImageView feedOrHistory;
@@ -128,7 +144,6 @@ public class FeedFragment extends Fragment {
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                // Optional: Set a default image when nothing is selected
                 feedOrHistory.setImageResource(R.drawable.txt_feed);
             }
         });
@@ -146,6 +161,15 @@ public class FeedFragment extends Fragment {
         });
     }
 
+    /**
+     * Loads mood events based on selected feed type and filter options.
+     * Creates a MoodList with the appropriate QueryType and handles the response
+     * through the MoodListListener.
+     *
+     * The method determines the correct QueryType based on combinations of:
+     * - Feed type (History or Following)
+     * - Filter type (None, Recent, State, or Reason)
+     */
     private void loadFeed() {
         Log.d("FeedFragment", "loadFeed() triggered");
         String feedType = (String) binding.feedSpinner.getSelectedItem();
@@ -187,6 +211,11 @@ public class FeedFragment extends Fragment {
                                 Log.d("FeedFragment", "Setting MoodEvents in ViewModel");
                                 feedViewModel.setMoodEvents(moodList.getMoodEvents());
                             }
+                        }
+                      
+                        @Override
+                        public void onError(Exception e) {
+                            Log.e("DataList",e.getMessage());
                         }
 
                         @Override
