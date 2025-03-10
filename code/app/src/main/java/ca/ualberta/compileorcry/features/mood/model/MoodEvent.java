@@ -38,12 +38,12 @@ public class MoodEvent {
         this.location = location;
     }
 
-    private Timestamp timestamp; // changed from LocalDateTime to Date
+    private Timestamp timestamp;
     private EmotionalState emotionalState;
-    private Object picture;         //TODO: this is not implemented yet, setters and getter will need to be fixed once we have a datatype
-    private String trigger;          // Optional text
-    private String socialSituation;  // Optional
-    private String username;  // Optional
+    private String picture;
+    private String trigger;
+    private String socialSituation;
+    private String username;
     private GeoHash location;  //TODO: this is not fully implemented yet, any setter needs to know how to get the geopoint
 
     /**
@@ -53,9 +53,10 @@ public class MoodEvent {
      * @param emotionalState The emotional state for this event. Cannot be null.
      * @param trigger Optional text description explaining the reason for this mood event.
      * @param socialSituation Optional description of the social context (alone, with one person, etc).
+     * @param picture Optional reference to an image stored in Firebase Storage.
      * @throws IllegalArgumentException If emotionalState is null.
      */
-    public MoodEvent(EmotionalState emotionalState, Timestamp date, String trigger, String socialSituation) {
+    public MoodEvent(EmotionalState emotionalState, Timestamp date, String trigger, String socialSituation, String picture) {
         if (emotionalState == null) {
             throw new IllegalArgumentException("Emotional state is required");
         }
@@ -64,6 +65,7 @@ public class MoodEvent {
         this.emotionalState = emotionalState;
         this.trigger = trigger;
         this.socialSituation = socialSituation;
+        this.picture = picture;
     }
 
     /**
@@ -177,7 +179,7 @@ public class MoodEvent {
      *
      * @param picture The picture object to associate with this mood event
      */
-    public void setPicture(Object picture) {
+    public void setPicture(String picture) {
         this.picture = picture;
     }
 
@@ -251,7 +253,7 @@ public class MoodEvent {
      * @return A string representation of the timestamp in "yyyy-MM-dd HH:mm" format.
      */
     public String getFormattedDate() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         return sdf.format(timestamp.toDate());
     }
 
