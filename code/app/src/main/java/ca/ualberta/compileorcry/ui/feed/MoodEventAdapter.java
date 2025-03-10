@@ -115,28 +115,17 @@ public class MoodEventAdapter extends RecyclerView.Adapter<MoodEventAdapter.View
     static class ViewHolder extends RecyclerView.ViewHolder {
         private final TextView emotionalStateTextView;
         private final TextView timestampTextView;
-        private final TextView triggerTextView;
-        private final TextView socialSituationTextView;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             emotionalStateTextView = itemView.findViewById(R.id.textview_emotional_state);
             timestampTextView = itemView.findViewById(R.id.textview_timestamp);
-            triggerTextView = itemView.findViewById(R.id.textview_trigger);
-            socialSituationTextView = itemView.findViewById(R.id.textview_social_situation);
         }
 
         public void bind(MoodEvent event) {
             if (event != null) {
                 emotionalStateTextView.setText(event.getEmotionalState().getDescription());
                 timestampTextView.setText(event.getFormattedDate());
-                // Assuming you have these methods in your MoodEvent class
-                if (event.getTrigger() != null) {
-                    triggerTextView.setText(event.getTrigger());
-                }
-                if (event.getSocialSituation() != null) {
-                    socialSituationTextView.setText(event.getSocialSituation().toString());
-                }
             }
         }
     }

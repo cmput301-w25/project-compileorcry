@@ -288,6 +288,11 @@ public class FeedFragment extends Fragment {
             public void updatedMoodList() {
                 Log.d("FeedFragment", "updatedMoodList() called");
             }
+
+            @Override
+            public void onError(Exception e) {
+                Log.e("DataList",e.getMessage());
+            }
         }, filterValue);
     }
 
