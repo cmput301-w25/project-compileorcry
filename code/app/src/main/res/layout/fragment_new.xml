@@ -188,6 +188,17 @@
                 app:iconTint="@color/light"
                 app:strokeColor="@color/light" />
 
+
+            <TextView
+                android:id="@+id/image_path_text"
+                android:layout_width="347dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:fontFamily="@font/source_sans_pro_semibold"
+                android:textAlignment="center"
+                android:textColor="@color/light"
+                android:visibility="gone" />
+
             <LinearLayout
                 android:id="@+id/button_layout"
                 android:layout_width="wrap_content"

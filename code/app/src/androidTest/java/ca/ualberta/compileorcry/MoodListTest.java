@@ -560,7 +560,7 @@ public class MoodListTest {
             MoodList.createMoodList(User.getActiveUser(), QueryType.HISTORY_MODIFIABLE,
                     new MoodList.MoodListListener() {
                         MoodList moodListOuter;
-                        MoodEvent moodEvent = new MoodEvent(EmotionalState.DISGUST,"trigger","Alone");
+                        MoodEvent moodEvent = new MoodEvent(EmotionalState.DISGUST, Timestamp.now(), "trigger", "Alone", "picture");
                         boolean addSuccess = false;
                         @Override
                         public void returnMoodList(MoodList moodList) {

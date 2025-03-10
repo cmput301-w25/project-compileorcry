@@ -34,6 +34,6 @@
 - [Scrum Board](https://github.com/orgs/cmput301-w25/projects/35)
 - [UI Mockups](https://www.figma.com/team_invite/redeem/5ejgfykba30pwhxKh3QezE)
 - [UI FigJam](https://www.figma.com/board/Hyxc2GxgZMiecMfXabJSii/Storyboard-Flow?node-id=0-1&p=f&t=WD9eHsEwiYao282q-0)
-- [UML]
+- [UML](https://github.com/cmput301-w25/project-compileorcry/wiki/UML-Diagram)
 
 ![image](https://github.com/user-attachments/assets/d1a4ba7f-0918-448e-90a1-d2a65297360d)
