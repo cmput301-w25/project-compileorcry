@@ -40,28 +40,7 @@ public class MainActivity extends AppCompatActivity {
             navView = findViewById(R.id.nav_view);
 
             // Just connect the nav view to controller, no action bar setup
-            // NavigationUI.setupWithNavController(navView, navController);
-
-            // Manual navigation handling for debugging (optional)
-            navView.setOnItemSelectedListener(item -> {
-                int id = item.getItemId();
-                Log.d(TAG, "Navigation item selected: " + id);
-
-                if (id == R.id.navigation_feed) {
-                    Log.d(TAG, "Navigating to feed");
-                    navController.navigate(R.id.navigation_feed);
-                    return true;
-                } else if (id == R.id.navigation_new) {
-                    Log.d(TAG, "Navigating to new");
-                    navController.navigate(R.id.navigation_new);
-                    return true;
-                } else if (id == R.id.navigation_profile) {
-                    Log.d(TAG, "Navigating to profile");
-                    navController.navigate(R.id.navigation_profile);
-                    return true;
-                }
-                return false;
-            });
+            NavigationUI.setupWithNavController(navView, navController);
 
             // Handle login navigation if needed
             if (User.getActiveUser() == null) {

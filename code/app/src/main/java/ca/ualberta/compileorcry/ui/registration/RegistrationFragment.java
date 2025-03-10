@@ -77,7 +77,7 @@ public class RegistrationFragment extends Fragment {
                 User.setActiveUser(user);
 
                 // Navigate to Main App
-                findNavController(view).navigate(R.id.navigation_profile);
+                findNavController(view).navigate(R.id.navigation_feed);
                 getActivity().findViewById(R.id.nav_view).setVisibility(View.VISIBLE);
             });
         });
