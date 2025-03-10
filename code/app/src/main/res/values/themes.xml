@@ -8,6 +8,12 @@
         <!-- Typography -->
         <item name="textAppearanceBodyLarge">@style/TextAppearance.CompileOrCry.Body1</item>
         <item name="textAppearanceBodyMedium">@style/TextAppearance.CompileOrCry.Body2</item>
+
+        <!-- Select component-->
+        <item name="android:dropDownItemStyle">@style/TextAppearance.CompileOrCry.DropDownItem.Light</item>
+
+        <!-- Bottom nav -->
+        <item name="itemActiveIndicatorStyle">@style/ActiveIndicator.CompileOrCry.LightDark</item>
     </style>
 
     <!-- Custom Text Styles -->
@@ -19,5 +25,14 @@
     <style name="TextAppearance.CompileOrCry.Body2" parent="TextAppearance.Material3.BodyMedium">
         <item name="android:fontFamily">@font/source_sans_pro</item>
         <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="TextAppearance.CompileOrCry.DropDownItem.Light" parent="@android:style/Widget.DropDownItem.Spinner">
+        <item name="android:textColor">@color/light</item>
+        <item name="android:background">@color/dark</item>
+    </style>
+
+    <style name="ActiveIndicator.CompileOrCry.LightDark" parent="@style/Widget.Material3.NavigationRailView.ActiveIndicator">
+        <item name="android:color">@color/light_dark_selector</item>
     </style>
 </resources>

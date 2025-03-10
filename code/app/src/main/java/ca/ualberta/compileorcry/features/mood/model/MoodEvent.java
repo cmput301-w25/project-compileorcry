@@ -32,11 +32,20 @@ public class MoodEvent {
             throw new IllegalArgumentException("Emotional state is required");
         }
         this.id = UUID.randomUUID().toString();
-        this.timestamp = Timestamp.now(); // Capture current date/time using java.util.Date
+        this.timestamp = Timestamp.now();
         this.emotionalState = emotionalState;
         this.trigger = trigger;
         this.socialSituation = socialSituation;
-
+    }
+    public MoodEvent(EmotionalState emotionalState, Timestamp date, String trigger, String socialSituation) {
+        if (emotionalState == null) {
+            throw new IllegalArgumentException("Emotional state is required");
+        }
+        this.id = UUID.randomUUID().toString();
+        this.timestamp = date;
+        this.emotionalState = emotionalState;
+        this.trigger = trigger;
+        this.socialSituation = socialSituation;
     }
     public MoodEvent(String id) {
         this.id = id;

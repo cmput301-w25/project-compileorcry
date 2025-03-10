@@ -25,6 +25,7 @@
         android:background="@color/dark"
         android:color="@color/light"
         app:itemIconTint="@color/light_dark_selector"
+        app:itemActiveIndicatorStyle="@style/ActiveIndicator.CompileOrCry.LightDark"
         app:itemTextColor="@color/light"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
