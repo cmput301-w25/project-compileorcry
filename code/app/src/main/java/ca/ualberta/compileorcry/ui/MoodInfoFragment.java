@@ -55,7 +55,7 @@ public class MoodInfoFragment extends Fragment {
         if (getArguments() != null) {
             moodEventId = getArguments().getString("moodEventId");
         }
-
+        /*
         if (moodEventId != null) {
             // Fetch MoodList and get the specific mood event
             MoodList.createMoodList(
@@ -74,7 +74,7 @@ public class MoodInfoFragment extends Fragment {
                     },
                     null
             );
-        }
+        }*/
 
         // Add button listeners
         binding.saveButton.setOnClickListener(v -> editMoodEvent());
