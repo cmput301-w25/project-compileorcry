@@ -36,6 +36,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * UI Test to verify the functionality of the Profile fragment.
+ * <p>
+ * Requires firebase datastore emulator to be running on port 8080.
+ */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class ProfileTest {

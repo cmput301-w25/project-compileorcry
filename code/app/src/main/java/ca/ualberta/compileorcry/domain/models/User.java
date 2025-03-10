@@ -14,6 +14,12 @@ import com.google.firebase.firestore.WriteBatch;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Class to represent a User stored in Firestore.
+ * <p>
+ * The class manages retrieving, updating, and deleting user information.
+ * Additionally it tracks the currently logged in user.
+ */
 public class User {
 
     private static User activeUser;
@@ -234,7 +240,7 @@ public class User {
 
     /**
      * Set's the currently active user object
-     * <p> 
+     * <p>
      * Should only be used by  login, register, or logout actions.
      *
      * @param user User object of the currently logged-in user.
