@@ -153,43 +153,28 @@ public class FeedFragment extends Fragment {
         Log.d("FeedFragment", "Selected Feed Type: " + feedType + ", Filter: " + filter);
         if (User.getActiveUser() != null) {
             Object filterValue = null;
-            QueryType selectedQueryType = QueryType.FOLLOWING; // Unfiltered following posts is default value
+            QueryType selectedQueryType ;// = QueryType.FOLLOWING; // Unfiltered following posts is default value
 
-            if (feedType.equals("History")) {
-                switch (filter) {
-                    case "Filter...":  // Reset to default
-                        selectedQueryType = QueryType.HISTORY_MODIFIABLE;
-                        break;
-                    case "Recent":
-                        selectedQueryType = QueryType.HISTORY_RECENT;
-                        break;
-                    case "State":
-                        showEmotionalStateDialog();  // Open dialog, don't continue execution
-                        return;
-                    case "Reason":
-                        showReasonInputDialog();  // Open text input, don't continue execution
-                        return;
-                    default:
-                        selectedQueryType = QueryType.HISTORY_MODIFIABLE;
-                }
-            } else if (feedType.equals("Following")) {
-                switch (filter) {
-                    case "Filter...":
-                        selectedQueryType = QueryType.FOLLOWING;
-                        break;
-                    case "Recent":
-                        selectedQueryType = QueryType.FOLLOWING_RECENT;
-                        break;
-                    case "State":
-                        showEmotionalStateDialog();
-                        return;
-                    case "Reason":
-                        showReasonInputDialog();
-                        return;
-                    default:
-                        selectedQueryType = QueryType.FOLLOWING;
-                }
+            // Determine the base QueryType (History or Following)
+            boolean isFollowing = feedType.equals("Following");
+
+            switch (filter) {
+                case "Filter...":  // Reset to default based on feed type
+                    selectedQueryType = isFollowing ? QueryType.FOLLOWING : QueryType.HISTORY_MODIFIABLE;
+                    break;
+                case "Recent":
+                    selectedQueryType = isFollowing ? QueryType.FOLLOWING_RECENT : QueryType.HISTORY_RECENT;
+                    break;
+                case "State":
+                    showEmotionalStateDialog(isFollowing);  // 🔹 Open state selection dialog
+                    return;
+                case "Reason":
+                    showReasonInputDialog(isFollowing);  // 🔹 Open reason input dialog
+                    return;
+                default:
+                    selectedQueryType = isFollowing ? QueryType.FOLLOWING : QueryType.HISTORY_MODIFIABLE;
             }
+
             Log.d("FeedFragment", "Selected QueryType: " + selectedQueryType);
             MoodList.createMoodList(User.getActiveUser(), selectedQueryType,
                     new MoodList.MoodListListener() {
@@ -212,7 +197,7 @@ public class FeedFragment extends Fragment {
                     }, filterValue);
         }
     }
-    private void showReasonInputDialog() {
+    private void showReasonInputDialog(boolean isFollowing) {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         builder.setTitle("Enter Reason to Filter");
 
@@ -226,7 +211,7 @@ public class FeedFragment extends Fragment {
             Log.d("FeedFragment", "User entered reason: " + reasonKeyword);
 
             if (!reasonKeyword.isEmpty()) {
-                applySelectedFilter(QueryType.HISTORY_REASON, reasonKeyword);
+                applySelectedFilter(isFollowing ? QueryType.FOLLOWING_REASON : QueryType.HISTORY_REASON, reasonKeyword);
             }
         });
 
@@ -234,7 +219,7 @@ public class FeedFragment extends Fragment {
         builder.show();
     }
 
-    private void showEmotionalStateDialog() {
+    private void showEmotionalStateDialog(boolean isFollowing) {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         builder.setTitle("Select Emotional State");
 
@@ -250,7 +235,7 @@ public class FeedFragment extends Fragment {
             Log.d("FeedFragment", "User selected state: " + selectedState);
 
             // Now trigger loadFeed() with the selected state
-            applySelectedFilter(QueryType.HISTORY_STATE, selectedState);
+            applySelectedFilter(isFollowing ? QueryType.FOLLOWING_STATE : QueryType.HISTORY_STATE, selectedState);
         });
 
         builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
