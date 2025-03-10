@@ -16,9 +16,32 @@ import ca.ualberta.compileorcry.R;
 import ca.ualberta.compileorcry.databinding.FragmentLoginBinding;
 import ca.ualberta.compileorcry.domain.models.User;
 
+/**
+ * Fragment that handles user login functionality.
+ * This class provides a user interface for existing users to log in to the application
+ * by entering their username.
+ *
+ * Features:
+ * - Username validation
+ * - Error indication with color change
+ * - Disabling UI controls during authentication
+ * - Navigation to main app content upon successful login
+ * - Navigation to registration for new users
+ *
+ */
 public class LoginFragment extends Fragment {
     private FragmentLoginBinding binding;
 
+    /**
+     * Inflates the fragment layout using view binding.
+     *
+     * @param inflater The LayoutInflater object that can be used to inflate views
+     * @param container If non-null, this is the parent view that the fragment's UI should be
+     *                  attached to
+     * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous
+     *                           saved state
+     * @return The View for the fragment's UI
+     */
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
@@ -27,18 +50,37 @@ public class LoginFragment extends Fragment {
         return root;
     }
 
+    /**
+     * Disables all UI input controls.
+     * This method is called during the authentication process to prevent
+     * multiple simultaneous login attempts.
+     */
     public void disableUI(){
         binding.loginUsernameText.setEnabled(false);
         binding.loginButton.setEnabled(false);
         binding.registerButton.setEnabled(false);
     }
 
+    /**
+     * Enables all UI input controls.
+     * This method is called when authentication fails to allow the user to retry.
+     */
     public void enableUI(){
         binding.loginUsernameText.setEnabled(true);
         binding.loginButton.setEnabled(true);
         binding.registerButton.setEnabled(true);
     }
 
+    /**
+     * Sets up UI element listeners after the view is created.
+     * This method configures:
+     * 1. The login button to validate and submit credentials
+     * 2. The register button to navigate to the registration screen
+     *
+     * @param view The View returned by onCreateView
+     * @param savedInstanceState If non-null, this fragment is being re-constructed from a
+     *                          previous saved state
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -79,6 +121,10 @@ public class LoginFragment extends Fragment {
 
     }
 
+    /**
+     * Cleans up resources when the view is destroyed.
+     * Specifically, this method nullifies the view binding to prevent memory leaks.
+     */
     @Override
     public void onDestroyView() {
         super.onDestroyView();

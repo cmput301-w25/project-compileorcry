@@ -33,6 +33,17 @@ import ca.ualberta.compileorcry.features.mood.data.QueryType;
 import ca.ualberta.compileorcry.features.mood.model.EmotionalState;
 import ca.ualberta.compileorcry.features.mood.model.MoodEvent;
 
+/**
+ * The NewFragment class provides the UI for creating new mood events.
+ * It implements a form-based interface for users to input mood event details
+ * including emotional state, date, description, trigger, and social situation.
+ *
+ * Key features:
+ * - Form validation for required fields
+ * - Date picker dialog for selecting event dates
+ * - Support for future image upload functionality
+ *
+ */
 public class NewFragment extends Fragment {
 
     private AutoCompleteTextView emotionalStateAutoCompleteText;
@@ -49,17 +60,38 @@ public class NewFragment extends Fragment {
 
     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
-
+    /**
+     * Default constructor required for fragments.
+     */
     public NewFragment() {
         // Required empty public constructor
     }
 
+    /**
+     * Inflates the fragment layout.
+     *
+     * @param inflater The LayoutInflater object that can be used to inflate views
+     * @param container If non-null, this is the parent view that the fragment's UI should be
+     *                 attached to
+     * @param savedInstanceState If non-null, this fragment is being re-constructed from a
+     *                           previous saved state
+     * @return The View for the fragment's UI
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_new, container, false);
     }
 
+    /**
+     * Initialize UI components and set up event listeners after the view is created.
+     * This method handles all the initialization of UI elements, dropdowns,
+     * and button click listeners.
+     *
+     * @param view The View returned by onCreateView
+     * @param savedInstanceState If non-null, this fragment is being re-constructed from a
+     *                           previous saved state
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -100,6 +132,10 @@ public class NewFragment extends Fragment {
         createButton.setOnClickListener(v -> submitNewEvent());
     }
 
+    /**
+     * Displays a date picker dialog to allow the user to select a date for the mood event.
+     * The selected date is displayed in the date input field.
+     */
     private void showDatePickerDialog() {
         final Calendar calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR);
@@ -117,6 +153,12 @@ public class NewFragment extends Fragment {
         datePickerDialog.show();
     }
 
+    /**
+     * Validates form inputs and submits the new mood event data if all required fields are valid.
+     * Shows appropriate error messages for invalid or missing data.
+     *
+     * Note: The actual submission to the database is not yet implemented.
+     */
     private void submitNewEvent() {
         boolean isValid = true;
 
@@ -148,7 +190,8 @@ public class NewFragment extends Fragment {
         }
 
         Timestamp timestamp = new Timestamp(date);
-        MoodEvent event = new MoodEvent(EmotionalState.valueOf(emotionalState.toUpperCase()), timestamp, trigger, socialSituation);
+        MoodEvent event = new MoodEvent(EmotionalState.valueOf(emotionalState.toUpperCase()),
+                timestamp, trigger, socialSituation);
 
         MoodList.createMoodList(User.getActiveUser(), QueryType.HISTORY_MODIFIABLE,
                 new MoodList.MoodListListener() {
@@ -156,7 +199,8 @@ public class NewFragment extends Fragment {
                     public void returnMoodList(MoodList moodList) {
                         moodList.addMoodEvent(event);
                         clear();
-                        Toast.makeText(getContext(), "Mood event created successfully!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "Mood event created successfully!",
+                                Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
@@ -171,6 +215,11 @@ public class NewFragment extends Fragment {
                 }, null);
     }
 
+    /**
+     * Sets up the emotional state dropdown with values from the string array resource.
+     * This creates and attaches an adapter to display all possible emotional states
+     * in a dropdown menu format.
+     */
     private void setupEmotionalStateDropdown() {
         // Get emotional states from arrays resource
         String[] emotionalStates = getResources().getStringArray(R.array.emotional_states);
@@ -186,6 +235,11 @@ public class NewFragment extends Fragment {
         emotionalStateAutoCompleteText.setAdapter(adapter);
     }
 
+    /**
+     * Sets up the social situation dropdown with values from the string array resource.
+     * This creates and attaches an adapter to display all possible social situations
+     * in a dropdown menu format.
+     */
     private void setupSocialSituationDropdown() {
         // Get social situations from arrays resource
         String[] socialSituations = getResources().getStringArray(R.array.social_situations);
@@ -201,6 +255,11 @@ public class NewFragment extends Fragment {
         socialSituationAutoCompleteText.setAdapter(adapter);
     }
 
+    /**
+     * Clears all form fields and error states.
+     * This method is called after successfully submitting a mood event
+     * to prepare the form for a new entry.
+     */
     public void clear() {
         // Clear the emotional state dropdown
         emotionalStateAutoCompleteText.setText("", false);
