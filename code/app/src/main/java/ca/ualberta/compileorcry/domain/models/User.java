@@ -14,6 +14,12 @@ import com.google.firebase.firestore.WriteBatch;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * The User class represents a user stored in Firebase.
+ * The class handles creating, updating, retrieving, and deleting users.
+ * <p>
+ * Additionally the class manages synchronization updates between the local user object and firebase.
+ */
 public class User {
 
     private static User activeUser;
@@ -136,13 +142,26 @@ public class User {
         });
     }
 
+    /**
+     * Returns the user's username as a string
+     * @return Username as a string
+     */
     public String getUsername() {
         return username;
     }
 
+    /**
+     * Returns the user's display name as a string
+     * @return Display name as a string
+     */
     public String getName() {
         return name;
     }
+
+    /**
+     * Returns a reference to the user document in firebase
+     * @return Reference to the user document
+     */
     public DocumentReference getUserDocRef() {
         return userDocRef;
     }
@@ -161,6 +180,10 @@ public class User {
     At:  16:00, Feb 18, 2025
      */
     //This is for deleting the user from the DB.
+
+    /**
+     * Deletes the user and related records from firebase
+     */
     public void deleteUserFromDB() {
         deleteSubcollections(this.userDocRef.collection("mood_events"));
         deleteSubcollections(this.userDocRef.collection("follow_request"));
@@ -176,7 +199,10 @@ public class User {
                 .addOnFailureListener(e -> System.err.println("Error deleting user document: " + e));
     }
 
-    // Helper method to delete subcollections
+    /**
+     * Deletes references to the user in the provided collection
+     * @param collectionRef Sub-collection to delete records from
+     */
     public void deleteSubcollections(CollectionReference collectionRef) {
         // Get all documents in the collection
         collectionRef.get()
@@ -208,10 +234,18 @@ public class User {
                 });
     }
 
+    /**
+     *
+     * @return
+     */
     public static User getActiveUser(){
         return activeUser;
     }
 
+    /**
+     *
+     * @param user
+     */
     public static void setActiveUser(User user){
         activeUser = user;
     }
