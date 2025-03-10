@@ -161,15 +161,18 @@ public class FeedFragment extends Fragment {
             switch (filter) {
                 case "Filter...":  // Reset to default based on feed type
                     selectedQueryType = isFollowing ? QueryType.FOLLOWING : QueryType.HISTORY_MODIFIABLE;
+                    if (feedViewModel != null) {
+                        feedViewModel.setMoodEvents(new ArrayList<>());
+                    }
                     break;
                 case "Recent":
                     selectedQueryType = isFollowing ? QueryType.FOLLOWING_RECENT : QueryType.HISTORY_RECENT;
                     break;
                 case "State":
-                    showEmotionalStateDialog(isFollowing);  // 🔹 Open state selection dialog
+                    showEmotionalStateDialog(isFollowing);  // Open state selection dialog
                     return;
                 case "Reason":
-                    showReasonInputDialog(isFollowing);  // 🔹 Open reason input dialog
+                    showReasonInputDialog(isFollowing);  // Open reason input dialog
                     return;
                 default:
                     selectedQueryType = isFollowing ? QueryType.FOLLOWING : QueryType.HISTORY_MODIFIABLE;
