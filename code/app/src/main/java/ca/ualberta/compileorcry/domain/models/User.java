@@ -1,7 +1,13 @@
 package ca.ualberta.compileorcry.domain.models;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 
+import androidx.fragment.app.FragmentActivity;
+import androidx.navigation.fragment.NavHostFragment;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -13,6 +19,8 @@ import com.google.firebase.firestore.WriteBatch;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import ca.ualberta.compileorcry.R;
 
 /**
  * Class to represent a User stored in Firestore.
@@ -247,6 +255,22 @@ public class User {
      */
     public static void setActiveUser(User user){
         activeUser = user;
+    }
+
+    public static void checkActiveUser(FragmentActivity activity){
+        SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
+        if(sharedPref.getBoolean(loggedin_key, false)){
+
+        }
+    }
+
+    public static void logoutUser(FragmentActivity activity){
+        NavHostFragment navHostFragment = (NavHostFragment) activity.getSupportFragmentManager()
+                .findFragmentById(R.id.nav_host_fragment_activity_main);
+        navHostFragment.getNavController().navigate(R.id.navigation_login);
+        activity.findViewById(R.id.nav_view).setVisibility(BottomNavigationView.GONE);
+
+
     }
 
 }

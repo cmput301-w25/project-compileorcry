@@ -37,6 +37,7 @@
     <string name="friends">Friends</string>
     <string name="history">History</string>
     <string name="requests">Requests</string>
+    <string name="logout">Logout</string>
     <string name="sort_prompt">Sort</string>
     <string name="filter_prompt">Filter</string>
     <string name="add_friends">Add Friends</string>
