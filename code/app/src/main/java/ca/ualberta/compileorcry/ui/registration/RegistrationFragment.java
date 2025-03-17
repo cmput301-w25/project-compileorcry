@@ -114,6 +114,8 @@ public class RegistrationFragment extends Fragment {
                     binding.registrationUsernameLayout.setStartIconTintList(
                             getResources().getColorStateList(R.color.anger, getContext().getTheme())
                     );
+                    enableUI();
+                    return;
                 }
                 //TODO: Implement saving locally username
                 User.setActiveUser(user);
