@@ -109,8 +109,8 @@ public class LoginFragment extends Fragment {
 
                 findNavController(view).navigate(R.id.navigation_feed);
                 getActivity().findViewById(R.id.nav_view).setVisibility(View.VISIBLE);
-                //TODO: Save username locally
-                User.setActiveUser(user);
+
+                User.setActiveUser(user, getActivity());
             });
         });
 

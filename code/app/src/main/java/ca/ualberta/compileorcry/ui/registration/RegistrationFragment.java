@@ -117,8 +117,8 @@ public class RegistrationFragment extends Fragment {
                     enableUI();
                     return;
                 }
-                //TODO: Implement saving locally username
-                User.setActiveUser(user);
+
+                User.setActiveUser(user, getActivity());
 
                 // Navigate to Main App
                 findNavController(view).navigate(R.id.navigation_feed);
