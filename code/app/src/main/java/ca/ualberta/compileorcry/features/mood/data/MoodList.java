@@ -556,9 +556,12 @@ public class MoodList {
                 followingLoaded = true;
             } else {
                 ptrToSelf.getQuery();
+                attachMoodEventsListener(ptrToSelf.query);
                 //if needed a listener call here for update to followers
             }
+
         });
+
     }
     /**
      * Attaches a Firestore listener to the specified query to fetch MoodEvents.
@@ -733,6 +736,7 @@ public class MoodList {
                 throw new IllegalArgumentException("unsupported query type: " + queryType);
         }
         this.query = query;
+        Log.d("Firestore Debug", "Executing Firestore query: " + query.toString());
     }
 
     //https://firebase.google.com/docs/firestore/solutions/geoqueries#java

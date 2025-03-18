@@ -1,22 +1,13 @@
 package ca.ualberta.compileorcry;
 
-import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.action.ViewActions.longClick;
-import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.ViewMatchers.hasErrorText;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.isRoot;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.is;
-import static java.util.EnumSet.allOf;
-
-import android.graphics.Movie;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
@@ -25,18 +16,14 @@ import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.PerformException;
 import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
-import androidx.test.espresso.action.ViewActions;
 import androidx.test.espresso.util.HumanReadables;
 import androidx.test.espresso.util.TreeIterables;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.uiautomator.UiDevice;
 
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.hamcrest.Matcher;
@@ -45,7 +32,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -59,12 +45,10 @@ import java.util.Map;
 import java.util.Objects;
 
 import ca.ualberta.compileorcry.domain.models.User;
-import ca.ualberta.compileorcry.features.mood.data.MoodList;
-import ca.ualberta.compileorcry.features.mood.data.QueryType;
 import ca.ualberta.compileorcry.features.mood.model.EmotionalState;
 import ca.ualberta.compileorcry.features.mood.model.MoodEvent;
 
-public class FeedTest {
+public class HistoryTest {
     @Rule
     public ActivityScenarioRule<MainActivity> scenario =
             new ActivityScenarioRule<MainActivity>(MainActivity.class);
@@ -89,63 +73,20 @@ public class FeedTest {
         @Before
         public void seedDatabaseAndLogin() throws InterruptedException {
             // Create Moods for User1
-            List<MoodEvent> moodsForUser2 = Arrays.asList(
+            List<MoodEvent> moodsForUser1 = Arrays.asList(
                     new MoodEvent(EmotionalState.HAPPINESS, TimestampHelper.createTimestamp("2025-03-01"), "Won a game", "With friends", null),
                     new MoodEvent(EmotionalState.SADNESS, TimestampHelper.createTimestamp("2025-03-17"), "Lost a bet", "Alone", null)
             );
 
-            // Add User1 and User2 to Database
-            addUserWithMoodsAndFollowing("user1", "Alice", new ArrayList<>(), Arrays.asList("user2"));
-            SystemClock.sleep(3000);
-            addUserWithMoodsAndFollowing("user2", "Bob", moodsForUser2, Arrays.asList());
-            SystemClock.sleep(3000);
-            // Verify mood events exist
-            FirebaseFirestore.getInstance().collection("users").document("user2").collection("mood_events")
-                    .get().addOnCompleteListener(task -> {
-                        if (task.isSuccessful() && !task.getResult().isEmpty()) {
-                            Log.d("Firestore Test", "User2's moods exist: " + task.getResult().size());
-                        } else {
-                            Log.e("Firestore Test", "User2's moods were not found!");
-                        }
-                    });
-            FirebaseFirestore.getInstance()
-                    .collection("users").document("user1")
-                    .collection("following").get()
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            Log.d("Firestore Debug", "User1 follows: " + task.getResult().size());
-                            for (DocumentSnapshot doc : task.getResult()) {
-                                Log.d("Firestore Debug", "Following user: " + doc.getString("username"));
-                            }
-                        } else {
-                            Log.e("Firestore Debug", "Failed to get following users.");
-                        }
-                    });
-            FirebaseFirestore.getInstance()
-                    .collection("users").document("user2")
-                    .collection("mood_events").get()
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            Log.d("Firestore Debug", "User2 has " + task.getResult().size() + " moods.");
-                            for (DocumentSnapshot doc : task.getResult()) {
-                                Log.d("Firestore Debug", "Mood: " + doc.getData().toString());
-                            }
-                        } else {
-                            Log.e("Firestore Debug", "Failed to get User2's moods.");
-                        }
-                    });
-
-
-            // Now user1 follows user2, so they should see moods posted by user2
-            // Simulate a logged-in user before starting tests, log into "user2" for the following test
+            // Add User1 to Database
+            addUserWithMoodsAndFollowing("user1", "Alice", moodsForUser1, Arrays.asList());
             User.setTestUser("user1");
             // Delay
             SystemClock.sleep(2000);
-            Log.d("Test Debug", "Current Test User: " + User.getActiveUser().getUsername());
         }
 
     @Test
-    public void appShouldDisplayFollowedUserPosts() throws InterruptedException {
+    public void appShouldDisplayUserMoodHistory() throws InterruptedException {
         // Step 1: Launch Activity
         ActivityScenario.launch(MainActivity.class);
         // Ensure FeedFragment is open
@@ -154,34 +95,16 @@ public class FeedTest {
         // Wait for UI to load
         onView(isRoot()).perform(waitForView(R.id.feed_spinner, 5000));
 
+        // Click on feed spinner
+        onView(withId(R.id.feed_spinner)).perform(click());
+        onView(withText("Feed...")).perform(click());
+
         // Step 3: Select "Following" from feed spinner
         onView(withId(R.id.feed_spinner)).perform(click());
-        onView(withText("Following")).perform(click());
-
-        SystemClock.sleep(3000); // Ensure Firestore updates
-
-        Log.d("Test Debug", "Manually triggering attachFollowersListener()");
-        MoodList.createMoodList(User.getActiveUser(), QueryType.FOLLOWING,
-                new MoodList.MoodListListener() {
-                    @Override
-                    public void returnMoodList(MoodList moodList) {
-                        Log.d("Test Debug", "MoodList returned, moods: " + moodList.getMoodEvents().size());
-                    }
-
-                    @Override
-                    public void updatedMoodList() {
-                        Log.d("Test Debug", "MoodList updated.");
-                    }
-
-                    @Override
-                    public void onError(Exception e) {
-
-                    }
-                }, null);
-
+        onView(withText("History")).perform(click());
 
         // Wait for UI to load
-        onView(isRoot()).perform(waitForView(R.id.recyclerViewMoodHistory, 5000));
+        onView(isRoot()).perform(waitForView(R.id.feed_spinner, 5000));
 
         // Step 4: Assert moods from followed users appear
         onView(withText("Happiness")).check(matches(isDisplayed()));

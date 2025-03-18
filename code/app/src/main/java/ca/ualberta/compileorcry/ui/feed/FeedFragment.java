@@ -227,6 +227,8 @@ public class FeedFragment extends Fragment {
                             // Handled automatically
                         }
                     }, filterValue);
+        } else {
+            Log.e("FeedFragment", "No active user set!");
         }
     }
     private void showReasonInputDialog(boolean isFollowing) {

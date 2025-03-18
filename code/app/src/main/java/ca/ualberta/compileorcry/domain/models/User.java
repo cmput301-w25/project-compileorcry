@@ -215,6 +215,28 @@ public class User {
     public static void setActiveUser(User user){
         activeUser = user;
     }
+    public static void setTestUser(String username) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference userDocRef = db.collection("users").document(username);
+
+        userDocRef.get().addOnSuccessListener(document -> {
+            if (document.exists()) {
+                // Manually extract fields instead of using toObject(User.class)
+                String fetchedUsername = document.getString("username");
+                String fetchedName = document.getString("name");
+
+                if (fetchedUsername != null && fetchedName != null) {
+                    User user = new User(fetchedUsername, fetchedName, userDocRef); // Manually create user
+                    activeUser = user;  // Set as the active user
+                    Log.d("Firestore", "Test user set: " + fetchedUsername);
+                } else {
+                    Log.e("Firestore", "Missing username or name fields.");
+                }
+            } else {
+                Log.e("Firestore", "No such user found.");
+            }
+        }).addOnFailureListener(e -> Log.e("Firestore", "Error fetching user", e));
+    }
 
 }
 
