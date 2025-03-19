@@ -34,6 +34,37 @@
                 android:contentDescription="@string/new_event"
                 android:src="@drawable/txt_new_event" />
 
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="45dp"
+                android:layout_marginTop="12dp"
+                android:gravity="center_horizontal|center_vertical"
+                android:orientation="horizontal">
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/visibility_switch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="14dp"
+                    android:checked="true"
+                    android:fontFamily="@font/source_sans_pro"
+                    android:outlineProvider="none"
+                    android:text="Private"
+                    android:textColor="@color/light"
+                    android:textSize="20sp"
+                    app:trackTint="@color/confusion" />
+
+                <TextView
+                    android:id="@+id/public_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Public  "
+                    android:textColor="@color/light"
+                    android:textSize="20sp" />
+
+            </LinearLayout>
+
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/new_event_emotional_state_layout"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
