@@ -30,7 +30,7 @@ import ca.ualberta.compileorcry.domain.models.User;
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class PersistentUserTest {
+public class OfflineDataTest {
 
     @Rule
     public ActivityScenarioRule<MainActivity> scenario =
