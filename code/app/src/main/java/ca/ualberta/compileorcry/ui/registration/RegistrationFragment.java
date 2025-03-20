@@ -11,6 +11,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import java.util.Objects;
+
 import ca.ualberta.compileorcry.R;
 import ca.ualberta.compileorcry.databinding.FragmentRegistrationBinding;
 import ca.ualberta.compileorcry.domain.models.User;
@@ -108,7 +110,11 @@ public class RegistrationFragment extends Fragment {
 
             User.register_user(username, name, (user, error) -> {
                 if(error != null || user == null){
-                    binding.registrationUsernameLayout.setError(error);
+                    String errorMsg = error;
+                    if(Objects.equals(error, "Network Error")){
+                        errorMsg = "App Offline - Network required to register";
+                    }
+                    binding.registrationUsernameLayout.setError(errorMsg);
                     binding.registrationUsernameLayout.setStartIconTintList(
                             getResources().getColorStateList(R.color.anger, getContext().getTheme())
                     );

@@ -8,10 +8,12 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.Firebase;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -101,6 +103,15 @@ public class User {
                     });
                 }
             } else {
+                if (task.getException() instanceof FirebaseFirestoreException) {
+                    FirebaseFirestoreException exception = (FirebaseFirestoreException) task.getException();
+                    FirebaseFirestoreException.Code exceptionCode = exception.getCode();
+                    if (exceptionCode == FirebaseFirestoreException.Code.UNAVAILABLE){
+                        Log.e("UserRepository", "Network Error");
+                        callback.onUserLoaded(null, "Network Error");
+                        return;
+                    }
+                }
                 Log.e("UserRepository", "Error Registering User");
                 if (callback != null)
                     callback.onUserLoaded(null, "Error occurred during registration.");
@@ -128,6 +139,16 @@ public class User {
                         callback.onUserLoaded(null, "User does not exist.");
                 }
             } else {
+                if (task.getException() instanceof FirebaseFirestoreException) {
+                   FirebaseFirestoreException exception = (FirebaseFirestoreException) task.getException();
+                   FirebaseFirestoreException.Code exceptionCode = exception.getCode();
+                   if (exceptionCode == FirebaseFirestoreException.Code.UNAVAILABLE){
+                       Log.e("UserRepository", "Network Error");
+                       callback.onUserLoaded(null, "Network Error");
+                       return;
+                   }
+                }
+                Log.w("UserRepository", task.getException());
                 if (callback != null)
                     callback.onUserLoaded(null, "Error while logging in.");
             }

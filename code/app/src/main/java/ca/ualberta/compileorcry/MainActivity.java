@@ -3,6 +3,7 @@ package ca.ualberta.compileorcry;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
@@ -11,6 +12,7 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import ca.ualberta.compileorcry.domain.data.OfflineHelper;
 import ca.ualberta.compileorcry.domain.models.User;
 
 /**

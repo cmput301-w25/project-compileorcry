@@ -11,6 +11,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import java.util.Objects;
+
 import ca.ualberta.compileorcry.R;
 import ca.ualberta.compileorcry.databinding.FragmentLoginBinding;
 import ca.ualberta.compileorcry.domain.models.User;
@@ -97,7 +99,11 @@ public class LoginFragment extends Fragment {
 
             User.get_user(username, (user, error) -> { // Handle Firebase Response
                 if(error != null || user == null) { // Error Trap
-                    binding.loginUsernameLayout.setError(error);
+                    String errorMsg = error;
+                    if(Objects.equals(error, "Network Error")){
+                        errorMsg = "App Offline - First login has to be while online";
+                    }
+                    binding.loginUsernameLayout.setError(errorMsg);
                     binding.loginUsernameLayout.setStartIconTintList(
                             getResources().getColorStateList(R.color.anger, getContext().getTheme())
                     );
