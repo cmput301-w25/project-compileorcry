@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
 
             // Handle login navigation
             if (User.getActiveUser() == null) {
-                User.checkActiveUser(this, (Boolean resumed, String error) -> {
+                User.checkActiveUser(this, (resumed, error) -> {
                     if(error != null){
                         Log.e("UserResume", error);
                     }

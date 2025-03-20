@@ -47,7 +47,7 @@ public class User {
     }
 
     public interface ActiveUserUpdatedListener {
-        void onActiveUserUpdated(Boolean resumed, String error);
+        void onActiveUserUpdated(boolean resumed, String error);
     }
 
     private User(String username, String name, DocumentReference documentReference){
