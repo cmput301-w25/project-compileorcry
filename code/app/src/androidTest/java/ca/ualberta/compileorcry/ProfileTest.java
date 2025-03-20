@@ -32,14 +32,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-
 import ca.ualberta.compileorcry.domain.models.User;
 
 /**
@@ -83,6 +75,9 @@ public class ProfileTest {
         Thread.sleep(1000);
     }
 
+    /**
+     * Test to verify the profile can be accessed after login
+     */
     @Test
     public void profileVisible(){
         // Navigate to profile and verify
@@ -90,6 +85,9 @@ public class ProfileTest {
         onView(withId(R.id.profile_name)).check(matches(isDisplayed()));
     }
 
+    /**
+     * Test to verify changing the user's display name
+     */
     @Test
     public void changeName() throws InterruptedException {
         // Navigate to profile
@@ -111,6 +109,9 @@ public class ProfileTest {
         onView(withId(R.id.profile_name)).check(matches(withText("New Test User")));
     }
 
+    /**
+     * Test to verify using the logout from the profile page
+     */
     @Test
     public void logout(){
         // Navigate to profile

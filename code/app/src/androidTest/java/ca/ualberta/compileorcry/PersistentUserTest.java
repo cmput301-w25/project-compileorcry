@@ -61,6 +61,9 @@ public class PersistentUserTest {
         TestHelper.addUser("testUser", "Test User");
     }
 
+    /**
+     * Test to verify the logged in user's username is stored in persistent data and can be retrieved
+     */
     @Test
     public void resumeActiveUserTest(){
         scenario.getScenario().onActivity(activity -> {
