@@ -63,6 +63,8 @@ dependencies {
     androidTestImplementation("androidx.test.uiautomator:uiautomator:2.2.0")
     androidTestUtil("androidx.test:orchestrator:1.4.2")
 
-    //implementation(files("${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar")) // For javadocs
-
+    /*
+    Uncomment below for generating javadocs. Update username and path as needed
+     */
+    //implementation(files("C:/Users/<USERNAME_HERE>/AppData/Local/Android/Sdk/platforms/android-35/android.jar"))
 }
