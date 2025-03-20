@@ -86,6 +86,7 @@ public class ProfileFragment extends Fragment {
      * 2. History button (for viewing mood history - not implemented)
      * 3. Edit button (for changing display name)
      * 4. Friends button (for managing friends - not implemented)
+     * 5. Logout button
      *
      * @param view The View returned by onCreateView
      * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous saved state
@@ -109,6 +110,10 @@ public class ProfileFragment extends Fragment {
 
         binding.friendsButton.setOnClickListener((View v) -> {
             //TODO: Implement Friends Function
+        });
+
+        binding.logoutButton.setOnClickListener((View v) -> {
+            User.logoutUser(getActivity());
         });
     }
 

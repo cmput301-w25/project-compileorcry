@@ -1,7 +1,13 @@
 package ca.ualberta.compileorcry.domain.models;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 
+import androidx.fragment.app.FragmentActivity;
+import androidx.navigation.fragment.NavHostFragment;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -13,6 +19,8 @@ import com.google.firebase.firestore.WriteBatch;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import ca.ualberta.compileorcry.R;
 
 /**
  * Class to represent a User stored in Firestore.
@@ -36,6 +44,10 @@ public class User {
          * @param error Description of the error if one occurred, otherwise null.
          */
         void onUserLoaded(User user, String error);
+    }
+
+    public interface ActiveUserUpdatedListener {
+        void onActiveUserUpdated(boolean resumed, String error);
     }
 
     private User(String username, String name, DocumentReference documentReference){
@@ -231,22 +243,91 @@ public class User {
     }
 
     /**
-     * Returns the object of the currently logged in user.
+     * Returns the object of the currently logged in user. Returns null if logged out
      * @return Logged-in user object
      */
     public static User getActiveUser(){
         return activeUser;
     }
 
+    private final static String loggedin_key = "ca.ualberta.compileorcry.USER_ACTIVE";
+    private final static String username_key = "ca.ualberta.compileorcry.ACTIVE_USERNAME";
+
     /**
-     * Set's the currently active user object
+     * Set's the currently active user object so it will persist across app restarts.
      * <p>
-     * Should only be used by  login, register, or logout actions.
+     * Should only be used by login, register, or logout actions.
      *
+     * @param user User object of the currently logged-in user.
+     * @param activity FragmentActivity of active fragment
+     */
+    public static void setActiveUserPersist(User user, FragmentActivity activity){
+        setActiveUser(user);
+
+        // Update activeUser in persistent data
+        SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        if(user == null){
+            editor.putBoolean(loggedin_key, false);
+            editor.putString(username_key, "");
+        } else {
+            editor.putBoolean(loggedin_key, true);
+            editor.putString(username_key, user.username);
+        }
+        editor.apply();
+    }
+
+    /**
+     * Sets the currently active user object.
+     * <p>
+     * Should only be used by login, register, or logout actions.
+     * <p>
+     * The active user will not persist across app restarts. To do this, use:
+     * <pre>
+     * {@code
+     * User.setActiveUserPersist(User user, FragmentActivity activity)
+     * }
+     * </pre>
      * @param user User object of the currently logged-in user.
      */
     public static void setActiveUser(User user){
         activeUser = user;
+    }
+
+    /**
+     * Check if a user was active and if so, restore the activeUser variable. To only be ran on startup or resume.
+     * @param activity FragmentActivity of active fragment
+     */
+    public static void checkActiveUser(FragmentActivity activity, ActiveUserUpdatedListener callback){
+        SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
+        if(sharedPref.getBoolean(loggedin_key, false)){
+            get_user(sharedPref.getString(username_key, ""), (User user, String error) -> {
+                if(error == null && user != null){ // If found resumed user, set and return
+                    setActiveUserPersist(user, activity);
+                    callback.onActiveUserUpdated(true, null);
+                } else { // On error getting active user
+                    if(callback != null)
+                        callback.onActiveUserUpdated(false, error);
+                }
+            });
+        } else {
+            callback.onActiveUserUpdated(false, null);
+        }
+    }
+
+    /**
+     * Logout signed in user
+     * Will reset the activeUser and navigation to the login fragment
+     * @param activity FragmentActivity of active fragment
+     */
+    public static void logoutUser(FragmentActivity activity){
+        setActiveUserPersist(null, activity); // Reset activeUser
+
+        // Navigate to login
+        NavHostFragment navHostFragment = (NavHostFragment) activity.getSupportFragmentManager()
+                .findFragmentById(R.id.nav_host_fragment_activity_main);
+        navHostFragment.getNavController().navigate(R.id.navigation_login);
+        activity.findViewById(R.id.nav_view).setVisibility(BottomNavigationView.GONE);
     }
 
 }
