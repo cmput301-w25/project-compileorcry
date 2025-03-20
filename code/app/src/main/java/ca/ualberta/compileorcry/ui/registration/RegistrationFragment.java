@@ -2,12 +2,10 @@ package ca.ualberta.compileorcry.ui.registration;
 
 import static androidx.navigation.Navigation.findNavController;
 
-import android.util.Log;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -118,7 +116,7 @@ public class RegistrationFragment extends Fragment {
                     return;
                 }
 
-                User.setActiveUser(user, getActivity());
+                User.setActiveUserPersist(user, getActivity());
 
                 // Navigate to Main App
                 findNavController(view).navigate(R.id.navigation_feed);

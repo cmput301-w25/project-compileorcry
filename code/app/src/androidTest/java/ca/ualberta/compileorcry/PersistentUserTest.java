@@ -11,7 +11,6 @@ import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.uiautomator.UiDevice;
 
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.junit.After;
@@ -20,9 +19,6 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import ca.ualberta.compileorcry.domain.models.User;
 
@@ -70,7 +66,7 @@ public class PersistentUserTest {
             User.get_user("testUser", (User user, String error) -> {
                 assertNull(error);
 
-                User.setActiveUser(user, activity); // Set active user which is stored in persistent data
+                User.setActiveUserPersist(user, activity); // Set active user which is stored in persistent data
 
                 try {
                     User.class.getDeclaredField("activeUser").set(User.class, null); // Force clear the active user variable

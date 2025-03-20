@@ -254,15 +254,15 @@ public class User {
     private final static String username_key = "ca.ualberta.compileorcry.ACTIVE_USERNAME";
 
     /**
-     * Set's the currently active user object
+     * Set's the currently active user object so it will persist across app restarts.
      * <p>
      * Should only be used by login, register, or logout actions.
      *
      * @param user User object of the currently logged-in user.
      * @param activity FragmentActivity of active fragment
      */
-    public static void setActiveUser(User user, FragmentActivity activity){
-        activeUser = user;
+    public static void setActiveUserPersist(User user, FragmentActivity activity){
+        setActiveUser(user);
 
         // Update activeUser in persistent data
         SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
@@ -278,6 +278,23 @@ public class User {
     }
 
     /**
+     * Sets the currently active user object.
+     * <p>
+     * Should only be used by login, register, or logout actions.
+     * <p>
+     * The active user will not persist across app restarts. To do this, use:
+     * <pre>
+     * {@code
+     * User.setActiveUserPersist(User user, FragmentActivity activity)
+     * }
+     * </pre>
+     * @param user User object of the currently logged-in user.
+     */
+    public static void setActiveUser(User user){
+        activeUser = user;
+    }
+
+    /**
      * Check if a user was active and if so, restore the activeUser variable. To only be ran on startup or resume.
      * @param activity FragmentActivity of active fragment
      */
@@ -286,7 +303,7 @@ public class User {
         if(sharedPref.getBoolean(loggedin_key, false)){
             get_user(sharedPref.getString(username_key, ""), (User user, String error) -> {
                 if(error == null && user != null){ // If found resumed user, set and return
-                    setActiveUser(user, activity);
+                    setActiveUserPersist(user, activity);
                     callback.onActiveUserUpdated(true, null);
                 } else { // On error getting active user
                     if(callback != null)
@@ -304,7 +321,7 @@ public class User {
      * @param activity FragmentActivity of active fragment
      */
     public static void logoutUser(FragmentActivity activity){
-        setActiveUser(null, activity); // Reset activeUser
+        setActiveUserPersist(null, activity); // Reset activeUser
 
         // Navigate to login
         NavHostFragment navHostFragment = (NavHostFragment) activity.getSupportFragmentManager()
