@@ -178,7 +178,7 @@
                     android:insetTop="8dp"
                     android:insetBottom="0dp"
                     android:textSize="14sp"
-                    app:icon="@drawable/logout_24px"
+                    app:icon="@drawable/ic_logout_24px"
                     app:iconTint="@color/light"
                     app:strokeColor="@color/light" />
 
