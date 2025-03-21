@@ -27,7 +27,7 @@ import ca.ualberta.compileorcry.domain.models.User;
 import ca.ualberta.compileorcry.features.mood.data.MoodList;
 import ca.ualberta.compileorcry.features.mood.data.QueryType;
 import ca.ualberta.compileorcry.features.mood.model.MoodEvent;
-import ca.ualberta.compileorcry.ui.MoodInfoDialogFragment;
+import ca.ualberta.compileorcry.ui.feed.MoodInfoDialogFragment;
 
 public class FeedFragment extends Fragment {
     private FragmentFeedBinding binding;
@@ -53,6 +53,10 @@ public class FeedFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        getParentFragmentManager().setFragmentResultListener("moodEventUpdated", this, (requestKey, result) -> {
+            refreshMoodList();
+        });
 
         // Find Spinners
         Spinner feedSpinner = binding.feedSpinner;
@@ -122,12 +126,43 @@ public class FeedFragment extends Fragment {
             MoodInfoDialogFragment dialog = new MoodInfoDialogFragment();
             dialog.setArguments(args);
 
+
             // Show the dialog
             dialog.show(requireActivity().getSupportFragmentManager(), "ViewMoodEvent");
         } else {
             Log.e("FeedFragment", "Clicked MoodEvent is null!"); // Debugging log
         }
     }
+
+    private void refreshMoodList() {
+        if (User.getActiveUser() != null) {
+            QueryType selectedQueryType = QueryType.HISTORY_MODIFIABLE; // Default to modifiable history
+
+            MoodList.createMoodList(User.getActiveUser(), selectedQueryType, new MoodList.MoodListListener() {
+                @Override
+                public void returnMoodList(MoodList initializedMoodList) {
+                    FeedFragment.this.moodList = initializedMoodList;
+
+                    if (feedViewModel != null) {
+                        feedViewModel.setMoodEvents(moodList.getMoodEvents());
+                    }
+                }
+
+                @Override
+                public void updatedMoodList() {
+                    if (feedViewModel != null) {
+                        feedViewModel.setMoodEvents(moodList.getMoodEvents());
+                    }
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    Log.e("FeedFragment", "Error refreshing mood list: " + e.getMessage());
+                }
+            }, null);
+        }
+    }
+
 
 
 
