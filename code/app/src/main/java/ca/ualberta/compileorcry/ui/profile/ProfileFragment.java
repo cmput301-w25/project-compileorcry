@@ -15,12 +15,14 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.Navigation;
 
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 
+import ca.ualberta.compileorcry.R;
 import ca.ualberta.compileorcry.databinding.FragmentProfileBinding;
 import ca.ualberta.compileorcry.domain.models.User;
 
@@ -114,6 +116,13 @@ public class ProfileFragment extends Fragment {
 
         binding.logoutButton.setOnClickListener((View v) -> {
             User.logoutUser(getActivity());
+        });
+
+
+        binding.friendsButton.setOnClickListener((View v) -> {
+            // Since you're using Navigation in your app (based on the imports),
+            // let's use the Navigation component for fragment navigation
+            Navigation.findNavController(view).navigate(R.id.action_navigation_profile_to_friendsFragment);
         });
     }
 

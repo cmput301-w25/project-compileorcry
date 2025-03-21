@@ -35,4 +35,22 @@
         android:label="@string/title_login"
         tools:layout="@layout/fragment_login" />
 
+    <fragment
+        android:id="@+id/friendsFragment"
+        android:name="ca.ualberta.compileorcry.ui.profile.FriendsFragment"
+        android:label="Friends"
+        tools:layout="@layout/fragment_friends">
+        <!-- Optional: Define navigation back to profile if needed -->
+        <action
+            android:id="@+id/action_friendsFragment_to_navigation_profile"
+            app:destination="@id/navigation_profile" />
+    </fragment>
+
+    <!-- Then, add an action from your profile fragment to the friends fragment -->
+    <!-- Locate your profile fragment entry and add this action inside it -->
+    <action
+        android:id="@+id/action_navigation_profile_to_friendsFragment"
+        app:destination="@id/friendsFragment" />
+
+
 </navigation>
