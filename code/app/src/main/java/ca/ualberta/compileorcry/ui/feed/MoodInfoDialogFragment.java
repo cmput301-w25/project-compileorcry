@@ -52,6 +52,8 @@ public class MoodInfoDialogFragment extends DialogFragment {
             String moodId = args.getString("moodId", "Unknown");
 
             String emotionalState = args.getString("emotionalState", "Unknown");
+            EmotionalState state = EmotionalState.fromDescription(emotionalState);
+            int backgroundColor = state.getColor(requireContext());
             String trigger = args.getString("trigger", "No Trigger");
             String socialSituation = args.getString("socialSituation", "No Situation");
 
@@ -59,7 +61,7 @@ public class MoodInfoDialogFragment extends DialogFragment {
             binding.moodinfoStateText.setText(emotionalState);
             binding.moodinfoTriggerText.setText(trigger);
             binding.moodinfoSituationText.setText(socialSituation);
-
+            binding.getRoot().setBackgroundColor(backgroundColor);
             moodEvent = new MoodEvent(moodId);
         }
 
@@ -81,6 +83,7 @@ public class MoodInfoDialogFragment extends DialogFragment {
                             notifyParentAndDismiss();
                         } else {
                             Log.e("MoodInfoDialogFragment", "Mood event with ID " + moodEvent.getId() + " not found in MoodList. Cannot edit.");
+                            notifyParentAndDismiss();
                         }
                     }
 
@@ -95,7 +98,7 @@ public class MoodInfoDialogFragment extends DialogFragment {
             }
         });
 
-// Delete Button Logic
+        // Delete Button Logic
         binding.deleteButton.setOnClickListener(v -> {
             if (moodEvent != null) {
                 MoodList.createMoodList(User.getActiveUser(), QueryType.HISTORY_MODIFIABLE, new MoodList.MoodListListener() {
@@ -115,14 +118,9 @@ public class MoodInfoDialogFragment extends DialogFragment {
                 }, null);
             }
         });
-
-// Notify FeedFragment and dismiss dialog
-
-
+        // Notify FeedFragment and dismiss dialog
         return new AlertDialog.Builder(requireContext())
                 .setView(binding.getRoot())
-                .setTitle("Mood Event Details")
-                .setPositiveButton("OK", (dialog, which) -> dialog.dismiss())
                 .create();
     }
 
