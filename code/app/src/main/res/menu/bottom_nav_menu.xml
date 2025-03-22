@@ -3,19 +3,19 @@
 
     <item
         android:id="@+id/navigation_feed"
-        android:icon="@drawable/ic_dashboard_black_24dp"
+        android:icon="@drawable/ic_menu_24dp"
         android:color="@color/light"
         android:title="@string/title_feed" />
 
     <item
         android:id="@+id/navigation_new"
-        android:icon="@drawable/baseline_add_24"
+        android:icon="@drawable/ic_add_24dp"
         android:color="@color/light"
         android:title="@string/title_new" />
 
     <item
         android:id="@+id/navigation_profile"
-        android:icon="@drawable/ic_home_black_24dp"
+        android:icon="@drawable/ic_account_circle_24dp"
         android:color="@color/light"
         android:title="@string/title_profile" />
 
