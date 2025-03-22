@@ -14,7 +14,7 @@
     <string-array name="social_situations">
         <item>Alone</item>
         <item>With one person</item>
-        <item>With few people</item>
+        <item>With a few people</item>
         <item>With a crowd</item>
     </string-array>
 </resources>
