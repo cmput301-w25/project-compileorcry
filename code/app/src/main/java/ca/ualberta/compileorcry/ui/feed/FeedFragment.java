@@ -1,5 +1,7 @@
 package ca.ualberta.compileorcry.ui.feed;
 
+import static androidx.navigation.Navigation.findNavController;
+
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.text.InputType;
@@ -103,14 +105,15 @@ public class FeedFragment extends Fragment {
         );
         binding.recyclerViewMoodHistory.setAdapter(adapter);
 
-         // Setup FAB with null safety
-        if (binding.fabAddMood != null) {
-            binding.fabAddMood.setOnClickListener(v -> {
-                if (getView() != null) {
-                    Navigation.findNavController(getView()).navigate(R.id.navigation_new);
-                }
-            });
-        }
+        // Setup new FAB
+        binding.fabAddMood.setOnClickListener(v -> {
+            findNavController(view).navigate(R.id.navigation_new);
+        });
+
+        // Setup map FAB
+        binding.fabMap.setOnClickListener(v -> {
+            findNavController(view).navigate(R.id.navigation_map);
+        });
 
         // Initialize ViewModel
         feedViewModel = new ViewModelProvider(requireActivity()).get(FeedViewModel.class);
