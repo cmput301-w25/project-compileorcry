@@ -12,6 +12,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -127,6 +128,15 @@ public class FeedFragment extends Fragment {
                 binding.recyclerViewMoodHistory.smoothScrollToPosition(0);
             }
         });
+
+        getParentFragmentManager().setFragmentResultListener("moodEventUpdated", getViewLifecycleOwner(),
+                (requestKey, result) -> {
+                    Log.d("FeedFragment", "Received update from MoodInfoDialogFragment");
+                    Toast.makeText(requireContext(), "Mood updated", Toast.LENGTH_SHORT).show();
+                    refreshMoodList();
+                    loadFeed();
+                });
+
 
         // Handle feed queries from spinner values and update feed as they change
         feedSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
