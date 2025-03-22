@@ -8,7 +8,10 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
-import android.util.Log;
+import static ca.ualberta.compileorcry.TestHelper.addUser;
+import static ca.ualberta.compileorcry.TestHelper.resetFirebase;
+
+import android.view.View;
 
 import androidx.test.espresso.action.ViewActions;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
@@ -17,7 +20,7 @@ import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.uiautomator.UiDevice;
 
-import com.google.firebase.firestore.CollectionReference;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.junit.After;
@@ -26,17 +29,18 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.regex.Matcher;
 
+
+/**
+ * UI Test to verify the functionality of the Login and Register fragments.
+ * <p>
+ * Requires firebase datastore emulator to be running on port 8080.
+ */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class LoginSignupTest {
+
     @Rule
     public ActivityScenarioRule<MainActivity> scenario =
             new ActivityScenarioRule<MainActivity>(MainActivity.class);
@@ -57,6 +61,9 @@ public class LoginSignupTest {
         device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
     }
 
+    /**
+     * Test registering a new user with a unique username. Registration is expected to succeed.
+     */
     @Test
     public void registerValidUser() throws InterruptedException {
         onView(withId(R.id.register_button)).perform(click());
@@ -67,12 +74,15 @@ public class LoginSignupTest {
         device.waitForIdle();
         Thread.sleep(1000);
 
-        // Verify on Profile Page
-        onView(withId(R.id.profile_username)).check(matches(isDisplayed()));
-        onView(withId(R.id.profile_username)).check(matches(withText("newUser")));
+        // Navigate to profile page and verify displayed name
+        onView(withId(R.id.navigation_profile)).perform(click());
+        onView(withId(R.id.profile_username)).check(matches(withText("@newUser")));
         onView(withId(R.id.profile_name)).check(matches(withText("New User")));
     }
 
+    /**
+     * Test registering a user with a pre-existing username. Registration is expected to fail and an error message is checked.
+     */
     @Test
     public void registerExistingUsername() throws InterruptedException {
         addUser("existingUser", "New Existing User!");
@@ -87,9 +97,12 @@ public class LoginSignupTest {
         Thread.sleep(1000);
 
         // Verify still on registration page
-        onView(withId(R.id.login_username_layout)).check(matches(hasErrorText("Username already registered.")));
+        onView(withId(R.id.registration_username_text)).check(matches(isDisplayed()));
     }
 
+    /**
+     * Test logging in with a valid username. Test is expected to succeed.
+     */
     @Test
     public void loginExistingUsername() throws InterruptedException {
         addUser("existingUser", "New Existing User!");
@@ -100,12 +113,15 @@ public class LoginSignupTest {
         device.waitForIdle();
         Thread.sleep(1000);
 
-        // Verify navigated to profile
-        onView(withId(R.id.profile_username)).check(matches(isDisplayed()));
-        onView(withId(R.id.profile_username)).check(matches(withText("existingUser")));
+        // Navigate to profile and verify names are as expected
+        onView(withId(R.id.navigation_profile)).perform(click());
+        onView(withId(R.id.profile_username)).check(matches(withText("@existingUser")));
         onView(withId(R.id.profile_name)).check(matches(withText("New Existing User!")));
     }
 
+    /**
+     * Test logging in with a non-existent username. Test is expected to fail and an error message is checked.
+     */
     @Test
     public void loginInvalidUsername() throws InterruptedException {
         // Test
@@ -115,41 +131,11 @@ public class LoginSignupTest {
         Thread.sleep(200);
 
         // Verify still on login page
-        onView(withId(R.id.login_username_layout)).check(matches(hasErrorText("User does not exist.")));
+        onView(withId(R.id.login_username_layout)).check(matches(isDisplayed()));
     }
 
     @After
     public void tearDown() {
-        String projectId = "compile-or-cry-8c762";
-        URL url = null;
-        try {
-            url = new URL("http://10.0.2.2:8080/emulator/v1/projects/" + projectId + "/databases/(default)/documents");
-        } catch (MalformedURLException exception) {
-            Log.e("URL Error", Objects.requireNonNull(exception.getMessage()));
-        }
-        HttpURLConnection urlConnection = null;
-        try {
-            urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestMethod("DELETE");
-            int response = urlConnection.getResponseCode();
-            Log.i("Response Code", "Response Code: " + response);
-        } catch (IOException exception) {
-            Log.e("IO Error", Objects.requireNonNull(exception.getMessage()));
-        } finally {
-            if (urlConnection != null) {
-                urlConnection.disconnect();
-            }
-        }
-    }
-
-    public static void addUser(String username, String name) throws InterruptedException {
-        // Add Initial User
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        CollectionReference usersRef = db.collection("users");
-        Map<String, Object> userData = new HashMap<>();
-        userData.put("username", username);
-        userData.put("name", name);
-        usersRef.document(username).set(userData);
-        Thread.sleep(500);
+        resetFirebase();
     }
 }

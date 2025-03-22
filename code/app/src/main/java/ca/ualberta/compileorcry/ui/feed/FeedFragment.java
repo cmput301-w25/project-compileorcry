@@ -175,38 +175,31 @@ public class FeedFragment extends Fragment {
         String feedType = (String) binding.feedSpinner.getSelectedItem();
         String filter = (String) binding.filterSpinner.getSelectedItem();
         if (User.getActiveUser() != null) {
-            QueryType selectedQueryType = QueryType.HISTORY_MODIFIABLE; // Personal history is default value
 
-            if (feedType.equals("History")) {
-                switch (filter) {
-                    case "None":
-                        selectedQueryType = QueryType.HISTORY_MODIFIABLE;
-                        break;
-                    case "Recent":
-                        selectedQueryType = QueryType.HISTORY_RECENT;
-                        break;
-                    case "State":
-                        selectedQueryType = QueryType.HISTORY_STATE;
-                        break;
-                    case "Reason":
-                        selectedQueryType = QueryType.HISTORY_REASON;
-                        break;
-                }
-            } else if (feedType.equals("Following")) {
-                switch (filter) {
-                    case "None":
-                        selectedQueryType = QueryType.FOLLOWING;
-                        break;
-                    case "Recent":
-                        selectedQueryType = QueryType.FOLLOWING_RECENT;
-                        break;
-                    case "State":
-                        selectedQueryType = QueryType.FOLLOWING_STATE;
-                        break;
-                    case "Reason":
-                        selectedQueryType = QueryType.FOLLOWING_REASON;
-                        break;
-                }
+            Object filterValue = null;
+            QueryType selectedQueryType ;// = QueryType.FOLLOWING; // Unfiltered following posts is default value
+
+            // Determine the base QueryType (History or Following)
+            boolean isFollowing = feedType.equals("Following");
+
+            switch (filter) {
+                case "Filter...":  // Reset to default based on feed type
+                    selectedQueryType = isFollowing ? QueryType.FOLLOWING : QueryType.HISTORY_MODIFIABLE;
+                    if (feedViewModel != null) {
+                        feedViewModel.setMoodEvents(new ArrayList<>());
+                    }
+                    break;
+                case "Recent":
+                    selectedQueryType = isFollowing ? QueryType.FOLLOWING_RECENT : QueryType.HISTORY_RECENT;
+                    break;
+                case "State":
+                    showEmotionalStateDialog(isFollowing);  // Open state selection dialog
+                    return;
+                case "Reason":
+                    showReasonInputDialog(isFollowing);  // Open reason input dialog
+                    return;
+                default:
+                    selectedQueryType = isFollowing ? QueryType.FOLLOWING : QueryType.HISTORY_MODIFIABLE;
             }
 
             MoodList.createMoodList(User.getActiveUser(), selectedQueryType,

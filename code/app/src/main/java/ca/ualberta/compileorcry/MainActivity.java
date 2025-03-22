@@ -63,11 +63,24 @@ public class MainActivity extends AppCompatActivity {
             // Just connect the nav view to controller, no action bar setup
             NavigationUI.setupWithNavController(navView, navController);
 
-            // Handle login navigation if needed
+            // Handle login navigation
             if (User.getActiveUser() == null) {
-                navController.navigate(R.id.navigation_login);
-                navView.setVisibility(View.GONE);
-            }else {
+                User.checkActiveUser(this, (resumed, error) -> {
+                    if(error != null){
+                        Log.e("UserResume", error);
+                    }
+
+                    if(resumed){
+                        Log.i("UserResume", "ActiveUser Resumed");
+                        navController.navigate(R.id.navigation_feed);
+                        navView.setSelectedItemId(R.id.navigation_feed);
+                        navView.setVisibility(View.VISIBLE);
+                    } else {
+                        navController.navigate(R.id.navigation_login);
+                        navView.setVisibility(View.GONE);
+                    }
+                });
+            } else {
                 // If user is already logged in, navigate to feed
                 navController.navigate(R.id.navigation_feed);
                 // Make sure the correct menu item is selected

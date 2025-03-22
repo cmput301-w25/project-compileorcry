@@ -1,0 +1,10 @@
+ca.ualberta.compileorcry
+ca.ualberta.compileorcry.common
+ca.ualberta.compileorcry.domain.models
+ca.ualberta.compileorcry.features.mood.data
+ca.ualberta.compileorcry.features.mood.model
+ca.ualberta.compileorcry.ui.add
+ca.ualberta.compileorcry.ui.feed
+ca.ualberta.compileorcry.ui.login
+ca.ualberta.compileorcry.ui.profile
+ca.ualberta.compileorcry.ui.registration
