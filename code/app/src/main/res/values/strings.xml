@@ -42,4 +42,7 @@
     <string name="filter_prompt">Filter</string>
     <string name="add_friends">Add Friends</string>
     <string name="view_map">View Map</string>
+    <string name="edit_event">Edit Mood Event</string>
+    <string name="button_delete">Delete</string>
+
 </resources>

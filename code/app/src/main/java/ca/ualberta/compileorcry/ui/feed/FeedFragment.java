@@ -128,8 +128,41 @@ public class FeedFragment extends Fragment {
             }
         });
 
-        // Handle feed queries from spinner values
-        loadFeed();
+        // Handle feed queries from spinner values and update feed as they change
+        feedSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (position == 0) return; // Ignore placeholder selection
+                feedOrHistory.setImageResource(R.drawable.txt_feed);
+                String selectedType = parent.getItemAtPosition(position).toString();
+
+                switch (selectedType) {
+                    case "History":
+                        feedOrHistory.setImageResource(R.drawable.txt_history);
+                        break;
+                    default:
+                        feedOrHistory.setImageResource(R.drawable.txt_feed);
+                }
+                loadFeed();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                feedOrHistory.setImageResource(R.drawable.txt_feed);
+            }
+        });
+
+        filterSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (position == 0) return; // Ignore placeholder selection
+                loadFeed();
+                // Handle actual selection here
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) { }
+        });
     }
     private void onMoodEventClick(MoodEvent clickedEvent) {
         if (clickedEvent != null) {

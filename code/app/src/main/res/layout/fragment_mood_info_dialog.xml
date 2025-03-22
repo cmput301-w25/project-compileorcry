@@ -10,7 +10,10 @@
         android:id="@+id/moodinfo_edit_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Edit Emotion Event"
+        style="@style/TextAppearance.CompileOrCry.Body1"
+        android:fontFamily="@font/source_sans_pro_semibold"
+        android:textAppearance="@style/TextAppearance.CompileOrCry.DropDownItem.Light"
+        android:text="@string/edit_event"
         android:textColor="@android:color/black"
         android:textSize="20sp"
         android:textStyle="bold"
@@ -24,7 +27,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:hint="Emotional State"
+        android:hint="@string/emotional_state"
         app:layout_constraintTop_toBottomOf="@id/moodinfo_edit_text"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -35,16 +38,13 @@
             android:layout_height="wrap_content"
             android:inputType="text" />
     </com.google.android.material.textfield.TextInputLayout>
-
-
-
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/moodinfo_trigger_layout"
         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:hint="Trigger (Optional)"
+        android:hint="@string/hint_trigger"
         app:layout_constraintTop_toBottomOf="@id/moodinfo_state_layout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -62,7 +62,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:hint="Social Situation (Optional)"
+        android:hint="@string/social_situation_optional"
         app:layout_constraintTop_toBottomOf="@id/moodinfo_trigger_layout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -89,7 +89,7 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:text="Delete" />
+            android:text="@string/button_delete" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/save_button"
@@ -97,6 +97,7 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:text="Save" />
+            android:backgroundTint="@color/dark"
+            android:text="@string/button_save_mood" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
