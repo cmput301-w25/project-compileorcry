@@ -61,7 +61,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:hint="Trigger (Optional)"
-        app:layout_constraintTop_toBottomOf="@id/moodinfo_description_layout"
+        app:layout_constraintTop_toBottomOf="@id/moodinfo_state_layout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 

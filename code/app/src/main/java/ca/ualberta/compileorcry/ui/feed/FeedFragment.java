@@ -27,6 +27,8 @@ import ca.ualberta.compileorcry.databinding.FragmentFeedBinding;
 import ca.ualberta.compileorcry.domain.models.User;
 import ca.ualberta.compileorcry.features.mood.data.MoodList;
 import ca.ualberta.compileorcry.features.mood.data.QueryType;
+import ca.ualberta.compileorcry.features.mood.model.MoodEvent;
+import ca.ualberta.compileorcry.ui.feed.MoodInfoDialogFragment;
 import ca.ualberta.compileorcry.features.mood.model.EmotionalState;
 import ca.ualberta.compileorcry.features.mood.model.MoodEvent;
 
@@ -57,6 +59,8 @@ public class FeedFragment extends Fragment {
     private static final String[] FEED_TYPES = {"Feed...","History", "Following"};
     // Filter options
     private static final String[] FILTER_OPTIONS = {"Filter...", "Recent", "State", "Reason"};
+    private MoodList moodList;
+
 
 
     @Override
@@ -92,10 +96,10 @@ public class FeedFragment extends Fragment {
         );
         filterAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         filterSpinner.setAdapter(filterAdapter);
+        // Prevent selection of the first item (Sort or Filter)
+        feedSpinner.setSelection(0, false);
+        filterSpinner.setSelection(0, false);
 
-        // Prevent onItemSelected from triggering when setting default selection
-        feedSpinner.post(() -> feedSpinner.setSelection(0, false));
-        filterSpinner.post(() -> filterSpinner.setSelection(0, false));
 
         // Initialize RecyclerView with empty list
         adapter = new MoodEventAdapter(new ArrayList<>(), this::onMoodEventClick);
@@ -118,67 +122,66 @@ public class FeedFragment extends Fragment {
 
         // Observe LiveData with lifecycle awareness
         feedViewModel.getMoodEvents().observe(getViewLifecycleOwner(), moodEvents -> {
-            Log.d("RecyclerView", "Observer triggered, updating RecyclerView with " + moodEvents.size() + " moods.");
             if (moodEvents != null && adapter != null) {
                 adapter.updateData(moodEvents);
                 binding.recyclerViewMoodHistory.smoothScrollToPosition(0);
             }
         });
 
-        // Handle feed queries from spinner values and update feed as they change
-        feedSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (position == 0) return; // Ignore placeholder selection
-                feedOrHistory.setImageResource(R.drawable.txt_feed);
-                String selectedType = parent.getItemAtPosition(position).toString();
-
-                switch (selectedType) {
-                    case "History":
-                        feedOrHistory.setImageResource(R.drawable.txt_history);
-                        break;
-                    default:
-                        feedOrHistory.setImageResource(R.drawable.txt_feed);
-                }
-                loadFeed();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                feedOrHistory.setImageResource(R.drawable.txt_feed);
-            }
-        });
-
-        filterSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (position == 0) return; // Ignore placeholder selection
-                loadFeed();
-                // Handle actual selection here
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) { }
-        });
+        // Handle feed queries from spinner values
+        loadFeed();
     }
-
     private void onMoodEventClick(MoodEvent clickedEvent) {
         if (clickedEvent != null) {
-            // Create a Bundle to pass data to the dialog
+            // Create a Bundle to pass data
             Bundle args = new Bundle();
             args.putString("moodId", clickedEvent.getId());
             args.putString("emotionalState", clickedEvent.getEmotionalState().getDescription());
             args.putString("trigger", clickedEvent.getTrigger());
             args.putString("socialSituation", clickedEvent.getSocialSituation());
 
-            // Create and show the dialog fragment
+            // Create an instance of MoodInfoDialogFragment and pass the arguments
             MoodInfoDialogFragment dialog = new MoodInfoDialogFragment();
             dialog.setArguments(args);
+
+
+            // Show the dialog
             dialog.show(requireActivity().getSupportFragmentManager(), "ViewMoodEvent");
         } else {
-            Log.e("FeedFragment", "Clicked MoodEvent is null!");
+            Log.e("FeedFragment", "Clicked MoodEvent is null!"); // Debugging log
         }
     }
+
+    private void refreshMoodList() {
+        if (User.getActiveUser() != null) {
+            QueryType selectedQueryType = QueryType.HISTORY_MODIFIABLE; // Default to modifiable history
+
+            MoodList.createMoodList(User.getActiveUser(), selectedQueryType, new MoodList.MoodListListener() {
+                @Override
+                public void returnMoodList(MoodList initializedMoodList) {
+                    FeedFragment.this.moodList = initializedMoodList;
+
+                    if (feedViewModel != null) {
+                        feedViewModel.setMoodEvents(moodList.getMoodEvents());
+                    }
+                }
+
+                @Override
+                public void updatedMoodList() {
+                    if (feedViewModel != null) {
+                        feedViewModel.setMoodEvents(moodList.getMoodEvents());
+                    }
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    Log.e("FeedFragment", "Error refreshing mood list: " + e.getMessage());
+                }
+            }, null);
+        }
+    }
+
+
 
 
     /**
@@ -196,6 +199,7 @@ public class FeedFragment extends Fragment {
         String filter = (String) binding.filterSpinner.getSelectedItem();
         Log.d("FeedFragment", "Selected Feed Type: " + feedType + ", Filter: " + filter);
         if (User.getActiveUser() != null) {
+
             Object filterValue = null;
             QueryType selectedQueryType ;// = QueryType.FOLLOWING; // Unfiltered following posts is default value
 
