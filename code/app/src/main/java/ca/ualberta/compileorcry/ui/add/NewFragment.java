@@ -23,6 +23,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.Timestamp;
@@ -42,6 +43,7 @@ import ca.ualberta.compileorcry.features.mood.data.MoodList;
 import ca.ualberta.compileorcry.features.mood.data.QueryType;
 import ca.ualberta.compileorcry.features.mood.model.EmotionalState;
 import ca.ualberta.compileorcry.features.mood.model.MoodEvent;
+import ca.ualberta.compileorcry.features.mood.model.Visibility;
 
 /**
  * The NewFragment class provides the UI for creating new mood events.
@@ -57,6 +59,7 @@ import ca.ualberta.compileorcry.features.mood.model.MoodEvent;
 public class NewFragment extends Fragment {
 
     private static final long MAX_FILE_SIZE_BYTES = 65536;
+    private MaterialSwitch visibilitySwitch;
     private AutoCompleteTextView emotionalStateAutoCompleteText;
     private TextInputEditText dateEditText;
     private TextInputEditText triggerEditText;
@@ -112,6 +115,7 @@ public class NewFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         // Initialize UI components
+        visibilitySwitch = view.findViewById(R.id.visibility_switch);
         emotionalStateAutoCompleteText = view.findViewById(R.id.new_event_emotional_state_autocomplete);
         dateEditText = view.findViewById(R.id.new_event_date_text);
         triggerEditText = view.findViewById(R.id.new_event_trigger_text);
@@ -122,8 +126,8 @@ public class NewFragment extends Fragment {
         createButton = view.findViewById(R.id.create_button);
 
         // Get AutoComplete references
-        emotionalStateLayout = getView().findViewById(R.id.new_event_emotional_state_layout);
-        dateLayout = getView().findViewById(R.id.new_event_date_layout);
+        emotionalStateLayout = view.findViewById(R.id.new_event_emotional_state_layout);
+        dateLayout = view.findViewById(R.id.new_event_date_layout);
 
         // Initialize emotional state dropdown
         setupEmotionalStateDropdown();
@@ -141,7 +145,6 @@ public class NewFragment extends Fragment {
             intent.setAction(Intent.ACTION_GET_CONTENT);
             startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
         });
-
 
         // Handle back button
         backButton.setOnClickListener(v ->
@@ -182,6 +185,7 @@ public class NewFragment extends Fragment {
     private void submitNewEvent() {
         boolean isValid = true;
 
+        Visibility visibility = visibilitySwitch.isChecked() ? Visibility.PUBLIC : Visibility.PRIVATE;
         String emotionalState = emotionalStateAutoCompleteText.getText().toString().trim();
 
         // Parse date
@@ -211,6 +215,7 @@ public class NewFragment extends Fragment {
 
         Timestamp timestamp = new Timestamp(date);
 
+        // TODO: Pass in visibility boolean during event creation. isPublic is already defined above.
         MoodEvent event = new MoodEvent(EmotionalState.valueOf(emotionalState.toUpperCase()),
                 timestamp, trigger, socialSituation, uploadedImagePath);
 
