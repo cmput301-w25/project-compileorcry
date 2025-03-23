@@ -42,9 +42,11 @@ public class MoodEvent {
     private EmotionalState emotionalState;
     private String picture;
     private String trigger;
+
     private String socialSituation;
     private String username;
     private GeoHash location;  //TODO: this is not fully implemented yet, any setter needs to know how to get the geopoint
+    private Boolean isPublic;
 
     /**
      * Constructs a new MoodEvent with the specified emotional state and optional context information.
@@ -56,7 +58,7 @@ public class MoodEvent {
      * @param picture Optional reference to an image stored in Firebase Storage.
      * @throws IllegalArgumentException If emotionalState is null.
      */
-    public MoodEvent(EmotionalState emotionalState, Timestamp date, String trigger, String socialSituation, String picture) {
+    public MoodEvent(EmotionalState emotionalState, Timestamp date, String trigger, String socialSituation, String picture, Boolean isPublic) {
         if (emotionalState == null) {
             throw new IllegalArgumentException("Emotional state is required");
         }
@@ -66,6 +68,7 @@ public class MoodEvent {
         this.trigger = trigger;
         this.socialSituation = socialSituation;
         this.picture = picture;
+        this.isPublic = isPublic;
     }
 
     /**
@@ -154,12 +157,21 @@ public class MoodEvent {
         return picture;
     }
 
+
+    /**
+     * Returns if the mood event is a public mood event
+     *
+     * @return true or false depending on if the moodEvent is public
+     */
+    public Boolean getPublic() { return isPublic; }
+
     //Setters
     /**
      * Sets the timestamp when this mood event occurred.
      *
      * @param timestamp The timestamp for this mood event
      */
+
     public void setTimestamp(Timestamp timestamp) {
         this.timestamp = timestamp;
     }
@@ -215,6 +227,17 @@ public class MoodEvent {
      *
      * @return A Map containing the MoodEvent data in a format suitable for Firestore.
      */
+
+
+    /**
+     * Sets the public boolean for this mood event.
+     *
+     * @param aPublic true if the event is public, false if not.
+     */
+    public void setPublic(Boolean aPublic) {
+        this.isPublic = aPublic;
+    }
+
     public Map<String,Object> toFireStoreMap() {
         Map<String,Object> map =  new HashMap<>();
         putIfNotNull(map, "mood_id", this.id);
@@ -230,6 +253,7 @@ public class MoodEvent {
         putIfNotNull(map, "date", this.timestamp);
         putIfNotNull(map, "social_situation", this.socialSituation);
         putIfNotNull(map, "trigger", this.trigger);
+        putIfNotNull(map, "is_public", this.isPublic);
         return map;
     }
 
