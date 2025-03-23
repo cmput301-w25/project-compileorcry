@@ -1,26 +1,21 @@
 package ca.ualberta.compileorcry.ui.profile;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.Navigation;
 
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 
+import ca.ualberta.compileorcry.R;
 import ca.ualberta.compileorcry.databinding.FragmentProfileBinding;
 import ca.ualberta.compileorcry.domain.models.User;
 
@@ -29,17 +24,6 @@ import ca.ualberta.compileorcry.domain.models.User;
  * This class shows the user's username and display name, and provides buttons
  * for various profile-related actions such as editing the name, viewing friend
  * requests, viewing mood history, and managing friends.
- *
- * Features:
- * - Displays user profile information (username and display name)
- * - Real-time updates to profile information using Firestore listeners
- * - Dialog for editing the display name
- * - Navigation to various user-related features
- *
- * Outstanding issues:
- * - Friend request functionality is not implemented
- * - History viewing functionality is not implemented
- * - Friends management functionality is not implemented
  */
 public class ProfileFragment extends Fragment {
     /** View binding for accessing UI elements */
@@ -62,31 +46,37 @@ public class ProfileFragment extends Fragment {
         binding = FragmentProfileBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        binding.profileUsername.setText("@" + User.getActiveUser().getUsername());
-        binding.profileName.setText(User.getActiveUser().getName());
+        // Check if there's an active user before trying to access properties
+        User activeUser = User.getActiveUser();
+        if (activeUser != null) {
+            binding.profileUsername.setText("@" + activeUser.getUsername());
+            binding.profileName.setText(activeUser.getName());
 
-        // Listener to update account Name if changes
-        this.nameListenerRegistration = User.getActiveUser().getUserDocRef().addSnapshotListener((documentSnapshot, error) -> {
-           if(error != null){
-               Log.e("ProfileFragment", "Error Registering Name Listener");
-               return;
-           }
-           if(documentSnapshot != null && documentSnapshot.exists()){
-               binding.profileName.setText(documentSnapshot.getString("name"));
-           }
-        });
+            // Listener to update account Name if changes
+            this.nameListenerRegistration = activeUser.getUserDocRef().addSnapshotListener((documentSnapshot, error) -> {
+                if(error != null){
+                    Log.e("ProfileFragment", "Error Registering Name Listener");
+                    return;
+                }
+                if(documentSnapshot != null && documentSnapshot.exists()){
+                    binding.profileName.setText(documentSnapshot.getString("name"));
+                }
+            });
+        } else {
+            // Handle the case when no user is logged in
+            binding.profileUsername.setText("@username");
+            binding.profileName.setText("Not logged in");
+
+            // Navigate back to login if no user is logged in
+            Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main)
+                    .navigate(R.id.navigation_login);
+        }
 
         return root;
     }
 
     /**
      * Sets up button click listeners for the profile actions.
-     * This method configures:
-     * 1. Request button (for viewing friend requests - not implemented)
-     * 2. History button (for viewing mood history - not implemented)
-     * 3. Edit button (for changing display name)
-     * 4. Friends button (for managing friends - not implemented)
-     * 5. Logout button
      *
      * @param view The View returned by onCreateView
      * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous saved state
@@ -95,12 +85,19 @@ public class ProfileFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // Only set up button listeners if there's an active user
+        User activeUser = User.getActiveUser();
+        if (activeUser == null) {
+            return; // Don't set up listeners if no user is logged in
+        }
+
         binding.requestsButton.setOnClickListener((View v) -> {
-            //TODO: Implement Request Function
+            // TODO: Implement Request Function
         });
 
         binding.historyButton.setOnClickListener((View v) -> {
-            //TODO: Implement History Function
+            // Navigate to the feed fragment to view history
+            Navigation.findNavController(view).navigate(R.id.navigation_feed);
         });
 
         binding.editButton.setOnClickListener((View v) -> { // Edit Name Dialog
@@ -109,7 +106,8 @@ public class ProfileFragment extends Fragment {
         });
 
         binding.friendsButton.setOnClickListener((View v) -> {
-            //TODO: Implement Friends Function
+            // Navigate to the friends fragment
+            Navigation.findNavController(view).navigate(R.id.action_navigation_profile_to_friendsFragment);
         });
 
         binding.logoutButton.setOnClickListener((View v) -> {
@@ -119,14 +117,14 @@ public class ProfileFragment extends Fragment {
 
     /**
      * Cleans up resources when the view is destroyed.
-     * This method:
-     * 1. Removes the Firestore listener to prevent memory leaks
-     * 2. Nullifies the view binding reference
      */
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        // Clean up listener only if it was created
+        if (nameListenerRegistration != null) {
+            nameListenerRegistration.remove();
+        }
         binding = null;
-        this.nameListenerRegistration.remove(); // Remove listener on destroy
     }
 }
