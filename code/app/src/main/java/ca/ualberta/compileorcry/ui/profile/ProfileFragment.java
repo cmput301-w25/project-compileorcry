@@ -17,6 +17,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -40,8 +41,8 @@ import ca.ualberta.compileorcry.domain.models.User;
  *
  * Outstanding issues:
  * - Friend request functionality is not implemented
- * - History viewing functionality is not implemented
- * - Friends management functionality is not implemented
+ * - History button now navigates to feed
+ * - Friends management functionality is implemented
  */
 public class ProfileFragment extends Fragment {
     /** View binding for accessing UI elements */
@@ -64,19 +65,35 @@ public class ProfileFragment extends Fragment {
         binding = FragmentProfileBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        binding.profileUsername.setText("@" + User.getActiveUser().getUsername());
-        binding.profileName.setText(User.getActiveUser().getName());
+        User activeUser = User.getActiveUser();
+        if (activeUser != null) {
+            binding.profileUsername.setText("@" + activeUser.getUsername());
+            binding.profileName.setText(activeUser.getName());
 
-        // Listener to update account Name if changes
-        this.nameListenerRegistration = User.getActiveUser().getUserDocRef().addSnapshotListener((documentSnapshot, error) -> {
-           if(error != null){
-               Log.e("ProfileFragment", "Error Registering Name Listener");
-               return;
-           }
-           if(documentSnapshot != null && documentSnapshot.exists()){
-               binding.profileName.setText(documentSnapshot.getString("name"));
-           }
-        });
+            // Listener to update account Name if changes
+            if (activeUser.getUserDocRef() != null) {
+                this.nameListenerRegistration = activeUser.getUserDocRef().addSnapshotListener((documentSnapshot, error) -> {
+                    if(error != null){
+                        Log.e("ProfileFragment", "Error Registering Name Listener");
+                        return;
+                    }
+                    if(documentSnapshot != null && documentSnapshot.exists()){
+                        binding.profileName.setText(documentSnapshot.getString("name"));
+                    }
+                });
+            } else {
+                Log.e("ProfileFragment", "Active user has no document reference");
+            }
+        } else {
+            // Handle the case where there is no active user
+            Log.e("ProfileFragment", "No active user found");
+            binding.profileUsername.setText("@");
+            binding.profileName.setText("Not logged in");
+
+            // Redirect to login screen or handle appropriately
+            // For example:
+            // User.redirectToLogin(getActivity());
+        }
 
         return root;
     }
@@ -85,9 +102,9 @@ public class ProfileFragment extends Fragment {
      * Sets up button click listeners for the profile actions.
      * This method configures:
      * 1. Request button (for viewing friend requests - not implemented)
-     * 2. History button (for viewing mood history - not implemented)
+     * 2. History button (navigates to the feed page)
      * 3. Edit button (for changing display name)
-     * 4. Friends button (for managing friends - not implemented)
+     * 4. Friends button (for managing friends)
      * 5. Logout button
      *
      * @param view The View returned by onCreateView
@@ -102,7 +119,8 @@ public class ProfileFragment extends Fragment {
         });
 
         binding.historyButton.setOnClickListener((View v) -> {
-            //TODO: Implement History Function
+            // Navigate to the feed page
+            navigateToFeed();
         });
 
         binding.editButton.setOnClickListener((View v) -> { // Edit Name Dialog
@@ -110,20 +128,28 @@ public class ProfileFragment extends Fragment {
             editNameDialog.show(getActivity().getSupportFragmentManager(), "editName");
         });
 
-        binding.friendsButton.setOnClickListener((View v) -> {
-            //TODO: Implement Friends Function
-        });
-
         binding.logoutButton.setOnClickListener((View v) -> {
             User.logoutUser(getActivity());
         });
 
-
         binding.friendsButton.setOnClickListener((View v) -> {
-            // Since you're using Navigation in your app (based on the imports),
-            // let's use the Navigation component for fragment navigation
+            // Navigate to the friends page
             Navigation.findNavController(view).navigate(R.id.action_navigation_profile_to_friendsFragment);
         });
+    }
+
+    /**
+     * Navigates to the feed page and updates the selected item in the bottom navigation.
+     */
+    private void navigateToFeed() {
+        if (getActivity() != null) {
+            // Navigate to the feed fragment
+            Navigation.findNavController(getView()).navigate(R.id.navigation_feed);
+
+            // Update the selected item in the bottom navigation
+            BottomNavigationView bottomNavigationView = getActivity().findViewById(R.id.nav_view);
+            bottomNavigationView.setSelectedItemId(R.id.navigation_feed);
+        }
     }
 
     /**
@@ -135,7 +161,11 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+
+        if (this.nameListenerRegistration != null) {
+            this.nameListenerRegistration.remove(); // Remove listener on destroy
+        }
+
         binding = null;
-        this.nameListenerRegistration.remove(); // Remove listener on destroy
     }
 }
