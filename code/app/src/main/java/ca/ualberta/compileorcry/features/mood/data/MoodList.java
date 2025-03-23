@@ -819,7 +819,7 @@ public class MoodList {
         List<GeoQueryBounds> bounds = GeoFireUtils.getGeoHashQueryBounds(location, 5000);
         final List<Task<QuerySnapshot>> tasks = new ArrayList<>();
         for (GeoQueryBounds b : bounds) {
-            Query q = this.moodEventsRecentRef
+            Query q = db.collectionGroup("recent_moods")
                     .whereNotEqualTo("location",null)
                     .orderBy("location")
                     .startAt(b.startHash)
