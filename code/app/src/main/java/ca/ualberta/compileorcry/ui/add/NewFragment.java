@@ -43,7 +43,6 @@ import ca.ualberta.compileorcry.features.mood.data.MoodList;
 import ca.ualberta.compileorcry.features.mood.data.QueryType;
 import ca.ualberta.compileorcry.features.mood.model.EmotionalState;
 import ca.ualberta.compileorcry.features.mood.model.MoodEvent;
-import ca.ualberta.compileorcry.features.mood.model.Visibility;
 
 /**
  * The NewFragment class provides the UI for creating new mood events.
