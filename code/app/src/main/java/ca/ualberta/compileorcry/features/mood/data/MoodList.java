@@ -295,7 +295,7 @@ public class MoodList {
         } else {
             moodEventDocRef.set(eventMap);
         }
-        if(event.getPublic()){
+        if(event.getIsPublic()){
             ExecutorService executor = Executors.newSingleThreadExecutor();
             executor.execute(() -> {
                 try {
@@ -451,7 +451,7 @@ public class MoodList {
                         Collections.sort(moodEvents, (o1, o2) -> o2.getTimestamp().compareTo(o1.getTimestamp()));
                         int index = -1;
                         for(int i = 0; i < moodEvents.size(); i++){
-                            if(recentIds.contains(moodEvents.get(i).getId()) || !moodEvents.get(i).getPublic()){
+                            if(recentIds.contains(moodEvents.get(i).getId()) || !moodEvents.get(i).getIsPublic()){
                                 continue;
                             } else {
                                 index = i;

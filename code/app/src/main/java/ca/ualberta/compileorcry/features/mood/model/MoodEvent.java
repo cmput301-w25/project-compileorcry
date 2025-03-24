@@ -161,9 +161,9 @@ public class MoodEvent {
     /**
      * Returns if the mood event is a public mood event
      *
-     * @return true or false depending on if the moodEvent is public
+     * @return true or false depending on if the moodEvent is publicgit
      */
-    public Boolean getPublic() { return isPublic; }
+    public Boolean getIsPublic() { return this.isPublic; }
 
     //Setters
     /**
@@ -232,10 +232,10 @@ public class MoodEvent {
     /**
      * Sets the public boolean for this mood event.
      *
-     * @param aPublic true if the event is public, false if not.
+     * @param val true if the event is public, false if not.
      */
-    public void setPublic(Boolean aPublic) {
-        this.isPublic = aPublic;
+    public void setIsPublic(Boolean val) {
+        this.isPublic = val;
     }
 
     public Map<String,Object> toFireStoreMap() {
