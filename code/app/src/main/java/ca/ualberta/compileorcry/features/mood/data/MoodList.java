@@ -689,7 +689,7 @@ public class MoodList {
                             moodEvent.setPicture((String) documentData.get("picture"));
                         }
                         if (isValidKeyPairDatatype(documentData, "is_public", Boolean.class)) {
-                            moodEvent.setPublic((Boolean) documentData.get("is_public"));
+                            moodEvent.setIsPublic((Boolean) documentData.get("is_public"));
                         }
                         if(!containsMoodEvent(moodEvent)) {
                             moodEvents.add(moodEvent);
