@@ -295,7 +295,7 @@ public class MoodList {
         } else {
             moodEventDocRef.set(eventMap);
         }
-        if(event.getPublic()){
+        if(event.getIsPublic()){
             ExecutorService executor = Executors.newSingleThreadExecutor();
             executor.execute(() -> {
                 try {
@@ -451,7 +451,7 @@ public class MoodList {
                         Collections.sort(moodEvents, (o1, o2) -> o2.getTimestamp().compareTo(o1.getTimestamp()));
                         int index = -1;
                         for(int i = 0; i < moodEvents.size(); i++){
-                            if(recentIds.contains(moodEvents.get(i).getId()) || !moodEvents.get(i).getPublic()){
+                            if(recentIds.contains(moodEvents.get(i).getId()) || !moodEvents.get(i).getIsPublic()){
                                 continue;
                             } else {
                                 index = i;
@@ -689,7 +689,7 @@ public class MoodList {
                             moodEvent.setPicture((String) documentData.get("picture"));
                         }
                         if (isValidKeyPairDatatype(documentData, "is_public", Boolean.class)) {
-                            moodEvent.setPublic((Boolean) documentData.get("is_public"));
+                            moodEvent.setIsPublic((Boolean) documentData.get("is_public"));
                         }
                         if(!containsMoodEvent(moodEvent)) {
                             moodEvents.add(moodEvent);
@@ -881,7 +881,7 @@ public class MoodList {
                                     moodEvent.setPicture((String) documentData.get("picture"));
                                 }
                                 if (isValidKeyPairDatatype(documentData, "is_public", Boolean.class)) {
-                                    moodEvent.setPublic((Boolean) documentData.get("is_public"));
+                                    moodEvent.setIsPublic((Boolean) documentData.get("is_public"));
                                 }
                                 if(!containsMoodEvent(moodEvent)) {
                                     moodEvents.add(moodEvent);
@@ -1001,7 +1001,7 @@ public class MoodList {
                         toBeUpdated.setEmotionalState((EmotionalState) updateMap.get(key)); // Set the emotional state
                         break;
                     case "is_public":
-                        toBeUpdated.setPublic((Boolean) updateMap.get(key)); // Set the emotional state
+                        toBeUpdated.setIsPublic((Boolean) updateMap.get(key)); // Set the emotional state
                         break;
                     default:
                         // Handle unexpected keys (if any)
