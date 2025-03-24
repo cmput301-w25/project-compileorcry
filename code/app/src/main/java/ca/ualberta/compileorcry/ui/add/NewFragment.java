@@ -184,7 +184,7 @@ public class NewFragment extends Fragment {
     private void submitNewEvent() {
         boolean isValid = true;
 
-        Boolean visibility = visibilitySwitch.isChecked();
+        Boolean isPublic = visibilitySwitch.isChecked();
         String emotionalState = emotionalStateAutoCompleteText.getText().toString().trim();
 
         // Parse date
@@ -216,7 +216,7 @@ public class NewFragment extends Fragment {
 
         // TODO: Pass in visibility boolean during event creation. isPublic is already defined above.
         MoodEvent event = new MoodEvent(EmotionalState.valueOf(emotionalState.toUpperCase()),
-                timestamp, trigger, socialSituation, uploadedImagePath, visibility);
+                timestamp, trigger, socialSituation, uploadedImagePath, isPublic);
 
         MoodList.createMoodList(User.getActiveUser(), QueryType.HISTORY_MODIFIABLE,
                 new MoodList.MoodListListener() {

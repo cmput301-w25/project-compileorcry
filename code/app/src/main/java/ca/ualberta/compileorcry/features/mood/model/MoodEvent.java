@@ -175,7 +175,7 @@ public class MoodEvent {
      *
      * @return true or false depending on if the moodEvent is public
      */
-    public Boolean getIsPublic() { return isPublic; }
+    public Boolean getIsPublic() { return this.isPublic; }
 
     //Setters
     /**
@@ -244,10 +244,10 @@ public class MoodEvent {
     /**
      * Sets the public boolean for this mood event.
      *
-     * @param aPublic true if the event is public, false if not.
+     * @param val true if the event is public, false if not.
      */
-    public void setIsPublic(Boolean aPublic) {
-        this.isPublic = aPublic;
+    public void setIsPublic(Boolean val) {
+        this.isPublic = val;
     }
 
     /**
