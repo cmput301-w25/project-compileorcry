@@ -224,9 +224,6 @@ public class FeedFragment extends Fragment {
         }
     }
 
-
-
-
     /**
      * Loads mood events based on selected feed type and filter options.
      * Creates a MoodList with the appropriate QueryType and handles the response

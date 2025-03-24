@@ -23,7 +23,7 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/moodinfo_state_layout"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
@@ -32,12 +32,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/moodinfo_state_text"
+        <AutoCompleteTextView
+            android:id="@+id/moodinfo_state_auto_complete"
+            style="@style/TextAppearance.CompileOrCry.Body1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="text" />
+            android:inputType="none"
+            android:textColor="@color/black"
+            android:backgroundTint="@color/white" />
     </com.google.android.material.textfield.TextInputLayout>
+
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/moodinfo_trigger_layout"
         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
@@ -58,7 +62,7 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/moodinfo_situation_layout"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
@@ -67,11 +71,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/moodinfo_situation_text"
+        <AutoCompleteTextView
+            android:id="@+id/moodinfo_situation_auto_complete"
+            style="@style/TextAppearance.CompileOrCry.Body1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="text" />
+            android:inputType="none"
+            android:textColor="@color/black"
+            android:backgroundTint="@color/white" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <LinearLayout
@@ -89,6 +96,7 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
+            android:layout_margin="8dp"
             android:text="@string/button_delete" />
 
         <com.google.android.material.button.MaterialButton
@@ -98,6 +106,7 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:backgroundTint="@color/dark"
+            android:layout_margin="8dp"
             android:text="@string/button_save_mood" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
