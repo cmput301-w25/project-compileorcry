@@ -42,7 +42,7 @@
                 android:orientation="horizontal">
 
                 <com.google.android.material.materialswitch.MaterialSwitch
-                    android:id="@+id/visibility_switch"
+                    android:id="@+id/isPublic_switch"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_marginEnd="14dp"
