@@ -58,7 +58,7 @@ import ca.ualberta.compileorcry.features.mood.model.MoodEvent;
 public class NewFragment extends Fragment {
 
     private static final long MAX_FILE_SIZE_BYTES = 65536;
-    private MaterialSwitch isPublicSwitch;
+    private MaterialSwitch visibilitySwitch;
     private AutoCompleteTextView emotionalStateAutoCompleteText;
     private TextInputEditText dateEditText;
     private TextInputEditText triggerEditText;
@@ -114,7 +114,7 @@ public class NewFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         // Initialize UI components
-        isPublicSwitch = view.findViewById(R.id.isPublic_switch);
+        visibilitySwitch = view.findViewById(R.id.visibility_switch);
         emotionalStateAutoCompleteText = view.findViewById(R.id.new_event_emotional_state_autocomplete);
         dateEditText = view.findViewById(R.id.new_event_date_text);
         triggerEditText = view.findViewById(R.id.new_event_trigger_text);
@@ -184,7 +184,7 @@ public class NewFragment extends Fragment {
     private void submitNewEvent() {
         boolean isValid = true;
 
-        Boolean isPublic = isPublicSwitch.isChecked();
+        Boolean isPublic = visibilitySwitch.isChecked();
         String emotionalState = emotionalStateAutoCompleteText.getText().toString().trim();
 
         // Parse date
