@@ -43,4 +43,6 @@
     <string name="add_friends">Add Friends</string>
     <string name="view_map">View Map</string>
     <string name="exit_map">Exit Map</string>
+    <string name="edit_mood">Edit Mood Event</string>
+    <string name="button_delete">Delete</string>
 </resources>
