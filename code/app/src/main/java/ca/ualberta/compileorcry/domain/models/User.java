@@ -63,18 +63,7 @@ public class User {
         this.username = username;
         this.name = name;
         this.userDocRef = documentReference;
-    }
-
-    /**
-     * Factory method to create a display-only User object.
-     * This creates a user without Firestore functionality for display purposes.
-     *
-     * @param username Username of the user
-     * @param name Display name of the user
-     * @return A display-only User object
-     */
-    public static User createDisplayUser(String username, String name) {
-        return new User(username, name, null);
+        this.attachSnapshotListener();
     }
 
     /**
