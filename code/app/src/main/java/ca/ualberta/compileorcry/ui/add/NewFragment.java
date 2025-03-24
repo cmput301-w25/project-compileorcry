@@ -43,7 +43,6 @@ import ca.ualberta.compileorcry.features.mood.data.MoodList;
 import ca.ualberta.compileorcry.features.mood.data.QueryType;
 import ca.ualberta.compileorcry.features.mood.model.EmotionalState;
 import ca.ualberta.compileorcry.features.mood.model.MoodEvent;
-import ca.ualberta.compileorcry.features.mood.model.Visibility;
 
 /**
  * The NewFragment class provides the UI for creating new mood events.
@@ -59,7 +58,7 @@ import ca.ualberta.compileorcry.features.mood.model.Visibility;
 public class NewFragment extends Fragment {
 
     private static final long MAX_FILE_SIZE_BYTES = 65536;
-    private MaterialSwitch visibilitySwitch;
+    private MaterialSwitch isPublicSwitch;
     private AutoCompleteTextView emotionalStateAutoCompleteText;
     private TextInputEditText dateEditText;
     private TextInputEditText triggerEditText;
@@ -115,7 +114,7 @@ public class NewFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         // Initialize UI components
-        visibilitySwitch = view.findViewById(R.id.visibility_switch);
+        isPublicSwitch = view.findViewById(R.id.isPublic_switch);
         emotionalStateAutoCompleteText = view.findViewById(R.id.new_event_emotional_state_autocomplete);
         dateEditText = view.findViewById(R.id.new_event_date_text);
         triggerEditText = view.findViewById(R.id.new_event_trigger_text);
@@ -185,7 +184,7 @@ public class NewFragment extends Fragment {
     private void submitNewEvent() {
         boolean isValid = true;
 
-        Visibility visibility = visibilitySwitch.isChecked() ? Visibility.PUBLIC : Visibility.PRIVATE;
+        Boolean isPublic = isPublicSwitch.isChecked();
         String emotionalState = emotionalStateAutoCompleteText.getText().toString().trim();
 
         // Parse date
@@ -217,7 +216,7 @@ public class NewFragment extends Fragment {
 
         // TODO: Pass in visibility boolean during event creation. isPublic is already defined above.
         MoodEvent event = new MoodEvent(EmotionalState.valueOf(emotionalState.toUpperCase()),
-                timestamp, trigger, socialSituation, uploadedImagePath);
+                timestamp, trigger, socialSituation, uploadedImagePath, isPublic);
 
         MoodList.createMoodList(User.getActiveUser(), QueryType.HISTORY_MODIFIABLE,
                 new MoodList.MoodListListener() {
