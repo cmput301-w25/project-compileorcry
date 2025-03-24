@@ -78,12 +78,12 @@ public class UserSearch {
     private static void reasonStringSearch(String reasonString, ArrayList<String> array){
         Iterator<String> iter = array.iterator();
         while(iter.hasNext()) {
-            String username = iter.next();
+            String username = iter.next().toLowerCase();
             if(username == null){
                 iter.remove();
                 continue;
             }
-            if(!username.contains(reasonString)) {
+            if(!username.contains(reasonString.toLowerCase())) {
                 iter.remove(); // Removes the 'current' item
             }
         }
