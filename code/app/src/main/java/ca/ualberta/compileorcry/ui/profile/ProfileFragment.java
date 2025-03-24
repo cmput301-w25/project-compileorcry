@@ -107,7 +107,7 @@ public class ProfileFragment extends Fragment {
 
         binding.friendsButton.setOnClickListener((View v) -> {
             // Navigate to the friends fragment
-            Navigation.findNavController(view).navigate(R.id.action_navigation_profile_to_friendsFragment);
+            Navigation.findNavController(view).navigate(R.id.navigation_friends);
         });
 
         binding.logoutButton.setOnClickListener((View v) -> {

@@ -38,9 +38,6 @@ public class User {
     private ListenerRegistration listenerRegistration;
     private static final String TAG = "User";
 
-    // Flag to indicate if this is a display-only user (without Firestore functionality)
-    private final boolean isDisplayOnly;
-
     public interface OnUserLoadedListener {
         /**
          * Callback which contains the resulting user from a function.
@@ -66,14 +63,6 @@ public class User {
         this.username = username;
         this.name = name;
         this.userDocRef = documentReference;
-
-        // Determine if this is a display-only user
-        this.isDisplayOnly = (documentReference == null);
-
-        // Only attach listener if not a display-only user
-        if (!isDisplayOnly) {
-            this.attachSnapshotListener();
-        }
     }
 
     /**
@@ -170,11 +159,6 @@ public class User {
      * Only attaches if the document reference is not null.
      */
     private void attachSnapshotListener() {
-        if (isDisplayOnly || userDocRef == null) {
-            // Don't attach listener for display-only users
-            return;
-        }
-
 
         try {
             listenerRegistration = this.userDocRef.addSnapshotListener((documentSnapshot, error) -> {
@@ -226,14 +210,6 @@ public class User {
         return userDocRef;
     }
 
-    /**
-     * Returns whether this is a display-only user without Firestore functionality.
-     *
-     * @return true if this is a display-only user, false otherwise
-     */
-    public boolean isDisplayOnly() {
-        return isDisplayOnly;
-    }
 
     /**
      * Change the name of a user.
@@ -244,13 +220,6 @@ public class User {
      */
     public void setName(String name) {
         this.name = name;
-
-        // Only update Firestore for non-display users
-        if (!isDisplayOnly && userDocRef != null) {
-            userDocRef.update(Map.of("name", this.name))
-                    .addOnSuccessListener(aVoid -> Log.d(TAG, "Name updated in Firestore"))
-                    .addOnFailureListener(e -> Log.e(TAG, "Error updating name in Firestore", e));
-        }
     }
     /*
     The following function was has significant help in design from Deepseek, a bunch of it's mine
@@ -263,10 +232,6 @@ public class User {
      * Does nothing for display-only users.
      */
     public void deleteUserFromDB() {
-        if (isDisplayOnly || userDocRef == null) {
-            Log.w(TAG, "Cannot delete a display-only user from the database");
-            return;
-        }
 
         deleteSubcollections(this.userDocRef.collection("mood_events"));
         deleteSubcollections(this.userDocRef.collection("follow_request"));
