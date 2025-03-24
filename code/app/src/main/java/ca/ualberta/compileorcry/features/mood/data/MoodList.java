@@ -881,7 +881,7 @@ public class MoodList {
                                     moodEvent.setPicture((String) documentData.get("picture"));
                                 }
                                 if (isValidKeyPairDatatype(documentData, "is_public", Boolean.class)) {
-                                    moodEvent.setPublic((Boolean) documentData.get("is_public"));
+                                    moodEvent.setIsPublic((Boolean) documentData.get("is_public"));
                                 }
                                 if(!containsMoodEvent(moodEvent)) {
                                     moodEvents.add(moodEvent);
@@ -1001,7 +1001,7 @@ public class MoodList {
                         toBeUpdated.setEmotionalState((EmotionalState) updateMap.get(key)); // Set the emotional state
                         break;
                     case "is_public":
-                        toBeUpdated.setPublic((Boolean) updateMap.get(key)); // Set the emotional state
+                        toBeUpdated.setIsPublic((Boolean) updateMap.get(key)); // Set the emotional state
                         break;
                     default:
                         // Handle unexpected keys (if any)
