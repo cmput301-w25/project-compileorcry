@@ -31,6 +31,7 @@ import ca.ualberta.compileorcry.domain.models.User;
 import ca.ualberta.compileorcry.features.mood.data.MoodList;
 import ca.ualberta.compileorcry.features.mood.data.QueryType;
 import ca.ualberta.compileorcry.features.mood.model.EmotionalState;
+import ca.ualberta.compileorcry.features.mood.model.MoodEvent;
 
 /**
  * The FeedFragment class displays a feed of mood events, either from the user's
@@ -100,7 +101,7 @@ public class FeedFragment extends Fragment {
         filterSpinner.post(() -> filterSpinner.setSelection(0, false));
 
         // Initialize RecyclerView with empty list
-        adapter = new MoodEventAdapter(new ArrayList<>());
+        adapter = new MoodEventAdapter(new ArrayList<>(), this::onMoodEventClick);
         binding.recyclerViewMoodHistory.setLayoutManager(
                 new LinearLayoutManager(requireContext())  // Use requireContext()
         );
@@ -132,7 +133,7 @@ public class FeedFragment extends Fragment {
                 (requestKey, result) -> {
                     Log.d("FeedFragment", "Received update from MoodInfoDialogFragment");
                     Toast.makeText(requireContext(), "Mood updated", Toast.LENGTH_SHORT).show();
-                    refreshMoodList();
+
                     loadFeed();
                 });
 
@@ -172,6 +173,25 @@ public class FeedFragment extends Fragment {
             @Override
             public void onNothingSelected(AdapterView<?> parent) { }
         });
+    }
+
+    private void onMoodEventClick(MoodEvent clickedEvent) {
+        if (clickedEvent != null) {
+            Bundle args = new Bundle();
+            args.putString("moodId", clickedEvent.getId());
+            args.putString("emotionalState", clickedEvent.getEmotionalState().getDescription());
+            args.putString("trigger", clickedEvent.getTrigger());
+            args.putString("socialSituation", clickedEvent.getSocialSituation());
+
+            boolean isViewOnly = binding.feedSpinner.getSelectedItem().toString().equals("Following");
+            args.putBoolean("isViewOnly", isViewOnly);
+
+            MoodInfoDialogFragment dialog = new MoodInfoDialogFragment();
+            dialog.setArguments(args);
+            dialog.show(requireActivity().getSupportFragmentManager(), "ViewMoodEvent");
+        } else {
+            Log.e("FeedFragment", "Clicked MoodEvent is null!");
+        }
     }
 
     /**

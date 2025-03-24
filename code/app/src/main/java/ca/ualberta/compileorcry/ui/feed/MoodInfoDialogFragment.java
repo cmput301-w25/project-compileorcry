@@ -46,6 +46,8 @@ public class MoodInfoDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         binding = FragmentMoodInfoDialogBinding.inflate(getLayoutInflater());
+        binding.moodinfoStateAutoComplete.setDropDownBackgroundResource(R.color.dark);
+        binding.moodinfoSituationAutoComplete.setDropDownBackgroundResource(R.color.dark);
 
         Bundle args = getArguments();
         if (args != null) {
