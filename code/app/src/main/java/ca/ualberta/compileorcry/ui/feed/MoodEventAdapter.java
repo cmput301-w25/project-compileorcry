@@ -31,6 +31,11 @@ import ca.ualberta.compileorcry.features.mood.model.MoodEvent;
 public class MoodEventAdapter extends RecyclerView.Adapter<MoodEventAdapter.ViewHolder> {
     /** The current list of mood events to display */
     private List<MoodEvent> moodEvents;
+    private OnItemClickListener clickListener;
+
+    public interface OnItemClickListener {
+        void onItemClick(MoodEvent moodEvent);
+    }
 
     /**
      * Constructs a new adapter with the given list of mood events.
@@ -38,8 +43,9 @@ public class MoodEventAdapter extends RecyclerView.Adapter<MoodEventAdapter.View
      *
      * @param moodEvents List of mood events to display
      */
-    public MoodEventAdapter(List<MoodEvent> moodEvents) {
+    public MoodEventAdapter(List<MoodEvent> moodEvents, OnItemClickListener clickListener) {
         this.moodEvents = moodEvents != null ? moodEvents : new ArrayList<>();
+        this.clickListener = clickListener;
     }
 
     /**
@@ -96,6 +102,13 @@ public class MoodEventAdapter extends RecyclerView.Adapter<MoodEventAdapter.View
         DrawableCompat.setTint(wrappedDrawable, moodColor);
         holder.itemView.setBackground(wrappedDrawable);
         holder.bind(event);
+
+        // Open MoodEventDialogFragment when clicked
+        holder.itemView.setOnClickListener(v -> {
+            if (clickListener != null) {
+                clickListener.onItemClick(event);
+            }
+        });
     }
 
     /**
