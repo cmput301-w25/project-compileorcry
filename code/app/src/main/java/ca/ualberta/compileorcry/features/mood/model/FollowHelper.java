@@ -58,22 +58,26 @@ public class FollowHelper {
      */
     public static ArrayList<String> getFollowers(String username) throws InterruptedException {
         ExecutorService executor = Executors.newSingleThreadExecutor();
-
-        //Runs the firestore stuff
         ArrayList<String> followers = new ArrayList<>();
+        //Executor service to prevent deadlock on main
         executor.execute(() -> {
             FirebaseFirestore db = FirebaseFirestore.getInstance();
             QuerySnapshot followersSnapshot;
             try {
+                //await the collection of all docs in the users following
                 followersSnapshot = Tasks.await(db.collection("users").document(username).collection("followers").get());
                 for (DocumentSnapshot doc : followersSnapshot.getDocuments()) {
+                    //loop over each document in the collection
                     Map<String,Object> docData = doc.getData();
                     if(docData == null){
+                        //sanity check to prevent nulls from going into the next if statement
                         continue;
                     }
                     if(docData.containsKey("username") && docData.get("username") instanceof String){
+                        //ensure that username is in the doc before adding it into the followers
                         followers.add((String) docData.get("username"));
                     } else {
+                        //this should only occur if a bad document is made via the firestore console
                         doc.getReference().delete();
                     }
                 }
@@ -81,7 +85,9 @@ public class FollowHelper {
                 throw new RuntimeException(e);
             }
         });
+        //initiates the shutdown sequence which causes the executor to terminate onces its finished
         executor.shutdown();
+        //timeout set to 10s, I've never had this take longer than 200ms, if this becomes an issue it can be increased
         Boolean success = executor.awaitTermination(10, TimeUnit.SECONDS);
         if(!success){
             return null;
@@ -99,22 +105,26 @@ public class FollowHelper {
      */
     public static ArrayList<String> getFollowings(String username) throws InterruptedException {
         ExecutorService executor = Executors.newSingleThreadExecutor();
-
-        //Runs the firestore stuff
         ArrayList<String> following = new ArrayList<>();
+        //Executor service to prevent deadlock on main
         executor.execute(() -> {
             FirebaseFirestore db = FirebaseFirestore.getInstance();
             QuerySnapshot followersSnapshot;
             try {
+                //await the collection of all docs in the users following
                 followersSnapshot = Tasks.await(db.collection("users").document(username).collection("following").get());
                 for (DocumentSnapshot doc : followersSnapshot.getDocuments()) {
+                    //loop over each document in the collection
                     Map<String,Object> docData = doc.getData();
                     if(docData == null){
+                        //sanity check to prevent nulls from going into the next if statement
                         continue;
                     }
                     if(docData.containsKey("username") && docData.get("username") instanceof String){
+                        //ensure that username is in the doc before adding it into the followings
                         following.add((String) docData.get("username"));
                     } else {
+                        //this should only occur if a bad document is made via the firestore console
                         doc.getReference().delete();
                     }
                 }
@@ -122,7 +132,9 @@ public class FollowHelper {
                 throw new RuntimeException(e);
             }
         });
+        //initiates the shutdown sequence which causes the executor to terminate onces its finished
         executor.shutdown();
+        //timeout set to 10s, I've never had this take longer than 200ms, if this becomes an issue it can be increased
         Boolean success = executor.awaitTermination(10, TimeUnit.SECONDS);
         if(!success){
             return null;
