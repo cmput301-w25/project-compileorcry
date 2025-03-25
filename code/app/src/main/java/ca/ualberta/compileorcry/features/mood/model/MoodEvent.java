@@ -3,12 +3,19 @@ package ca.ualberta.compileorcry.features.mood.model;
 import com.firebase.geofire.core.GeoHash;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
+
+import ca.ualberta.compileorcry.domain.models.User;
 
 /**
  * The MoodEvent class represents a single mood event entry in the application.
@@ -256,5 +263,62 @@ public class MoodEvent {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         return sdf.format(timestamp.toDate());
     }
+
+    /* COMMENTS FUNCTIONALITY */
+    public void addComment(String text, CommentListener listener) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        if (id == null) {
+            listener.onFailure(new IllegalStateException("MoodEvent ID is null, cannot add comment"));
+            return;
+        }
+
+        DocumentReference commentRef = db.collection("mood_events")
+                .document(id)
+                .collection("comments")
+                .document(); // Auto-generated ID
+
+        Comment comment = new Comment(User.getActiveUser().getUsername(), text, Timestamp.now());
+
+        commentRef.set(comment)
+                .addOnSuccessListener(aVoid -> listener.onSuccess())
+                .addOnFailureListener(listener::onFailure);
+    }
+
+    public void getComments(CommentListListener listener) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        if (id == null) {
+            listener.onFailure(new IllegalStateException("MoodEvent ID is null, cannot fetch comments"));
+            return;
+        }
+
+        db.collection("mood_events").document(id).collection("comments")
+                .orderBy("timestamp", Query.Direction.ASCENDING)
+                .addSnapshotListener((queryDocumentSnapshots, e) -> {
+                    if (e != null) {
+                        listener.onFailure(e);
+                        return;
+                    }
+                    List<Comment> commentList = new ArrayList<>();
+                    for (DocumentSnapshot document : queryDocumentSnapshots) {
+                        Comment comment = document.toObject(Comment.class);
+                        if (comment != null) {
+                            commentList.add(comment);
+                        }
+                    }
+                    listener.onSuccess(commentList);
+                });
+    }
+
+    // Define listener interfaces for callbacks
+    public interface CommentListener {
+        void onSuccess();
+        void onFailure(Exception e);
+    }
+
+    public interface CommentListListener {
+        void onSuccess(List<Comment> comments);
+        void onFailure(Exception e);
+    }
+
 
 }
