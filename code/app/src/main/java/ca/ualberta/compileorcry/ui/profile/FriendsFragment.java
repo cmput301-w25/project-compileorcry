@@ -163,12 +163,10 @@ public class FriendsFragment extends Fragment {
         if (isFollowing) {
             // Switch is checked/on - show Following
             binding.imageView3.setImageResource(R.drawable.txt_following);
-            binding.publicText.setText("Following  ");
             loadFollowingUsers();
         } else {
             // Switch is unchecked/off - show Followers
             binding.imageView3.setImageResource(R.drawable.txt_followers);
-            binding.publicText.setText("Followers  ");
             loadFollowerUsers();
         }
     }
@@ -278,7 +276,6 @@ public class FriendsFragment extends Fragment {
      * @param userList The list to add the fetched user to
      */
     private void fetchUserDetails(String userId, List<User> userList) {
-        // Hide empty view since we're fetching data
         showEmptyView(false, null);
 
         db.collection("users").document(userId).get()
@@ -294,8 +291,9 @@ public class FriendsFragment extends Fragment {
                                 username = userId;
                             }
 
-                            // Create a display-only User object without attaching listeners
-                            User user = User.createDisplayUser(username, name);
+                            // Create a User object without document reference for display purposes
+                            // This doesn't attach a Firestore listener
+                            User user = new User(username, name, null);
 
                             // Check if user is already in the list to avoid duplicates
                             boolean isDuplicate = false;
