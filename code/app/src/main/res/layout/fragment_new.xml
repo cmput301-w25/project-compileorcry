@@ -141,13 +141,13 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/new_event_trigger_layout"
+                android:id="@+id/new_event_location_layout"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="347dp"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="32dp"
                 android:layout_marginTop="20dp"
-                android:hint="@string/trigger_optional"
+                android:hint="@string/location"
                 android:textColorHint="@color/light"
                 app:boxBackgroundMode="outline"
                 app:boxStrokeColor="@color/light_dark_selector"
@@ -162,7 +162,40 @@
                 app:hintTextColor="@color/light_dark_selector">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/new_event_trigger_text"
+                    android:id="@+id/new_event_location_text"
+                    style="@style/TextAppearance.CompileOrCry.Body1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/source_sans_pro_semibold"
+                    android:focusable="false"
+                    android:clickable="false"
+                    android:inputType="none"
+                    android:textColor="@color/light" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/new_event_reason_layout"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="347dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="32dp"
+                android:layout_marginTop="20dp"
+                android:hint="@string/reason_optional"
+                android:textColorHint="@color/light"
+                app:boxBackgroundMode="outline"
+                app:boxStrokeColor="@color/light_dark_selector"
+                app:boxStrokeErrorColor="@color/anger"
+                app:cursorErrorColor="@color/anger"
+                app:errorEnabled="false"
+                app:errorIconTint="@color/anger"
+                app:errorTextAppearance="@style/TextAppearance.AppCompat.Body1"
+                app:errorTextColor="@color/anger"
+                app:hintAnimationEnabled="true"
+                app:hintEnabled="true"
+                app:hintTextColor="@color/light_dark_selector">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/new_event_reason_text"
                     style="@style/TextAppearance.CompileOrCry.Body1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

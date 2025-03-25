@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
  * - Timestamp when the mood was recorded
  * - Required emotional state (from EmotionalState enum)
  * - Requred boolean to determine if the moodEvent is public
- * - Optional trigger text explanation (reason for the mood)
+ * - Optional reason (explanation)
  * - Optional social situation context
  * - Optional location data as GeoHash
  * - Optional photograph (not fully implemented)
@@ -52,7 +52,7 @@ public class MoodEvent {
     private Timestamp timestamp;
     private EmotionalState emotionalState;
     private String picture;
-    private String trigger;
+    private String reason;
     private String socialSituation;
     private String username;
     private GeoHash location;  //TODO: this is not fully implemented yet, any setter needs to know how to get the geopoint
@@ -65,22 +65,37 @@ public class MoodEvent {
      * Creates a unique ID and sets the current timestamp.
      *
      * @param emotionalState The emotional state for this event. Cannot be null.
-     * @param trigger Optional text description explaining the reason for this mood event.
+     * @param reason Optional text description explaining the reason for this mood event.
      * @param socialSituation Optional description of the social context (alone, with one person, etc).
      * @param picture Optional reference to an image stored in Firebase Storage.
      * @throws IllegalArgumentException If emotionalState is null.
      */
-    public MoodEvent(EmotionalState emotionalState, Timestamp date, String trigger, String socialSituation, String picture, Boolean isPublic) {
+    public MoodEvent(EmotionalState emotionalState, Timestamp date, String reason, String socialSituation, String picture, Boolean isPublic) {
         if (emotionalState == null) {
             throw new IllegalArgumentException("Emotional state is required");
         }
         this.id = UUID.randomUUID().toString();
         this.timestamp = date;
         this.emotionalState = emotionalState;
-        this.trigger = trigger;
+        this.reason = reason;
         this.socialSituation = socialSituation;
         this.picture = picture;
         this.isPublic = isPublic;
+        this.location = null;
+    }
+
+    public MoodEvent(EmotionalState emotionalState, Timestamp date, String reason, String socialSituation, String picture, Boolean isPublic, GeoHash location) {
+        if (emotionalState == null) {
+            throw new IllegalArgumentException("Emotional state is required");
+        }
+        this.id = UUID.randomUUID().toString();
+        this.timestamp = date;
+        this.emotionalState = emotionalState;
+        this.reason = reason;
+        this.socialSituation = socialSituation;
+        this.picture = picture;
+        this.isPublic = isPublic;
+        this.location = location;
     }
 
     /**
@@ -123,12 +138,12 @@ public class MoodEvent {
     }
 
     /**
-     * Returns the trigger (reason) text for this mood event.
+     * Returns the reason text for this mood event.
      *
-     * @return The trigger text, or null if not set
+     * @return The reason text, or null if not set
      */
-    public String getTrigger() {
-        return trigger;
+    public String getReason() {
+        return reason;
     }
 
     /**
@@ -208,12 +223,12 @@ public class MoodEvent {
     }
 
     /**
-     * Sets the trigger (reason) text for this mood event.
+     * Sets the reason text for this mood event.
      *
-     * @param trigger A brief textual explanation for the mood
+     * @param reason A brief textual explanation for the mood
      */
-    public void setTrigger(String trigger) {
-        this.trigger = trigger;
+    public void setReason(String reason) {
+        this.reason = reason;
     }
 
     /**
@@ -268,7 +283,8 @@ public class MoodEvent {
         putIfNotNull(map, "username", this.username);
         putIfNotNull(map, "date", this.timestamp);
         putIfNotNull(map, "social_situation", this.socialSituation);
-        putIfNotNull(map, "trigger", this.trigger);
+        putIfNotNull(map, "reason", this.reason);
+        putIfNotNull(map, "is_public", this.isPublic);
         putIfNotNull(map, "is_public", this.isPublic);
         return map;
     }

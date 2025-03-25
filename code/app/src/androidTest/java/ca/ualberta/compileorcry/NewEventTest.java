@@ -76,7 +76,7 @@ public class NewEventTest {
         onView(withId(R.id.new_event_date_text))
                 .perform(replaceText("2020-10-01"));
 
-        onView(withId(R.id.new_event_trigger_text))
+        onView(withId(R.id.new_event_reason_text))
                 .perform(typeText("Music"), closeSoftKeyboard());
 
         onView(withId(R.id.new_event_social_situation_autocomplete))
@@ -91,7 +91,7 @@ public class NewEventTest {
         onView(withId(R.id.new_event_date_text))
                 .check(matches(withText("")));
 
-        onView(withId(R.id.new_event_trigger_text))
+        onView(withId(R.id.new_event_reason_text))
                 .check(matches(withText("")));
 
         onView(withId(R.id.new_event_social_situation_autocomplete))
@@ -107,7 +107,7 @@ public class NewEventTest {
         onView(withId(R.id.new_event_date_text))
                 .perform(replaceText("2020-10-01"));
 
-        onView(withId(R.id.new_event_trigger_text)).perform(typeText("Music"), closeSoftKeyboard());
+        onView(withId(R.id.new_event_reason_text)).perform(typeText("Music"), closeSoftKeyboard());
 
         onView(withId(R.id.new_event_social_situation_autocomplete))
                 .perform(replaceText("Alone"));
@@ -129,7 +129,7 @@ public class NewEventTest {
         onView(withId(R.id.new_event_date_text))
                 .perform(replaceText("Invalid"));
 
-        onView(withId(R.id.new_event_trigger_text)).perform(typeText("Music"), closeSoftKeyboard());
+        onView(withId(R.id.new_event_reason_text)).perform(typeText("Music"), closeSoftKeyboard());
 
         onView(withId(R.id.new_event_social_situation_autocomplete))
                 .perform(replaceText("Alone"));

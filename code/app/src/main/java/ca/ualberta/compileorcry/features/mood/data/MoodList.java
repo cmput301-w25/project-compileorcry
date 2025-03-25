@@ -515,7 +515,7 @@ public class MoodList {
      *
      * @param event   The MoodEvent to edit.
      * @param changes A map of key-value pairs representing the changes to apply.
-     *                The usable keys are: "picture", "social_situation", "date", "location", "trigger", "emotional_state"
+     *                The usable keys are: "picture", "social_situation", "date", "location", "reason", "emotional_state"
      *                They must be paired with the corresponding datatype for the attribute in MoodEvent
      * @throws IllegalArgumentException If the MoodList is read-only, the event is invalid, or the changes are invalid.
      * @throws RuntimeException If Firestore operations fail or the event cannot be updated.
@@ -671,8 +671,8 @@ public class MoodList {
                             listener.onError(new IllegalArgumentException("username cannot be null for querys of recentMoods or is not a String"));
                             return;
                         }
-                        if (isValidKeyPairDatatype(documentData, "trigger", String.class)) {
-                            moodEvent.setTrigger((String) documentData.get("trigger"));
+                        if (isValidKeyPairDatatype(documentData, "reason", String.class)) {
+                            moodEvent.setReason((String) documentData.get("reason"));
                         }
                         if (isValidKeyPairDatatype(documentData, "social_situation", String.class)) {
                             moodEvent.setSocialSituation((String) documentData.get("social_situation"));
@@ -871,8 +871,8 @@ public class MoodList {
                                     listener.onError(new IllegalArgumentException("username cannot be null for querys of recentMoods or is not a String"));
                                     return;
                                 }
-                                if (isValidKeyPairDatatype(documentData, "trigger", String.class)) {
-                                    moodEvent.setTrigger((String) documentData.get("trigger"));
+                                if (isValidKeyPairDatatype(documentData, "reason", String.class)) {
+                                    moodEvent.setReason((String) documentData.get("reason"));
                                 }
                                 if (isValidKeyPairDatatype(documentData, "social_situation", String.class)) {
                                     moodEvent.setSocialSituation((String) documentData.get("social_situation"));
@@ -957,7 +957,7 @@ public class MoodList {
         if(map.containsKey("location") && !isValidKeyPairDatatype(map, "location", GeoHash.class)){
             return false;
         }
-        if(map.containsKey("trigger") && !isValidKeyPairDatatype(map, "trigger", String.class)){
+        if(map.containsKey("reason") && !isValidKeyPairDatatype(map, "reason", String.class)){
             return false;
         }
         if(map.containsKey("emotional_state") && !isValidKeyPairDatatype(map, "emotional_state", EmotionalState.class)){
@@ -977,7 +977,7 @@ public class MoodList {
         if(!isValidEditMap(updateMap)){
             throw new IllegalArgumentException("updateMap contains incorrect datatype(s)");
         }
-        ArrayList<String> updatableKeys = new ArrayList<>(Arrays.asList("picture", "social_situation", "date", "location", "trigger", "emotional_state"));
+        ArrayList<String> updatableKeys = new ArrayList<>(Arrays.asList("picture", "social_situation", "date", "location", "reason", "emotional_state"));
         Set<String> keySet = updateMap.keySet();
         for (String key : keySet) {
             if (updatableKeys.contains(key)) {
@@ -994,8 +994,8 @@ public class MoodList {
                     case "location":
                         toBeUpdated.setLocation((GeoHash) updateMap.get(key)); // Set the location
                         break;
-                    case "trigger":
-                        toBeUpdated.setTrigger((String) updateMap.get(key)); // Set the trigger
+                    case "reason":
+                        toBeUpdated.setReason((String) updateMap.get(key)); // Set the reason
                         break;
                     case "emotional_state":
                         toBeUpdated.setEmotionalState((EmotionalState) updateMap.get(key)); // Set the emotional state
@@ -1021,11 +1021,11 @@ public class MoodList {
         Iterator<MoodEvent> iter = moodEvents.iterator();
         while(iter.hasNext()) {
             MoodEvent event = iter.next();
-            if(event.getTrigger() == null){
+            if(event.getReason() == null){
                 iter.remove();
                 continue;
             }
-            if(!event.getTrigger().contains(reasonString)) {
+            if(!event.getReason().contains(reasonString)) {
                 iter.remove(); // Removes the 'current' item
             }
         }

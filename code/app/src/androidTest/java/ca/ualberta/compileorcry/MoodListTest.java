@@ -66,8 +66,8 @@ public class MoodListTest {
         Map<String,Map<String,Object>> moodEvents = new HashMap<>();
         moodEvents.put("base", createEvent((long) 1, "test", Timestamp.now(), "With friends", "s00twy"));
         moodEvents.put("emotion", createEvent((long) 2, "ntestn", Timestamp.now(), "With friends", "s00twy"));
-        moodEvents.put("trigger", createEvent((long) 1, "dummyData", Timestamp.now(), "With friends", "s00twy"));
-        moodEvents.put("triggerNull", createEvent((long) 1, null, Timestamp.now(), "With friends", "s00twy"));
+        moodEvents.put("reason", createEvent((long) 1, "dummyData", Timestamp.now(), "With friends", "s00twy"));
+        moodEvents.put("reasonNull", createEvent((long) 1, null, Timestamp.now(), "With friends", "s00twy"));
         moodEvents.put("date", createEvent((long) 1, "test", twoWeeksAgoTimestamp, "With friends", "s00twy"));
         moodEvents.put("locationNull", createEvent((long) 1, "testing", Timestamp.now(), "With friends", null));
         for (Map.Entry<String, Map<String, Object>> entry : moodEvents.entrySet()) {
@@ -75,15 +75,15 @@ public class MoodListTest {
             Map<String, Object> eventData = entry.getValue();
             moodEventsRef.document(eventId).set(eventData);
         }
-        List<String> following = List.of("base","emotion","trigger","triggerNull","date","locationNull","locationFar");
+        List<String> following = List.of("base","emotion","reason","reasonNull","date","locationNull","locationFar");
         for(String string : following){
             followingRef.document(string).set(Map.of("username",string));
         }
         Map<String,Map<String,Object>> recentMoodEvents = new HashMap<>();
         recentMoodEvents.put("base", createRecemtEvent((long) 1, "test", Timestamp.now(), "With friends", "s00twy", "base", "test"));
         recentMoodEvents.put("emotion", createRecemtEvent((long) 2, "ntestn", Timestamp.now(), "With friends", "s00twy", "emotion", "test"));
-        recentMoodEvents.put("trigger", createRecemtEvent((long) 1, "dummyData", Timestamp.now(), "With friends", "s00twy", "trigger", "test"));
-        recentMoodEvents.put("triggerNull", createRecemtEvent((long) 1, null, Timestamp.now(), "With friends", "s00twy", "triggerNull", "test"));
+        recentMoodEvents.put("reason", createRecemtEvent((long) 1, "dummyData", Timestamp.now(), "With friends", "s00twy", "reason", "test"));
+        recentMoodEvents.put("reasonNull", createRecemtEvent((long) 1, null, Timestamp.now(), "With friends", "s00twy", "reasonNull", "test"));
         recentMoodEvents.put("date", createRecemtEvent((long) 1, "test", twoWeeksAgoTimestamp, "With friends", "s00twy", "date", "test"));
         recentMoodEvents.put("locationNull", createRecemtEvent((long) 1, "testing", Timestamp.now(), "With friends", null, "locationNull", "test"));
         recentMoodEvents.put("locationFar", createRecemtEvent((long) 1, "testing", Timestamp.now(), "With friends", "s10twy", "locationNull", "locationFar"));
@@ -111,7 +111,7 @@ public class MoodListTest {
                         @Override
                         public void returnMoodList(MoodList moodList) {
                             ArrayList<MoodEvent> moodEvents = moodList.getMoodEvents();
-                            Set<String> eventIds = Set.of("base", "emotion", "trigger", "triggerNull", "locationNull","date");
+                            Set<String> eventIds = Set.of("base", "emotion", "reason", "reasonNull", "locationNull","date");
                             Set<String> eventIdsLoaded = new HashSet<>();
                             for (MoodEvent moodEvent : moodEvents) {
                                 eventIdsLoaded.add(moodEvent.getId());
@@ -152,7 +152,7 @@ public class MoodListTest {
                         @Override
                         public void returnMoodList(MoodList moodList) {
                             ArrayList<MoodEvent> moodEvents = moodList.getMoodEvents();
-                            Set<String> eventIds = Set.of("base", "emotion", "trigger", "triggerNull", "locationNull");
+                            Set<String> eventIds = Set.of("base", "emotion", "reason", "reasonNull", "locationNull");
                             Set<String> eventIdsLoaded = new HashSet<>();
                             for (MoodEvent moodEvent : moodEvents) {
                                 eventIdsLoaded.add(moodEvent.getId());
@@ -193,7 +193,7 @@ public class MoodListTest {
                         @Override
                         public void returnMoodList(MoodList moodList) {
                             ArrayList<MoodEvent> moodEvents = moodList.getMoodEvents();
-                            Set<String> eventIds = Set.of("base", "trigger", "triggerNull", "locationNull","date");
+                            Set<String> eventIds = Set.of("base", "reason", "reasonNull", "locationNull","date");
                             Set<String> eventIdsLoaded = new HashSet<>();
                             for (MoodEvent moodEvent : moodEvents) {
                                 eventIdsLoaded.add(moodEvent.getId());
@@ -275,7 +275,7 @@ public class MoodListTest {
                         @Override
                         public void returnMoodList(MoodList moodList) {
                             ArrayList<MoodEvent> moodEvents = moodList.getMoodEvents();
-                            Set<String> eventIds = Set.of("base", "emotion", "trigger", "triggerNull", "locationNull","date","locationFar");
+                            Set<String> eventIds = Set.of("base", "emotion", "reason", "reasonNull", "locationNull","date","locationFar");
                             Set<String> eventIdsLoaded = new HashSet<>();
                             for (MoodEvent moodEvent : moodEvents) {
                                 eventIdsLoaded.add(moodEvent.getId());
@@ -316,7 +316,7 @@ public class MoodListTest {
                         @Override
                         public void returnMoodList(MoodList moodList) {
                             ArrayList<MoodEvent> moodEvents = moodList.getMoodEvents();
-                            Set<String> eventIds = Set.of("base", "emotion", "trigger", "triggerNull", "locationNull","locationFar");
+                            Set<String> eventIds = Set.of("base", "emotion", "reason", "reasonNull", "locationNull","locationFar");
                             Set<String> eventIdsLoaded = new HashSet<>();
                             for (MoodEvent moodEvent : moodEvents) {
                                 eventIdsLoaded.add(moodEvent.getId());
@@ -357,7 +357,7 @@ public class MoodListTest {
                         @Override
                         public void returnMoodList(MoodList moodList) {
                             ArrayList<MoodEvent> moodEvents = moodList.getMoodEvents();
-                            Set<String> eventIds = Set.of("base", "trigger", "triggerNull", "locationNull","date","locationFar");
+                            Set<String> eventIds = Set.of("base", "reason", "reasonNull", "locationNull","date","locationFar");
                             Set<String> eventIdsLoaded = new HashSet<>();
                             for (MoodEvent moodEvent : moodEvents) {
                                 eventIdsLoaded.add(moodEvent.getId());
@@ -439,7 +439,7 @@ public class MoodListTest {
                         @Override
                         public void returnMoodList(MoodList moodList) {
                             ArrayList<MoodEvent> moodEvents = moodList.getMoodEvents();
-                            Set<String> eventIds = Set.of("base", "emotion", "trigger", "triggerNull","date");
+                            Set<String> eventIds = Set.of("base", "emotion", "reason", "reasonNull","date");
                             Set<String> eventIdsLoaded = new HashSet<>();
                             for (MoodEvent moodEvent : moodEvents) {
                                 eventIdsLoaded.add(moodEvent.getId());
@@ -480,7 +480,7 @@ public class MoodListTest {
                         @Override
                         public void returnMoodList(MoodList moodList) {
                             ArrayList<MoodEvent> moodEvents = moodList.getMoodEvents();
-                            Set<String> eventIds = Set.of("base", "emotion", "trigger", "triggerNull","date","locationFar");
+                            Set<String> eventIds = Set.of("base", "emotion", "reason", "reasonNull","date","locationFar");
                             Set<String> eventIdsLoaded = new HashSet<>();
                             for (MoodEvent moodEvent : moodEvents) {
                                 eventIdsLoaded.add(moodEvent.getId());
@@ -521,7 +521,7 @@ public class MoodListTest {
                         @Override
                         public void returnMoodList(MoodList moodList) {
                             ArrayList<MoodEvent> moodEvents = moodList.getMoodEvents();
-                            Set<String> eventIds = Set.of("base", "emotion", "trigger", "triggerNull","date");
+                            Set<String> eventIds = Set.of("base", "emotion", "reason", "reasonNull","date");
                             Set<String> eventIdsLoaded = new HashSet<>();
                             for (MoodEvent moodEvent : moodEvents) {
                                 eventIdsLoaded.add(moodEvent.getId());
@@ -560,7 +560,7 @@ public class MoodListTest {
             MoodList.createMoodList(User.getActiveUser(), QueryType.HISTORY_MODIFIABLE,
                     new MoodList.MoodListListener() {
                         MoodList moodListOuter;
-                        MoodEvent moodEvent = new MoodEvent(EmotionalState.DISGUST, Timestamp.now(), "trigger", "Alone", "picture");
+                        MoodEvent moodEvent = new MoodEvent(EmotionalState.DISGUST, Timestamp.now(), "reason", "Alone", "picturePath", true);
                         boolean addSuccess = false;
                         @Override
                         public void returnMoodList(MoodList moodList) {
@@ -654,19 +654,19 @@ public class MoodListTest {
         }
     }
 
-    private static Map<String, Object> createEvent(Object emotionalState, Object trigger, Object date, Object socialSituation, Object location) {
+    private static Map<String, Object> createEvent(Object emotionalState, Object reason, Object date, Object socialSituation, Object location) {
         Map<String, Object> event = new HashMap<>();
         event.put("emotional_state", emotionalState);
-        event.put("trigger", trigger);
+        event.put("reason", reason);
         event.put("date", date);
         event.put("social_situation", socialSituation);
         event.put("location", location);
         return event;
     }
-    private static Map<String, Object> createRecemtEvent(Object emotionalState, Object trigger, Object date, Object socialSituation, Object location, String username, String id) {
+    private static Map<String, Object> createRecemtEvent(Object emotionalState, Object reason, Object date, Object socialSituation, Object location, String username, String id) {
         Map<String, Object> event = new HashMap<>();
         event.put("emotional_state", emotionalState);
-        event.put("trigger", trigger);
+        event.put("reason", reason);
         event.put("date", date);
         event.put("social_situation", socialSituation);
         event.put("location", location);

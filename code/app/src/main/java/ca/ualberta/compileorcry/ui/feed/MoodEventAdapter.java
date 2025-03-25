@@ -24,7 +24,7 @@ import ca.ualberta.compileorcry.features.mood.model.MoodEvent;
  *
  * Features:
  * - Displays emotional state with corresponding color
- * - Shows timestamp, trigger text, and social situation
+ * - Shows timestamp, reason text, and social situation
  * - Handles proper spacing between items
  * - Safely handles null references and optional fields
  */

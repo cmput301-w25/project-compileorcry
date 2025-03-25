@@ -47,7 +47,7 @@ import ca.ualberta.compileorcry.features.mood.model.MoodEvent;
 /**
  * The NewFragment class provides the UI for creating new mood events.
  * It implements a form-based interface for users to input mood event details
- * including emotional state, date, description, trigger, and social situation.
+ * including emotional state, date, description, reason, and social situation.
  *
  * Key features:
  * - Form validation for required fields
@@ -61,7 +61,8 @@ public class NewFragment extends Fragment {
     private MaterialSwitch visibilitySwitch;
     private AutoCompleteTextView emotionalStateAutoCompleteText;
     private TextInputEditText dateEditText;
-    private TextInputEditText triggerEditText;
+    private TextInputEditText reasonEditText;
+    private TextInputEditText locationEditText;
     private AutoCompleteTextView  socialSituationAutoCompleteText;
     private MaterialButton uploadImageButton;
     private TextView imagePathText;
@@ -117,7 +118,8 @@ public class NewFragment extends Fragment {
         visibilitySwitch = view.findViewById(R.id.visibility_switch);
         emotionalStateAutoCompleteText = view.findViewById(R.id.new_event_emotional_state_autocomplete);
         dateEditText = view.findViewById(R.id.new_event_date_text);
-        triggerEditText = view.findViewById(R.id.new_event_trigger_text);
+        reasonEditText = view.findViewById(R.id.new_event_reason_text);
+        locationEditText = view.findViewById(R.id.new_event_location_text);
         socialSituationAutoCompleteText = view.findViewById(R.id.new_event_social_situation_autocomplete);
         uploadImageButton = view.findViewById(R.id.image_upload_button);
         imagePathText = view.findViewById(R.id.image_path_text);
@@ -197,7 +199,7 @@ public class NewFragment extends Fragment {
             isValid = false;
         }
 
-        String trigger = triggerEditText.getText().toString().trim();
+        String reason = reasonEditText.getText().toString().trim();
         String socialSituation = socialSituationAutoCompleteText.getText().toString().trim();
 
         // Validate Emotional State
@@ -216,7 +218,7 @@ public class NewFragment extends Fragment {
 
         // TODO: Pass in visibility boolean during event creation. isPublic is already defined above.
         MoodEvent event = new MoodEvent(EmotionalState.valueOf(emotionalState.toUpperCase()),
-                timestamp, trigger, socialSituation, uploadedImagePath, isPublic);
+                timestamp, reason, socialSituation, uploadedImagePath, isPublic, location);
 
         MoodList.createMoodList(User.getActiveUser(), QueryType.HISTORY_MODIFIABLE,
                 new MoodList.MoodListListener() {
@@ -294,9 +296,9 @@ public class NewFragment extends Fragment {
         dateEditText.setText("");
         dateEditText.clearFocus();
 
-        // Clear the trigger text field
-        triggerEditText.setText("");
-        triggerEditText.clearFocus();
+        // Clear the reason text field
+        reasonEditText.setText("");
+        reasonEditText.clearFocus();
 
         // Clear the social situation dropdown
         socialSituationAutoCompleteText.setText("", false);

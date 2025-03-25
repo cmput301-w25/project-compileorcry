@@ -57,13 +57,13 @@ public class MoodInfoDialogFragment extends DialogFragment {
             String emotionalState = args.getString("emotionalState", "Unknown");
             EmotionalState state = EmotionalState.fromDescription(emotionalState);
             int backgroundColor = state.getColor(requireContext());
-            String trigger = args.getString("trigger", "No Trigger");
+            String reason = args.getString("reason", "No Reason");
             String socialSituation = args.getString("socialSituation", "No Situation");
 
             // Populate the UI with initial values
             setupEmotionalStateDropdown(emotionalState);
             setupSocialSituationDropdown(socialSituation);
-            binding.moodinfoTriggerText.setText(trigger);
+            binding.moodinfoReasonText.setText(reason);
             binding.getRoot().setBackgroundColor(backgroundColor);
 
             moodEvent = new MoodEvent(moodId);
@@ -74,7 +74,7 @@ public class MoodInfoDialogFragment extends DialogFragment {
             if (moodEvent != null) {
                 Map<String, Object> changes = new HashMap<>();
                 changes.put("emotional_state", EmotionalState.fromDescription(binding.moodinfoStateAutoComplete.getText().toString()));
-                changes.put("trigger", binding.moodinfoTriggerText.getText().toString());
+                changes.put("reason", binding.moodinfoReasonText.getText().toString());
                 changes.put("social_situation", binding.moodinfoSituationAutoComplete.getText().toString());
 
                 MoodList.createMoodList(User.getActiveUser(), QueryType.HISTORY_MODIFIABLE, new MoodList.MoodListListener() {
