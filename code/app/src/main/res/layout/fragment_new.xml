@@ -62,7 +62,6 @@
                     android:text="@string/text_formatted_public"
                     android:textColor="@color/light"
                     android:textSize="20sp" />
-
             </LinearLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -140,38 +139,58 @@
                     android:inputType="none" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/new_event_location_layout"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            <LinearLayout
                 android:layout_width="347dp"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="32dp"
                 android:layout_marginTop="20dp"
-                android:hint="@string/location"
-                android:textColorHint="@color/light"
-                app:boxBackgroundMode="outline"
-                app:boxStrokeColor="@color/light_dark_selector"
-                app:boxStrokeErrorColor="@color/anger"
-                app:cursorErrorColor="@color/anger"
-                app:errorEnabled="false"
-                app:errorIconTint="@color/anger"
-                app:errorTextAppearance="@style/TextAppearance.AppCompat.Body1"
-                app:errorTextColor="@color/anger"
-                app:hintAnimationEnabled="true"
-                app:hintEnabled="true"
-                app:hintTextColor="@color/light_dark_selector">
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/new_event_location_text"
-                    style="@style/TextAppearance.CompileOrCry.Body1"
-                    android:layout_width="match_parent"
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/new_event_location_layout"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/source_sans_pro_semibold"
-                    android:focusable="false"
-                    android:clickable="false"
-                    android:inputType="none"
-                    android:textColor="@color/light" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:layout_weight="1"
+                    android:hint="@string/location"
+                    android:textColorHint="@color/light"
+                    app:boxBackgroundMode="outline"
+                    app:boxStrokeColor="@color/light_dark_selector"
+                    app:boxStrokeErrorColor="@color/anger"
+                    app:cursorErrorColor="@color/anger"
+                    app:errorEnabled="false"
+                    app:errorIconTint="@color/anger"
+                    app:errorTextAppearance="@style/TextAppearance.AppCompat.Body1"
+                    app:errorTextColor="@color/anger"
+                    app:hintAnimationEnabled="true"
+                    app:hintEnabled="true"
+                    app:hintTextColor="@color/light_dark_selector">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/new_event_location_text"
+                        style="@style/TextAppearance.CompileOrCry.Body1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:clickable="false"
+                        android:focusable="false"
+                        android:fontFamily="@font/source_sans_pro_semibold"
+                        android:inputType="none"
+                        android:textColor="@color/light" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/my_location_button"
+                    style="@style/Widget.Material3.Button.IconButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="0dp"
+                    android:layout_marginLeft="16dp"
+                    app:icon="@drawable/ic_my_location_40dp"
+                    app:iconSize="28dp"
+                    app:iconTint="@color/light"
+                    app:strokeColor="@color/light" />
+            </LinearLayout>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/new_event_trigger_layout"
@@ -245,8 +264,8 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/image_upload_button"
                 style="@style/Widget.Material3.Button.IconButton"
-                android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 app:icon="@drawable/ic_image_40dp"
                 app:iconTint="@color/light"

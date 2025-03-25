@@ -2,8 +2,10 @@ package ca.ualberta.compileorcry.ui.add;
 
 import static android.app.Activity.RESULT_OK;
 
+import android.Manifest;
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -20,9 +22,11 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
 import com.firebase.geofire.core.GeoHash;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
@@ -75,6 +79,7 @@ public class NewFragment extends Fragment {
     private TextInputEditText dateEditText;
     private TextInputEditText triggerEditText;
     private TextInputEditText locationEditText;
+    private MaterialButton myLocationButton;
     private AutoCompleteTextView  socialSituationAutoCompleteText;
     private MaterialButton uploadImageButton;
     private TextView imagePathText;
@@ -133,6 +138,7 @@ public class NewFragment extends Fragment {
         dateEditText = view.findViewById(R.id.new_event_date_text);
         triggerEditText = view.findViewById(R.id.new_event_trigger_text);
         locationEditText = view.findViewById(R.id.new_event_location_text);
+        myLocationButton = view.findViewById(R.id.my_location_button);
         socialSituationAutoCompleteText = view.findViewById(R.id.new_event_social_situation_autocomplete);
         uploadImageButton = view.findViewById(R.id.image_upload_button);
         imagePathText = view.findViewById(R.id.image_path_text);
@@ -168,6 +174,28 @@ public class NewFragment extends Fragment {
                     .setCountries(List.of("CA"))
                     .build(requireContext());
             startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
+        });
+
+        myLocationButton.setOnClickListener(v -> {
+            if (ActivityCompat.checkSelfPermission(requireContext(),
+                    Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+
+                LocationServices.getFusedLocationProviderClient(requireActivity())
+                        .getLastLocation()
+                        .addOnSuccessListener(loc -> {
+                            if (loc != null) {
+                                locationEditText.setText(R.string.current_location);
+                                this.location = new GeoHash(loc.getLatitude(), loc.getLongitude());
+                            } else {
+                                Toast.makeText(getContext(), "Couldn't get location", Toast.LENGTH_SHORT).show();
+                                locationEditText.setText("");
+                                locationEditText.clearFocus();
+                            }
+                        });
+            } else {
+                // Request permission if not granted
+                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1001);
+            }
         });
 
         // Handle image upload (TODO)
@@ -364,6 +392,9 @@ public class NewFragment extends Fragment {
             } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
                 Toast.makeText(getContext(), "Invalid location.",
                         Toast.LENGTH_SHORT).show();
+                location = null;
+                locationEditText.setText("");
+                locationEditText.clearFocus();
             }
         }
 
@@ -381,7 +412,19 @@ public class NewFragment extends Fragment {
                         Toast.LENGTH_LONG).show();
                 imagePath = null;
                 uploadedImagePath = null;
+                imagePathText.setText("");
+                imagePathText.setVisibility(View.GONE);
             }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        if (requestCode == 1001 && grantResults.length > 0
+                && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            // Permission granted - trigger location fetch again
+            myLocationButton.performClick();
         }
     }
 
