@@ -68,6 +68,13 @@ public enum EmotionalState {
     }
 
     /**
+     * Returns the resource ID for the color associated with this emotional state.
+     *
+     * @return The color resource ID
+     */
+    public int getColorResId() { return colorResId; }
+
+    /**
      * Returns the actual color value for this emotional state.
      *
      * @param context The context used to resolve the color resource
