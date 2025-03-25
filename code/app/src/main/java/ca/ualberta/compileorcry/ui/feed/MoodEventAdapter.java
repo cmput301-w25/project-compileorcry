@@ -4,6 +4,7 @@ import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -128,17 +129,21 @@ public class MoodEventAdapter extends RecyclerView.Adapter<MoodEventAdapter.View
     static class ViewHolder extends RecyclerView.ViewHolder {
         private final TextView emotionalStateTextView;
         private final TextView timestampTextView;
+        private final ImageView moodIconImageView;
+
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             emotionalStateTextView = itemView.findViewById(R.id.textview_emotional_state);
             timestampTextView = itemView.findViewById(R.id.textview_timestamp);
+            moodIconImageView = itemView.findViewById(R.id.mood_icon);
         }
 
         public void bind(MoodEvent event) {
             if (event != null) {
                 emotionalStateTextView.setText(event.getEmotionalState().getDescription());
                 timestampTextView.setText(event.getFormattedDate());
+                moodIconImageView.setImageResource(event.getEmotionalState().getIconResId());
             }
         }
     }
