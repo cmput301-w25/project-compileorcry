@@ -1,7 +1,9 @@
 package ca.ualberta.compileorcry.features.mood.model;
 
+import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.core.GeoHash;
 import com.google.android.gms.tasks.Tasks;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -55,7 +57,7 @@ public class MoodEvent {
     private String trigger;
     private String socialSituation;
     private String username;
-    private GeoHash location;  //TODO: this is not fully implemented yet, any setter needs to know how to get the geopoint
+    private GeoHash location;
     private Boolean isPublic;
     private  Boolean commentsLoaded = false;
     private ArrayList<Comment> comments = new ArrayList<>();
@@ -81,6 +83,21 @@ public class MoodEvent {
         this.socialSituation = socialSituation;
         this.picture = picture;
         this.isPublic = isPublic;
+        this.location = null;
+    }
+
+    public MoodEvent(EmotionalState emotionalState, Timestamp date, String trigger, String socialSituation, String picture, Boolean isPublic, GeoHash location) {
+        if (emotionalState == null) {
+            throw new IllegalArgumentException("Emotional state is required");
+        }
+        this.id = UUID.randomUUID().toString();
+        this.timestamp = date;
+        this.emotionalState = emotionalState;
+        this.trigger = trigger;
+        this.socialSituation = socialSituation;
+        this.picture = picture;
+        this.isPublic = isPublic;
+        this.location = location;
     }
 
     /**
@@ -154,9 +171,16 @@ public class MoodEvent {
      *
      * @return The GeoHash representing the location, or null if not set
      */
-
     public GeoHash getLocation() {
         return location;
+    }
+
+    /**
+     * Decodes a GeoHash into latitude and longitude.
+     */
+    public LatLng getDecodedLocation() {
+        GeoLocation geoLocation = GeoHash.locationFromHash(location.getGeoHashString());
+        return new LatLng(geoLocation.latitude, geoLocation.longitude);
     }
 
     /**

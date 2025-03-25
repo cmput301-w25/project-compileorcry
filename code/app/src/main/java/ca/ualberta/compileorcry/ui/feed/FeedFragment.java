@@ -14,15 +14,16 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import ca.ualberta.compileorcry.R;
 import ca.ualberta.compileorcry.databinding.FragmentFeedBinding;
@@ -113,7 +114,26 @@ public class FeedFragment extends Fragment {
 
         // Setup map FAB
         binding.fabMap.setOnClickListener(v -> {
-            findNavController(view).navigate(R.id.navigation_map);
+            List<MoodEvent> moodEvents = feedViewModel.getMoodEvents().getValue();
+            if (moodEvents != null && !moodEvents.isEmpty()) {
+                ArrayList<MoodEvent> moodEventsWithGeoHash = new ArrayList<>();
+                // Filter moods for ones with location information
+                for (MoodEvent mood : moodEvents) {
+                    if (mood.getLocation() != null) {
+                        moodEventsWithGeoHash.add(mood);
+                    }
+                }
+                if (!moodEventsWithGeoHash.isEmpty()) {
+                    Bundle bundle = new Bundle();
+                    bundle.putSerializable("moodEvents", moodEventsWithGeoHash);
+
+                    findNavController(view).navigate(R.id.navigation_map, bundle);
+                } else {
+                    Toast.makeText(requireContext(), "No locatable events", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(requireContext(), "No locatable events", Toast.LENGTH_SHORT).show();
+            }
         });
 
         // Initialize ViewModel
