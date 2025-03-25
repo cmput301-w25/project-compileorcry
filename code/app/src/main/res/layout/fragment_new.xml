@@ -147,7 +147,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="32dp"
                 android:layout_marginTop="20dp"
-                android:hint="@string/trigger_optional"
+                android:hint="@string/reason_optional"
                 android:textColorHint="@color/light"
                 app:boxBackgroundMode="outline"
                 app:boxStrokeColor="@color/light_dark_selector"
@@ -168,7 +168,8 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/source_sans_pro_semibold"
                     android:inputType="text"
-                    android:textColor="@color/light" />
+                    android:textColor="@color/light"
+                    android:maxLength="200" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
