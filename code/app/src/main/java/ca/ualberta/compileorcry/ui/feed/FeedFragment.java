@@ -106,11 +106,6 @@ public class FeedFragment extends Fragment {
         );
         binding.recyclerViewMoodHistory.setAdapter(adapter);
 
-        // Setup new FAB
-        binding.fabAddMood.setOnClickListener(v -> {
-            findNavController(view).navigate(R.id.navigation_new);
-        });
-
         // Setup map FAB
         binding.fabMap.setOnClickListener(v -> {
             findNavController(view).navigate(R.id.navigation_map);
