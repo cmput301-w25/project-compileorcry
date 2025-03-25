@@ -49,7 +49,7 @@
                     android:checked="true"
                     android:fontFamily="@font/source_sans_pro"
                     android:outlineProvider="none"
-                    android:text="Private"
+                    android:text="@string/text_private"
                     android:textColor="@color/light"
                     android:textSize="20sp"
                     app:trackTint="@color/confusion" />
@@ -59,7 +59,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Public  "
+                    android:text="@string/text_formatted_public"
                     android:textColor="@color/light"
                     android:textSize="20sp" />
 
@@ -110,7 +110,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="32dp"
                 android:layout_marginTop="20dp"
-                android:hint="@string/date_amp_time"
+                android:hint="@string/date"
                 android:textColorHint="@color/light"
                 android:clickable="true"
                 android:focusable="false"
@@ -138,6 +138,39 @@
                     android:clickable="true"
                     android:focusable="false"
                     android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/new_event_location_layout"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="347dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="32dp"
+                android:layout_marginTop="20dp"
+                android:hint="@string/location"
+                android:textColorHint="@color/light"
+                app:boxBackgroundMode="outline"
+                app:boxStrokeColor="@color/light_dark_selector"
+                app:boxStrokeErrorColor="@color/anger"
+                app:cursorErrorColor="@color/anger"
+                app:errorEnabled="false"
+                app:errorIconTint="@color/anger"
+                app:errorTextAppearance="@style/TextAppearance.AppCompat.Body1"
+                app:errorTextColor="@color/anger"
+                app:hintAnimationEnabled="true"
+                app:hintEnabled="true"
+                app:hintTextColor="@color/light_dark_selector">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/new_event_location_text"
+                    style="@style/TextAppearance.CompileOrCry.Body1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/source_sans_pro_semibold"
+                    android:focusable="false"
+                    android:clickable="false"
+                    android:inputType="none"
+                    android:textColor="@color/light" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
