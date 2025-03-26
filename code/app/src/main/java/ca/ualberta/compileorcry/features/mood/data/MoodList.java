@@ -254,7 +254,8 @@ public class MoodList {
                 attachFollowersListener();
                 break;
             case HISTORY_REASON:
-                attachFollowersListener();
+                getQuery();
+                attachMoodEventsListener(this.query);
                 break;
             case FOLLOWING_REASON:
                 this.recentsType = true;
@@ -1028,7 +1029,8 @@ public class MoodList {
     //firestore doesn't have a feature to do this using queries.
     //The only options are to do it serverside which we cant, use a third party software which can cost $$, or do filtering clientside
     /**
-     * removes all moodEvents that do not contain the reasonString
+     * removes all moodEvents that do not contain the reasonString.
+     * Case insensitive.
      *
      * @param reasonString The substring to search
      */
@@ -1040,7 +1042,7 @@ public class MoodList {
                 iter.remove();
                 continue;
             }
-            if(!event.getTrigger().contains(reasonString)) {
+            if(!event.getTrigger().toLowerCase().contains(reasonString.toLowerCase())) {
                 iter.remove(); // Removes the 'current' item
             }
         }
