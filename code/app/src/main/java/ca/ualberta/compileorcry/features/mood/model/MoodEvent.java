@@ -1,21 +1,26 @@
 package ca.ualberta.compileorcry.features.mood.model;
 
+import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.core.GeoHash;
+import com.google.android.gms.tasks.Tasks;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
-
-import ca.ualberta.compileorcry.domain.models.User;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The MoodEvent class represents a single mood event entry in the application.
@@ -26,6 +31,7 @@ import ca.ualberta.compileorcry.domain.models.User;
  * - A unique identifier
  * - Timestamp when the mood was recorded
  * - Required emotional state (from EmotionalState enum)
+ * - Requred boolean to determine if the moodEvent is public
  * - Optional trigger text explanation (reason for the mood)
  * - Optional social situation context
  * - Optional location data as GeoHash
@@ -51,7 +57,10 @@ public class MoodEvent {
     private String trigger;
     private String socialSituation;
     private String username;
-    private GeoHash location;  //TODO: this is not fully implemented yet, any setter needs to know how to get the geopoint
+    private GeoHash location;
+    private Boolean isPublic;
+    private  Boolean commentsLoaded = false;
+    private ArrayList<Comment> comments = new ArrayList<>();
 
     /**
      * Constructs a new MoodEvent with the specified emotional state and optional context information.
@@ -63,7 +72,7 @@ public class MoodEvent {
      * @param picture Optional reference to an image stored in Firebase Storage.
      * @throws IllegalArgumentException If emotionalState is null.
      */
-    public MoodEvent(EmotionalState emotionalState, Timestamp date, String trigger, String socialSituation, String picture) {
+    public MoodEvent(EmotionalState emotionalState, Timestamp date, String trigger, String socialSituation, String picture, Boolean isPublic) {
         if (emotionalState == null) {
             throw new IllegalArgumentException("Emotional state is required");
         }
@@ -73,6 +82,22 @@ public class MoodEvent {
         this.trigger = trigger;
         this.socialSituation = socialSituation;
         this.picture = picture;
+        this.isPublic = isPublic;
+        this.location = null;
+    }
+
+    public MoodEvent(EmotionalState emotionalState, Timestamp date, String trigger, String socialSituation, String picture, Boolean isPublic, GeoHash location) {
+        if (emotionalState == null) {
+            throw new IllegalArgumentException("Emotional state is required");
+        }
+        this.id = UUID.randomUUID().toString();
+        this.timestamp = date;
+        this.emotionalState = emotionalState;
+        this.trigger = trigger;
+        this.socialSituation = socialSituation;
+        this.picture = picture;
+        this.isPublic = isPublic;
+        this.location = location;
     }
 
     /**
@@ -146,9 +171,16 @@ public class MoodEvent {
      *
      * @return The GeoHash representing the location, or null if not set
      */
-
     public GeoHash getLocation() {
         return location;
+    }
+
+    /**
+     * Decodes a GeoHash into latitude and longitude.
+     */
+    public LatLng getDecodedLocation() {
+        GeoLocation geoLocation = GeoHash.locationFromHash(location.getGeoHashString());
+        return new LatLng(geoLocation.latitude, geoLocation.longitude);
     }
 
     /**
@@ -161,12 +193,21 @@ public class MoodEvent {
         return picture;
     }
 
+
+    /**
+     * Returns if the mood event is a public mood event
+     *
+     * @return true or false depending on if the moodEvent is public
+     */
+    public Boolean getIsPublic() { return this.isPublic; }
+
     //Setters
     /**
      * Sets the timestamp when this mood event occurred.
      *
      * @param timestamp The timestamp for this mood event
      */
+
     public void setTimestamp(Timestamp timestamp) {
         this.timestamp = timestamp;
     }
@@ -222,6 +263,21 @@ public class MoodEvent {
      *
      * @return A Map containing the MoodEvent data in a format suitable for Firestore.
      */
+
+
+    /**
+     * Sets the public boolean for this mood event.
+     *
+     * @param val true if the event is public, false if not.
+     */
+    public void setIsPublic(Boolean val) {
+        this.isPublic = val;
+    }
+
+    /**
+     *
+     * @return returns a map of all relevant date to be used in firestore interactions
+     */
     public Map<String,Object> toFireStoreMap() {
         Map<String,Object> map =  new HashMap<>();
         putIfNotNull(map, "mood_id", this.id);
@@ -237,6 +293,7 @@ public class MoodEvent {
         putIfNotNull(map, "date", this.timestamp);
         putIfNotNull(map, "social_situation", this.socialSituation);
         putIfNotNull(map, "trigger", this.trigger);
+        putIfNotNull(map, "is_public", this.isPublic);
         return map;
     }
 
@@ -264,61 +321,161 @@ public class MoodEvent {
         return sdf.format(timestamp.toDate());
     }
 
-    /* COMMENTS FUNCTIONALITY */
-    public void addComment(String text, CommentListener listener) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        if (id == null) {
-            listener.onFailure(new IllegalStateException("MoodEvent ID is null, cannot add comment"));
-            return;
+    /**
+     * Call for getting the comments of a moodEvent. Check if the return is null as a timeout will return false
+     * Runs synchronously so no need for callbacks.
+     * The moodUsername is needed if you're using a personal query as they do not have username.
+     * Note that this does not implement a snapshot listener and thus does not update in realtime.
+     * Use {@link #reloadComments} to ensure comments are up to date.
+     * @param moodUsername Use to pass in the username of MoodEvent
+     * @return Returns the list of Commons
+     * @throws RuntimeException
+     */
+    public ArrayList<Comment> getComments(String moodUsername) throws InterruptedException {
+        if(!this.isPublic){
+            throw new RuntimeException("private moodEvents cannot have comments");
         }
-
-        DocumentReference commentRef = db.collection("mood_events")
-                .document(id)
-                .collection("comments")
-                .document(); // Auto-generated ID
-
-        Comment comment = new Comment(User.getActiveUser().getUsername(), text, Timestamp.now());
-
-        commentRef.set(comment)
-                .addOnSuccessListener(aVoid -> listener.onSuccess())
-                .addOnFailureListener(listener::onFailure);
-    }
-
-    public void getComments(CommentListListener listener) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        if (id == null) {
-            listener.onFailure(new IllegalStateException("MoodEvent ID is null, cannot fetch comments"));
-            return;
+        if(!(this.username == null)){
+            moodUsername = this.username;
         }
-
-        db.collection("mood_events").document(id).collection("comments")
-                .orderBy("timestamp", Query.Direction.ASCENDING)
-                .addSnapshotListener((queryDocumentSnapshots, e) -> {
-                    if (e != null) {
-                        listener.onFailure(e);
-                        return;
-                    }
-                    List<Comment> commentList = new ArrayList<>();
-                    for (DocumentSnapshot document : queryDocumentSnapshots) {
-                        Comment comment = document.toObject(Comment.class);
-                        if (comment != null) {
-                            commentList.add(comment);
+        if(moodUsername == null){
+            throw new RuntimeException("username and moodEvent username are null");
+        }
+        if(!commentsLoaded){
+            //Executor prevents deadlock due to the firestore operations callbacks hapening on main
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+            //Runs the firestore stuff
+            String finalUsername = moodUsername;
+            executor.execute(() -> {
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                QuerySnapshot commentsSnapshot;
+                try {
+                    commentsSnapshot = Tasks.await(db.collection("users").document(finalUsername).collection("mood_events").document(this.id).collection("comments").get());
+                    for (DocumentSnapshot doc : commentsSnapshot.getDocuments()) {
+                        Map<String,Object> docData = doc.getData();
+                        if(this.isValidCommentMap(docData)){
+                            comments.add(new Comment(this,
+                                (String) docData.get("username"),
+                                doc.getId(),
+                                Timestamp.now(),
+                                (String) docData.get("comment_message")));
+                        } else {
+                            doc.getReference().delete();
                         }
                     }
-                    listener.onSuccess(commentList);
-                });
+                } catch (ExecutionException | InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            executor.shutdown();
+            Boolean success = executor.awaitTermination(10, TimeUnit.SECONDS);
+            if(!success){
+                comments = null;
+            } else {
+                commentsLoaded = true;
+                return comments;
+            }
+        }
+        return comments;
     }
 
-    // Define listener interfaces for callbacks
-    public interface CommentListener {
+    /**
+     * Listener for AddCommentCallbacks
+     */
+    public interface AddCommentCallback {
         void onSuccess();
         void onFailure(Exception e);
     }
 
-    public interface CommentListListener {
-        void onSuccess(List<Comment> comments);
-        void onFailure(Exception e);
+    /**
+     * Method for adding comments to a moodEvent
+     * Unlike get comments this is not synchronous and requires a callback so you can handle if it fails.
+     * The username of a moodEvent can be null if it's from a personal query.
+     *
+     * @param toAdd the comment to be added
+     * @param callback  a listener for success or failure of the addition
+     * @param username  optional username for if the moodEvent has a null username
+     */
+    public void addComment(Comment toAdd, AddCommentCallback callback, String username){
+        if(!this.isPublic){
+            throw new RuntimeException("private moodEvents cannot have comments");
+        }
+        if(!this.containsComment(toAdd)){
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            if(!(this.username == null)){
+                username = this.username;
+            }
+            if(username == null){
+                throw new RuntimeException("username and moodEvent username are null");
+            }
+            DocumentReference docRef = db.collection("users").document(username).collection("mood_events").document(this.id).collection("comments").document();
+            toAdd.setIdFromDocRef(docRef);
+            Map<String,Object> commentMap = toAdd.toFireStoreMap();
+            // Write failed
+            docRef.set(commentMap)
+                    .addOnSuccessListener(aVoid -> {
+                        // Write succeeded
+                        comments.add(toAdd);
+                        callback.onSuccess();
+                    })
+                    .addOnFailureListener(callback::onFailure);
+        }
+    }
+    /**
+     * Validates a map of data to ensure it is suitable for storing a comment in the firstore
+     *
+     * @param map The map of data to validate.
+     * @return True if the data is valid, false otherwise.
+     */
+    private boolean isValidCommentMap(Map<String,Object> map){
+        Set<String> requiredKeys = Set.of("username","date_made","comment_message");
+        if(!map.keySet().containsAll(requiredKeys)){
+            return false;
+        }
+        if(!(map.get("username") instanceof String)){
+            return false;
+        }
+        if(!(map.get("date_made") instanceof Timestamp)){
+            return false;
+        }
+        if(!(map.get("comment_message") instanceof String)){
+            return false;
+        }
+        return true;
     }
 
+    /**
+     * Use this is you want to reload the comments.
+     *
+     * @param username  The moodEvent username if its null
+     * @throws InterruptedException
+     */
+    public void reloadComments(String username) throws InterruptedException {
+        this.commentsLoaded = false;
+        if(!(this.username == null)){
+            username = this.username;
+        }
+        if(username == null){
+            throw new RuntimeException("username and moodEvent username are null");
+        }
+        this.getComments(username);
+    }
 
+    /**
+     * See if a comment with the same ID as the comment is passed in exist.
+     * Note that Comments from different MoodEvents can share the same ID.
+     * This is intended for internal use but I've left it public if someone finds use of it.
+     *
+     * @param comment The comment to check if it's contained in the MoodList
+     * @return Returns true if the moodList contains the comment and false if not, the ID is the comparison
+     *
+     */
+    public boolean containsComment(Comment comment){
+        for(Comment containedComment: this.comments){
+            if(comment.getId().equals(containedComment.getId())){
+                return true;
+            }
+        }
+        return false;
+    }
 }

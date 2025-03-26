@@ -1,5 +1,7 @@
 package ca.ualberta.compileorcry.ui.feed;
 
+import static androidx.navigation.Navigation.findNavController;
+
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.text.InputType;
@@ -12,15 +14,16 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import ca.ualberta.compileorcry.R;
 import ca.ualberta.compileorcry.databinding.FragmentFeedBinding;
@@ -28,6 +31,7 @@ import ca.ualberta.compileorcry.domain.models.User;
 import ca.ualberta.compileorcry.features.mood.data.MoodList;
 import ca.ualberta.compileorcry.features.mood.data.QueryType;
 import ca.ualberta.compileorcry.features.mood.model.EmotionalState;
+import ca.ualberta.compileorcry.features.mood.model.MoodEvent;
 
 /**
  * The FeedFragment class displays a feed of mood events, either from the user's
@@ -97,20 +101,40 @@ public class FeedFragment extends Fragment {
         filterSpinner.post(() -> filterSpinner.setSelection(0, false));
 
         // Initialize RecyclerView with empty list
-        adapter = new MoodEventAdapter(new ArrayList<>());
+        adapter = new MoodEventAdapter(new ArrayList<>(), this::onMoodEventClick);
         binding.recyclerViewMoodHistory.setLayoutManager(
                 new LinearLayoutManager(requireContext())  // Use requireContext()
         );
         binding.recyclerViewMoodHistory.setAdapter(adapter);
 
-         // Setup FAB with null safety
-        if (binding.fabAddMood != null) {
-            binding.fabAddMood.setOnClickListener(v -> {
-                if (getView() != null) {
-                    Navigation.findNavController(getView()).navigate(R.id.navigation_new);
+        // Setup new FAB
+        binding.fabAddMood.setOnClickListener(v -> {
+            findNavController(view).navigate(R.id.navigation_new);
+        });
+
+        // Setup map FAB
+        binding.fabMap.setOnClickListener(v -> {
+            List<MoodEvent> moodEvents = feedViewModel.getMoodEvents().getValue();
+            if (moodEvents != null && !moodEvents.isEmpty()) {
+                ArrayList<MoodEvent> moodEventsWithGeoHash = new ArrayList<>();
+                // Filter moods for ones with location information
+                for (MoodEvent mood : moodEvents) {
+                    if (mood.getLocation() != null) {
+                        moodEventsWithGeoHash.add(mood);
+                    }
                 }
-            });
-        }
+                if (!moodEventsWithGeoHash.isEmpty()) {
+                    Bundle bundle = new Bundle();
+                    bundle.putSerializable("moodEvents", moodEventsWithGeoHash);
+
+                    findNavController(view).navigate(R.id.navigation_map, bundle);
+                } else {
+                    Toast.makeText(requireContext(), "No locatable events", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(requireContext(), "No locatable events", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         // Initialize ViewModel
         feedViewModel = new ViewModelProvider(requireActivity()).get(FeedViewModel.class);
@@ -159,6 +183,28 @@ public class FeedFragment extends Fragment {
             @Override
             public void onNothingSelected(AdapterView<?> parent) { }
         });
+    }
+
+    private void onMoodEventClick(MoodEvent clickedEvent) {
+        if (clickedEvent != null) {
+            Log.d("FeedFragment", "Mood Event Clicked: " + clickedEvent.getId());
+            // Create a Bundle to pass data
+            Bundle args = new Bundle();
+            args.putString("moodId", clickedEvent.getId());
+            args.putString("emotionalState", clickedEvent.getEmotionalState().getDescription());
+            args.putString("trigger", clickedEvent.getTrigger());
+            args.putString("socialSituation", clickedEvent.getSocialSituation());
+
+            // Create an instance of MoodInfoDialogFragment and pass the arguments
+            MoodInfoDialogFragment dialog = new MoodInfoDialogFragment();
+            dialog.setArguments(args);
+
+
+            // Show the dialog
+            dialog.show(requireActivity().getSupportFragmentManager(), "ViewMoodEvent");
+        } else {
+            Log.e("FeedFragment", "Clicked MoodEvent is null!"); // Debugging log
+        }
     }
 
     /**

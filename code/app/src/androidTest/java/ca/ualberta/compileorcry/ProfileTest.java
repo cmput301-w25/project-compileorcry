@@ -9,6 +9,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
+import static org.junit.Assert.assertNull;
 import static ca.ualberta.compileorcry.TestHelper.addUser;
 import static ca.ualberta.compileorcry.TestHelper.resetFirebase;
 
@@ -31,13 +32,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import ca.ualberta.compileorcry.domain.models.User;
 
 /**
  * UI Test to verify the functionality of the Profile fragment.
@@ -80,6 +75,9 @@ public class ProfileTest {
         Thread.sleep(1000);
     }
 
+    /**
+     * Test to verify the profile can be accessed after login
+     */
     @Test
     public void profileVisible(){
         // Navigate to profile and verify
@@ -87,6 +85,9 @@ public class ProfileTest {
         onView(withId(R.id.profile_name)).check(matches(isDisplayed()));
     }
 
+    /**
+     * Test to verify changing the user's display name
+     */
     @Test
     public void changeName() throws InterruptedException {
         // Navigate to profile
@@ -106,6 +107,23 @@ public class ProfileTest {
         Thread.sleep(100);
         // Verify new name is displayed on profile
         onView(withId(R.id.profile_name)).check(matches(withText("New Test User")));
+    }
+
+    /**
+     * Test to verify using the logout from the profile page
+     */
+    @Test
+    public void logout(){
+        // Navigate to profile
+        onView(withId(R.id.navigation_profile)).perform(click());
+
+        // Logout button
+        onView(withId(R.id.logout_button)).check(matches(isDisplayed()));
+        onView(withId(R.id.logout_button)).perform(click());
+
+        // Verify logged out
+        onView(withId(R.id.login_username_text)).check(matches(isDisplayed()));
+        assertNull(User.getActiveUser());
     }
 
     @After

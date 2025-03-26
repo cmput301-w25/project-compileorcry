@@ -10,8 +10,8 @@
         android:id="@+id/moodinfo_edit_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Edit Emotion Event"
-        android:textColor="@android:color/black"
+        android:text="@string/edit_mood"
+        android:textColor="@color/dark"
         android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintTop_toTopOf="parent"
@@ -20,23 +20,23 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/moodinfo_state_layout"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:hint="Emotional State"
+        android:hint="@string/emotional_state"
         app:layout_constraintTop_toBottomOf="@id/moodinfo_edit_text"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/moodinfo_state_text"
+        <AutoCompleteTextView
+            android:id="@+id/moodinfo_state_auto_complete"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="text" />
+            android:inputType="none"
+            android:dropDownHeight="200dp"
+            android:textColor="@color/dark" />
     </com.google.android.material.textfield.TextInputLayout>
-
-
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/moodinfo_trigger_layout"
@@ -44,7 +44,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:hint="Trigger (Optional)"
+        android:hint="@string/trigger_optional"
         app:layout_constraintTop_toBottomOf="@id/moodinfo_state_layout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -58,23 +58,26 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/moodinfo_situation_layout"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:hint="Social Situation (Optional)"
+        android:hint="@string/social_situation_optional"
         app:layout_constraintTop_toBottomOf="@id/moodinfo_trigger_layout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/moodinfo_situation_text"
+        <AutoCompleteTextView
+            android:id="@+id/moodinfo_situation_auto_complete"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="text" />
+            android:inputType="none"
+            android:dropDownHeight="200dp"
+            android:textColor="@color/dark" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <LinearLayout
+        android:id="@+id/button_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -89,7 +92,9 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:text="Delete" />
+            android:layout_marginEnd="8dp"
+            android:textColor="@color/dark"
+            android:text="@string/button_delete" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/save_button"
@@ -97,6 +102,9 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:text="Save" />
+            android:layout_marginStart="8dp"
+            android:backgroundTint="@color/dark"
+            android:textColor="@color/light"
+            android:text="@string/button_save_mood" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,7 +1,13 @@
 package ca.ualberta.compileorcry.domain.models;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 
+import androidx.fragment.app.FragmentActivity;
+import androidx.navigation.fragment.NavHostFragment;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -13,6 +19,8 @@ import com.google.firebase.firestore.WriteBatch;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import ca.ualberta.compileorcry.R;
 
 /**
  * Class to represent a User stored in Firestore.
@@ -28,6 +36,7 @@ public class User {
     private String name;
     private final DocumentReference userDocRef;
     private ListenerRegistration listenerRegistration;
+    private static final String TAG = "User";
 
     public interface OnUserLoadedListener {
         /**
@@ -38,7 +47,19 @@ public class User {
         void onUserLoaded(User user, String error);
     }
 
-    private User(String username, String name, DocumentReference documentReference){
+    public interface ActiveUserUpdatedListener {
+        void onActiveUserUpdated(boolean resumed, String error);
+    }
+
+    /**
+     * Constructor for creating a User object.
+     * If documentReference is null, creates a display-only user without Firestore functionality.
+     *
+     * @param username Username of user
+     * @param name Display name of user
+     * @param documentReference Document reference to user in Firestore (can be null for display-only users)
+     */
+    public User(String username, String name, DocumentReference documentReference){
         this.username = username;
         this.name = name;
         this.userDocRef = documentReference;
@@ -122,24 +143,34 @@ public class User {
         });
     }
 
+    /**
+     * Attaches a snapshot listener to the Firestore document to keep the local user object in sync.
+     * Only attaches if the document reference is not null.
+     */
     private void attachSnapshotListener() {
-        listenerRegistration = this.userDocRef.addSnapshotListener((documentSnapshot, error) -> {
-            if (error != null) {
-                Log.e("UserRepository", "Listen failed: " + error);
-                return;
-            }
 
-            if (documentSnapshot != null && documentSnapshot.exists()) {
-                // Update the name field if it changes in Firestore
-                String updatedName = documentSnapshot.getString("name");
-                if (updatedName != null && !updatedName.equals(this.name)) {
-                    this.name = updatedName;
-                    System.out.println("Name updated to: " + this.name);
+        try {
+            listenerRegistration = this.userDocRef.addSnapshotListener((documentSnapshot, error) -> {
+                if (error != null) {
+                    Log.e(TAG, "Listen failed: " + error);
+                    return;
+
                 }
-            } else {
-                Log.e("UserRepository", "Attach Failed. User document does not exist.");
-            }
-        });
+
+                if (documentSnapshot != null && documentSnapshot.exists()) {
+                    // Update the name field if it changes in Firestore
+                    String updatedName = documentSnapshot.getString("name");
+                    if (updatedName != null && !updatedName.equals(this.name)) {
+                        this.name = updatedName;
+                        System.out.println("Name updated to: " + this.name);
+                    }
+                } else {
+                    Log.e(TAG, "Attach Failed. User document does not exist.");
+                }
+            });
+        } catch (Exception e) {
+            Log.e(TAG, "Error attaching snapshot listener: " + e.getMessage());
+        }
     }
 
     /**
@@ -159,20 +190,25 @@ public class User {
     }
 
     /**
-     * Returns a reference to the user document in firestore
-     * @return DocumentReference to user in firestore.
+     * Returns a reference to the user document in firestore.
+     * May return null for display-only users.
+     *
+     * @return DocumentReference to user in firestore, or null for display-only users.
      */
     public DocumentReference getUserDocRef() {
         return userDocRef;
     }
 
+
     /**
-     * Change the name of a user
+     * Change the name of a user.
+     * For display-only users, only updates the local name.
+     * For regular users, also updates the name in Firestore.
+     *
      * @param name New name for the user
      */
     public void setName(String name) {
         this.name = name;
-        userDocRef.update(Map.of("name",this.name));
     }
     /*
     The following function was has significant help in design from Deepseek, a bunch of it's mine
@@ -182,8 +218,10 @@ public class User {
 
     /**
      * Deletes the user object and related entries from the user collection and sub-collections.
+     * Does nothing for display-only users.
      */
     public void deleteUserFromDB() {
+
         deleteSubcollections(this.userDocRef.collection("mood_events"));
         deleteSubcollections(this.userDocRef.collection("follow_request"));
         deleteSubcollections(this.userDocRef.collection("following"));
@@ -231,23 +269,102 @@ public class User {
     }
 
     /**
-     * Returns the object of the currently logged in user.
+     * Returns the object of the currently logged in user. Returns null if logged out
      * @return Logged-in user object
      */
     public static User getActiveUser(){
         return activeUser;
     }
 
+    private final static String loggedin_key = "ca.ualberta.compileorcry.USER_ACTIVE";
+    private final static String username_key = "ca.ualberta.compileorcry.ACTIVE_USERNAME";
+
     /**
-     * Set's the currently active user object
+     * Set's the currently active user object so it will persist across app restarts.
      * <p>
-     * Should only be used by  login, register, or logout actions.
+     * Should only be used by login, register, or logout actions.
      *
+     * @param user User object of the currently logged-in user.
+     * @param activity FragmentActivity of active fragment
+     */
+    public static void setActiveUserPersist(User user, FragmentActivity activity){
+        setActiveUser(user);
+
+        // Update activeUser in persistent data
+        SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        if(user == null){
+            editor.putBoolean(loggedin_key, false);
+            editor.putString(username_key, "");
+        } else {
+            editor.putBoolean(loggedin_key, true);
+            editor.putString(username_key, user.username);
+        }
+        editor.apply();
+    }
+
+    /**
+     * Sets the currently active user object.
+     * <p>
+     * Should only be used by login, register, or logout actions.
+     * <p>
+     * The active user will not persist across app restarts. To do this, use:
+     * <pre>
+     * {@code
+     * User.setActiveUserPersist(User user, FragmentActivity activity)
+     * }
+     * </pre>
      * @param user User object of the currently logged-in user.
      */
     public static void setActiveUser(User user){
         activeUser = user;
     }
 
-}
+    /**
+     * Check if a user was active and if so, restore the activeUser variable. To only be ran on startup or resume.
+     * @param activity FragmentActivity of active fragment
+     */
+    public static void checkActiveUser(FragmentActivity activity, ActiveUserUpdatedListener callback){
+        SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
+        if(sharedPref.getBoolean(loggedin_key, false)){
+            get_user(sharedPref.getString(username_key, ""), (User user, String error) -> {
+                if(error == null && user != null){ // If found resumed user, set and return
+                    setActiveUserPersist(user, activity);
+                    callback.onActiveUserUpdated(true, null);
+                } else { // On error getting active user
+                    if(callback != null)
+                        callback.onActiveUserUpdated(false, error);
+                }
+            });
+        } else {
+            callback.onActiveUserUpdated(false, null);
+        }
+    }
 
+    /**
+     * Logout signed in user
+     * Will reset the activeUser and navigation to the login fragment
+     * @param activity FragmentActivity of active fragment
+     */
+    public static void logoutUser(FragmentActivity activity){
+        setActiveUserPersist(null, activity); // Reset activeUser
+
+        // Navigate to login
+        NavHostFragment navHostFragment = (NavHostFragment) activity.getSupportFragmentManager()
+                .findFragmentById(R.id.nav_host_fragment_activity_main);
+        assert navHostFragment != null;
+        navHostFragment.getNavController().navigate(R.id.navigation_login);
+        activity.findViewById(R.id.nav_view).setVisibility(BottomNavigationView.GONE);
+    }
+
+    /**
+     * Cleanup method to remove any attached listeners.
+     * Should be called when the user object is no longer needed.
+     */
+    public void cleanup() {
+        if (listenerRegistration != null) {
+            listenerRegistration.remove();
+            listenerRegistration = null;
+        }
+    }
+}

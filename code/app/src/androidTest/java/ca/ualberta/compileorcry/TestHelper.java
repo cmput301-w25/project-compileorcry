@@ -46,7 +46,7 @@ public class TestHelper {
      * @param username Username of new user
      * @param name Display of new user
      */
-    public static void addUser(String username, String name) throws InterruptedException {
+    public static void addUser(String username, String name) {
         // Add Initial User
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference usersRef = db.collection("users");
@@ -54,6 +54,5 @@ public class TestHelper {
         userData.put("username", username);
         userData.put("name", name);
         usersRef.document(username).set(userData);
-        Thread.sleep(500);
     }
 }

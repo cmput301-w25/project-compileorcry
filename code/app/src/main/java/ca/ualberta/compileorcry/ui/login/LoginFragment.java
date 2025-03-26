@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -109,8 +108,8 @@ public class LoginFragment extends Fragment {
 
                 findNavController(view).navigate(R.id.navigation_feed);
                 getActivity().findViewById(R.id.nav_view).setVisibility(View.VISIBLE);
-                //TODO: Save username locally
-                User.setActiveUser(user);
+
+                User.setActiveUserPersist(user, getActivity());
             });
         });
 

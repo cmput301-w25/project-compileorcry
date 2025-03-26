@@ -18,10 +18,29 @@
         tools:layout="@layout/fragment_new" />
 
     <fragment
+        android:id="@+id/navigation_map"
+        android:name="ca.ualberta.compileorcry.ui.map.MapFragment"
+        android:label="Google Map">
+    </fragment>
+
+    <fragment
         android:id="@+id/navigation_profile"
         android:name="ca.ualberta.compileorcry.ui.profile.ProfileFragment"
         android:label="@string/title_profile"
-        tools:layout="@layout/fragment_profile" />
+        tools:layout="@layout/fragment_profile">
+        <action
+            android:id="@+id/action_navigation_profile_to_navigation_friends"
+            app:destination="@id/navigation_friends"/>
+        <action
+            android:id="@+id/action_navigation_profile_to_navigation_feed"
+            app:destination="@id/navigation_feed" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_friends"
+        android:name="ca.ualberta.compileorcry.ui.profile.FriendsFragment"
+        android:label="Friends"
+        tools:layout="@layout/fragment_friends" />
 
     <fragment
         android:id="@+id/navigation_registration"

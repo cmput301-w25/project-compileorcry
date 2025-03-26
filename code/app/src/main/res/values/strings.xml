@@ -37,8 +37,17 @@
     <string name="friends">Friends</string>
     <string name="history">History</string>
     <string name="requests">Requests</string>
+    <string name="logout">Logout</string>
     <string name="sort_prompt">Sort</string>
     <string name="filter_prompt">Filter</string>
     <string name="add_friends">Add Friends</string>
     <string name="view_map">View Map</string>
+    <string name="exit_map">Exit Map</string>
+    <string name="edit_mood">Edit Mood Event</string>
+    <string name="button_delete">Delete</string>
+    <string name="text_private">Private</string>
+    <string name="text_formatted_public">"Public  "</string>
+    <string name="date">Date</string>
+    <string name="location">Location</string>
+    <string name="current_location">Current location</string>
 </resources>
