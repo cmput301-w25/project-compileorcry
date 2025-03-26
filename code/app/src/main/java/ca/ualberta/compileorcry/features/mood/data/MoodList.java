@@ -415,14 +415,23 @@ public class MoodList {
         if (event.getId() == null) {
             throw new IllegalArgumentException("Event must have an ID to be deleted.");
         }
+        if(!this.containsMoodEvent(event)){
+            throw new IllegalArgumentException("Event does not exist in MoodList deleted.");
+        } else if(!this.moodEvents.contains(event)){
+            event = this.getMoodEventOfSameID(event);
+            if(event == null){
+                throw new RuntimeException("This shouldn't happen");
+            }
+        }
 
         ExecutorService executor = Executors.newSingleThreadExecutor();
+        MoodEvent finalEvent = event;
         executor.execute(() -> {
             try {
                 recentSemi.acquire();
 
                 // Remove from local list first to reflect deletion immediately
-                moodEvents.remove(event);
+                moodEvents.remove(finalEvent);
 
                 // Reference to recent_moods collection
                 CollectionReference recentEventDocRef = this.moodEventsRecentRef
@@ -436,7 +445,7 @@ public class MoodList {
                     QuerySnapshot recentSnapshot = Tasks.await(recentEventDocRef.get());
                     for (QueryDocumentSnapshot doc : recentSnapshot) {
                         recentIds.add(doc.getId());
-                        if (doc.getId().equals(event.getId())) {
+                        if (doc.getId().equals(finalEvent.getId())) {
                             isRecent = true;
                         }
                     }
@@ -460,7 +469,7 @@ public class MoodList {
                         }
                         if(index == -1){
                             try {
-                                Tasks.await(recentEventDocRef.document(event.getId()).delete());
+                                Tasks.await(recentEventDocRef.document(finalEvent.getId()).delete());
                             } catch (Exception e) {
                                 listener.onError(e);
                             }
@@ -473,7 +482,7 @@ public class MoodList {
                             // Update recent_moods with the new event and delete the old one
                             try {
                                 Tasks.await(recentEventDocRef.document(newMostRecent.getId()).set(eventMap));
-                                Tasks.await(recentEventDocRef.document(event.getId()).delete());
+                                Tasks.await(recentEventDocRef.document(finalEvent.getId()).delete());
                             } catch (Exception e) {
                                 listener.onError(e);
                             }
@@ -481,7 +490,7 @@ public class MoodList {
                     } else {
                         // No events left, delete from recent_moods
                         try {
-                            Tasks.await(recentEventDocRef.document(event.getId()).delete());
+                            Tasks.await(recentEventDocRef.document(finalEvent.getId()).delete());
                         } catch (Exception e) {
                             listener.onError(e);
                         }
@@ -490,7 +499,7 @@ public class MoodList {
 
                 // Delete from the main collection regardless of recent processing
                 try {
-                    Tasks.await(moodEventsRef.document(event.getId()).delete());
+                    Tasks.await(moodEventsRef.document(finalEvent.getId()).delete());
                 } catch (Exception e) {
                     listener.onError(e);
                 }
@@ -529,6 +538,11 @@ public class MoodList {
         }
         if(!containsMoodEvent(event)){
             throw new IllegalArgumentException("mood event is not in MoodList");
+        } else if (!this.moodEvents.contains(event)){
+            event = this.getMoodEventOfSameID(event);
+            if(event == null){
+                throw new RuntimeException("This shouldn't happen");
+            }
         }
         Map<String,Object> map = event.toFireStoreMap();
         final List<Task<DocumentSnapshot>> tasks = new ArrayList<>();
@@ -536,6 +550,7 @@ public class MoodList {
         tasks.add(this.moodEventsRecentRef.document(user.getUsername()).collection("recent_moods").document(event.getId()).get());
         DocumentReference recentMoodDocRef = this.moodEventsRecentRef.document(user.getUsername()).collection("recent_moods").document(event.getId());
         updateEventFromMap(event,changes);
+        MoodEvent finalEvent = event;
         Tasks.whenAllComplete(tasks).addOnCompleteListener(new OnCompleteListener<List<Task<?>>>() {
             @Override
             public void onComplete(@NonNull Task<List<Task<?>>> t) {
@@ -545,30 +560,30 @@ public class MoodList {
                 for (Task<?> task : tasks) {
                     if (task.isSuccessful() && task.getResult() instanceof DocumentSnapshot) {
                         DocumentSnapshot doc = (DocumentSnapshot) task.getResult();
-                        if (doc.getReference().equals(ptrToSelf.moodEventsRef.document(event.getId()))) {
-                            docMap.put(ptrToSelf.moodEventsRef.document(event.getId()), doc);
+                        if (doc.getReference().equals(ptrToSelf.moodEventsRef.document(finalEvent.getId()))) {
+                            docMap.put(ptrToSelf.moodEventsRef.document(finalEvent.getId()), doc);
                         } else if (doc.getReference().equals(recentMoodDocRef)) {
                             docMap.put((recentMoodDocRef), doc);
                         }
                     }
                 }
-                DocumentSnapshot personalDoc = docMap.get(ptrToSelf.moodEventsRef.document(event.getId()));
+                DocumentSnapshot personalDoc = docMap.get(ptrToSelf.moodEventsRef.document(finalEvent.getId()));
                 DocumentSnapshot recentDoc = docMap.get(recentMoodDocRef);
                 if(personalDoc == null){
                     listener.onError(new IllegalArgumentException("no document related to this mood event"));
                     return;
                 }
-                Map<String,Object> eventMap  = event.toFireStoreMap();
+                Map<String,Object> eventMap  = finalEvent.toFireStoreMap();
                 if(!ptrToSelf.isPersonalEventMapValid(eventMap)){
                     listener.onError(new IllegalArgumentException("the eventMap is bad value(s)"));
                     return;
                 }
                 eventMap.remove("username");
-                ptrToSelf.moodEventsRef.document(event.getId()).set(eventMap);
+                ptrToSelf.moodEventsRef.document(finalEvent.getId()).set(eventMap);
                 if (personalDoc != null && personalDoc.exists() && recentDoc != null && recentDoc.exists()){
                     if(personalDoc.get("mood_id").equals(recentDoc.get("mood_id"))){
                         eventMap.put("username", user.getUsername());
-                        eventMap.put("mood_id", event.getId());
+                        eventMap.put("mood_id", finalEvent.getId());
                         if(!ptrToSelf.isRecentEventMapValid(eventMap)){
                             listener.onError(new IllegalArgumentException("the eventMap has bad value(s)"));
                             return;
@@ -1056,6 +1071,21 @@ public class MoodList {
             }
         }
         return false;
+    }
+
+    /**
+     *  This is used in the event that a MoodEvent in an activity has has a different reference but is for the same moodEvent.
+     *
+     * @param event     A event with the same ID but possibly difference JVM reference.
+     * @return          The event from within the DataList
+     */
+    public MoodEvent getMoodEventOfSameID(MoodEvent event){
+        for(MoodEvent containedEvent: this.moodEvents){
+            if(event.getId().equals(containedEvent.getId())){
+                return containedEvent;
+            }
+        }
+        return null;
     }
 
 
