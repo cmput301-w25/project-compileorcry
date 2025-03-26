@@ -36,5 +36,7 @@ public enum QueryType {
     MAP_FOLLOWING,
     //6.3.1
     MAP_CLOSE,
+    //Extra
+    MAP_PERSONAL_CLOSE
 
 }

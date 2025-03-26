@@ -180,6 +180,10 @@ public class MoodList {
                 // Handle MAP_CLOSE query type
                 new MoodList(user, queryType, listener, filter);
                 break;
+            case MAP_PERSONAL_CLOSE:
+                // Handle MAP_CLOSE query type
+                new MoodList(user, queryType, listener, filter);
+                break;
             default:
                 // Handle unexpected query types
                 throw new IllegalArgumentException("unsupported query type: " + queryType);
@@ -258,12 +262,16 @@ public class MoodList {
                 break;
             case FOLLOWING_REASON:
                 this.recentsType = true;
-                attachFollowersListener();
+
                 break;
             case MAP_CLOSE:
                 this.recentsType = true;
                 this.mapType = true;
-                executeGeoQuery();
+                attachFollowersListener();
+                break;
+            case MAP_PERSONAL_CLOSE:
+                this.mapType = true;
+                executeGeoQuery(true);
                 break;
             default:
                 throw new IllegalArgumentException("unsupported query type: " + queryType);
@@ -631,9 +639,14 @@ public class MoodList {
                 return;
             }
             if (!followingLoaded) {
-                ptrToSelf.getQuery();
-                attachMoodEventsListener(ptrToSelf.query);
-                followingLoaded = true;
+                if(ptrToSelf.queryType == QueryType.MAP_CLOSE){
+                    executeGeoQuery(false);
+                    followingLoaded = true;
+                } else {
+                    ptrToSelf.getQuery();
+                    attachMoodEventsListener(ptrToSelf.query);
+                    followingLoaded = true;
+                }
             } else {
                 ptrToSelf.getQuery();
                 //if needed a listener call here for update to followers
@@ -828,26 +841,29 @@ public class MoodList {
      * @throws IllegalArgumentException If the location filter is invalid or the query results are invalid.
      * @throws RuntimeException If Firestore operations fail or the geospatial query cannot be executed.
      */
-    private void executeGeoQuery() {
-
+    private void executeGeoQuery(boolean personal) {
+        Query query;
+        if(personal){
+            query=this.moodEventsRef.whereNotEqualTo("location",null)
+                    .orderBy("location");
+        } else {
+            query = db.collectionGroup("recent_moods")
+                    .whereIn("username", followings)
+                    .whereNotEqualTo("location",null)
+                    .orderBy("location");
+        }
         GeoLocation location = GeoHash.locationFromHash((String)this.filter);
         List<GeoQueryBounds> bounds = GeoFireUtils.getGeoHashQueryBounds(location, 5000);
         final List<Task<QuerySnapshot>> tasks = new ArrayList<>();
         for (GeoQueryBounds b : bounds) {
-            Query q = db.collectionGroup("recent_moods")
-                    .whereNotEqualTo("location",null)
-                    .orderBy("location")
-                    .startAt(b.startHash)
+            Query q = query.startAt(b.startHash)
                     .endAt(b.endHash);
-
             tasks.add(q.get());
         }
         Tasks.whenAllComplete(tasks)
                 .addOnCompleteListener(new OnCompleteListener<List<Task<?>>>() {
                     @Override
                     public void onComplete(@NonNull Task<List<Task<?>>> t) {
-                        List<DocumentSnapshot> matchingDocs = new ArrayList<>();
-
                         for (Task<QuerySnapshot> task : tasks) {
                             QuerySnapshot snap = task.getResult();
                             for (DocumentSnapshot doc : snap.getDocuments()) {
@@ -865,8 +881,8 @@ public class MoodList {
                                 // We have to filter out a few false positives due to GeoHash
                                 // accuracy, but most will match
                                 double distanceInM = GeoFireUtils.getDistanceBetween(docLocation, location);
-                                if (distanceInM <= 5000) {
-                                    matchingDocs.add(doc);
+                                if (distanceInM > 5000) {
+                                    continue;
                                 }
                                 if (isValidKeyPairDatatype(documentData, "emotional_state", Long.class)) {
                                     moodEvent.setEmotionalState(EmotionalState.fromCode((Long) documentData.get("emotional_state")));
