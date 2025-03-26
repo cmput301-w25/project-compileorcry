@@ -65,4 +65,10 @@
         android:label="@string/title_login"
         tools:layout="@layout/fragment_login" />
 
+    <fragment
+        android:id="@+id/navigation_search"
+        android:name="ca.ualberta.compileorcry.ui.search.UserSearchFragment"
+        android:label="Search"
+        tools:layout="@layout/fragment_user_search" />
+
 </navigation>
