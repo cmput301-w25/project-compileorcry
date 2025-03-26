@@ -1077,7 +1077,7 @@ public class MoodList {
      *  This is used in the event that a MoodEvent in an activity has has a different reference but is for the same moodEvent.
      *
      * @param event     A event with the same ID but possibly difference JVM reference.
-     * @return          The event from within the DataList
+     * @return          The event from within the DataList, returns null if no MoodEvent of same ID exists
      */
     public MoodEvent getMoodEventOfSameID(MoodEvent event){
         for(MoodEvent containedEvent: this.moodEvents){
