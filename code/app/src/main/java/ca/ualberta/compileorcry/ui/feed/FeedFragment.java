@@ -2,7 +2,9 @@ package ca.ualberta.compileorcry.ui.feed;
 
 import static androidx.navigation.Navigation.findNavController;
 
+import android.Manifest;
 import android.app.AlertDialog;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
@@ -12,15 +14,17 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
+
+import com.firebase.geofire.core.GeoHash;
+import com.google.android.gms.location.LocationServices;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +36,7 @@ import ca.ualberta.compileorcry.features.mood.data.MoodList;
 import ca.ualberta.compileorcry.features.mood.data.QueryType;
 import ca.ualberta.compileorcry.features.mood.model.EmotionalState;
 import ca.ualberta.compileorcry.features.mood.model.MoodEvent;
+
 
 /**
  * The FeedFragment class displays a feed of mood events, either from the user's
@@ -51,20 +56,13 @@ import ca.ualberta.compileorcry.features.mood.model.MoodEvent;
  */
 public class FeedFragment extends Fragment {
     private FragmentFeedBinding binding;
-    private ImageView feedOrHistory;
     private FeedViewModel feedViewModel;
     private MoodEventAdapter adapter;
-    private Spinner filterSpinner; // filter by recency, state, reason, etc
-    private Spinner feedSpinner; // feed type personal history, following, or map
-    // Feed type options
-    private static final String[] FEED_TYPES = {"Feed...","History", "Following"};
-    // Filter options
-    private static final String[] FILTER_OPTIONS = {"Filter...", "Recent", "State", "Reason"};
-
+    private static final String[] FEED_TYPES = {"Following", "History"};
+    private static final String[] FILTER_OPTIONS = {"None", "Recent", "State", "Reason", "Nearby"};
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentFeedBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
@@ -72,272 +70,231 @@ public class FeedFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        setupUI(view);
+        setupViewModel();
+    }
 
-        ImageView feedOrHistory = binding.imageView;
-
-        // Find Spinners
-        Spinner feedSpinner = binding.feedSpinner;
-        Spinner filterSpinner = binding.filterSpinner;
-
-        // Create Adapters using Java Array
+    private void setupUI(View view) {
+        // Initialize spinners
         ArrayAdapter<String> feedAdapter = new ArrayAdapter<>(
-                requireContext(),
-                R.layout.custom_spinner,
-                FEED_TYPES
-        );
+                requireContext(), R.layout.custom_spinner, FEED_TYPES);
         feedAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        feedSpinner.setAdapter(feedAdapter);
+        binding.feedSpinner.setAdapter(feedAdapter);
+        binding.feedSpinner.post(() -> binding.feedSpinner.setSelection(0, false));
 
         ArrayAdapter<String> filterAdapter = new ArrayAdapter<>(
-                requireContext(),
-                R.layout.custom_spinner,
-                FILTER_OPTIONS
-        );
+                requireContext(), R.layout.custom_spinner, FILTER_OPTIONS);
         filterAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        filterSpinner.setAdapter(filterAdapter);
+        binding.filterSpinner.setAdapter(filterAdapter);
+        binding.filterSpinner.post(() -> binding.filterSpinner.setSelection(0, false));
 
-        // Prevent onItemSelected from triggering when setting default selection
-        feedSpinner.post(() -> feedSpinner.setSelection(0, false));
-        filterSpinner.post(() -> filterSpinner.setSelection(0, false));
-
-        // Initialize RecyclerView with empty list
+        // Initialize RecyclerView
         adapter = new MoodEventAdapter(new ArrayList<>(), this::onMoodEventClick);
-        binding.recyclerViewMoodHistory.setLayoutManager(
-                new LinearLayoutManager(requireContext())  // Use requireContext()
-        );
+        binding.recyclerViewMoodHistory.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.recyclerViewMoodHistory.setAdapter(adapter);
 
-        // Setup map FAB
-        binding.fabMap.setOnClickListener(v -> {
-            List<MoodEvent> moodEvents = feedViewModel.getMoodEvents().getValue();
-            if (moodEvents != null && !moodEvents.isEmpty()) {
-                ArrayList<MoodEvent> moodEventsWithGeoHash = new ArrayList<>();
-                // Filter moods for ones with location information
-                for (MoodEvent mood : moodEvents) {
-                    if (mood.getLocation() != null) {
-                        moodEventsWithGeoHash.add(mood);
-                    }
-                }
-                if (!moodEventsWithGeoHash.isEmpty()) {
-                    Bundle bundle = new Bundle();
-                    bundle.putSerializable("moodEvents", moodEventsWithGeoHash);
+        // Setup FAB
+        binding.fabMap.setOnClickListener(v -> navigateToMap());
 
-                    findNavController(view).navigate(R.id.navigation_map, bundle);
-                } else {
-                    Toast.makeText(requireContext(), "No locatable events", Toast.LENGTH_SHORT).show();
-                }
-            } else {
-                Toast.makeText(requireContext(), "No locatable events", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        // Initialize ViewModel
-        feedViewModel = new ViewModelProvider(requireActivity()).get(FeedViewModel.class);
-
-        // Observe LiveData with lifecycle awareness
-        feedViewModel.getMoodEvents().observe(getViewLifecycleOwner(), moodEvents -> {
-            Log.d("RecyclerView", "Observer triggered, updating RecyclerView with " + moodEvents.size() + " moods.");
-            if (moodEvents != null && adapter != null) {
-                adapter.updateData(moodEvents);
-                binding.recyclerViewMoodHistory.smoothScrollToPosition(0);
-            }
-        });
-
-        // Handle feed queries from spinner values and update feed as they change
-        feedSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        // Setup spinner listeners
+        binding.feedSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (position == 0) return; // Ignore placeholder selection
-                feedOrHistory.setImageResource(R.drawable.txt_feed);
-                String selectedType = parent.getItemAtPosition(position).toString();
-
-                switch (selectedType) {
-                    case "History":
-                        feedOrHistory.setImageResource(R.drawable.txt_history);
-                        break;
-                    default:
-                        feedOrHistory.setImageResource(R.drawable.txt_feed);
-                }
+                binding.imageView.setImageResource(
+                        parent.getItemAtPosition(position).toString().equals("History")
+                                ? R.drawable.txt_history
+                                : R.drawable.txt_feed
+                );
                 loadFeed();
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                feedOrHistory.setImageResource(R.drawable.txt_feed);
+                binding.imageView.setImageResource(R.drawable.txt_feed);
             }
         });
 
-        filterSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        binding.filterSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (position == 0) return; // Ignore placeholder selection
                 loadFeed();
-                // Handle actual selection here
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> parent) { }
+            public void onNothingSelected(AdapterView<?> parent) {}
         });
+    }
+
+    private void setupViewModel() {
+        feedViewModel = new ViewModelProvider(requireActivity()).get(FeedViewModel.class);
+        feedViewModel.getMoodEvents().observe(getViewLifecycleOwner(), moodEvents -> {
+            Log.d("RecyclerView", "Updating RecyclerView with " + moodEvents.size() + " moods.");
+            adapter.updateData(moodEvents);
+            binding.recyclerViewMoodHistory.smoothScrollToPosition(0);
+        });
+    }
+
+    private void navigateToMap() {
+        List<MoodEvent> moodEvents = feedViewModel.getMoodEvents().getValue();
+        if (moodEvents == null || moodEvents.isEmpty()) {
+            Toast.makeText(requireContext(), "No locatable events", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        ArrayList<MoodEvent> moodEventsWithGeoHash = new ArrayList<>();
+        for (MoodEvent mood : moodEvents) {
+            if (mood.getLocation() != null) {
+                moodEventsWithGeoHash.add(mood);
+            }
+        }
+
+        if (!moodEventsWithGeoHash.isEmpty()) {
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("moodEvents", moodEventsWithGeoHash);
+            findNavController(requireView()).navigate(R.id.navigation_map, bundle);
+        } else {
+            Toast.makeText(requireContext(), "No locatable events", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void onMoodEventClick(MoodEvent clickedEvent) {
-        if (clickedEvent != null) {
-            Log.d("FeedFragment", "Mood Event Clicked: " + clickedEvent.getId());
-            // Create a Bundle to pass data
-            Bundle args = new Bundle();
-            args.putString("moodId", clickedEvent.getId());
-            args.putString("emotionalState", clickedEvent.getEmotionalState().getDescription());
-            args.putString("trigger", clickedEvent.getTrigger());
-            args.putString("socialSituation", clickedEvent.getSocialSituation());
-
-            // Create an instance of MoodInfoDialogFragment and pass the arguments
-            MoodInfoDialogFragment dialog = new MoodInfoDialogFragment();
-            dialog.setArguments(args);
-
-
-            // Show the dialog
-            dialog.show(requireActivity().getSupportFragmentManager(), "ViewMoodEvent");
-        } else {
-            Log.e("FeedFragment", "Clicked MoodEvent is null!"); // Debugging log
+        if (clickedEvent == null) {
+            Log.e("FeedFragment", "Clicked MoodEvent is null!");
+            return;
         }
+
+        Bundle args = new Bundle();
+        args.putString("moodId", clickedEvent.getId());
+        args.putString("emotionalState", clickedEvent.getEmotionalState().getDescription());
+        args.putString("trigger", clickedEvent.getTrigger());
+        args.putString("socialSituation", clickedEvent.getSocialSituation());
+
+        MoodInfoDialogFragment dialog = new MoodInfoDialogFragment();
+        dialog.setArguments(args);
+        dialog.show(requireActivity().getSupportFragmentManager(), "ViewMoodEvent");
     }
 
-    /**
-     * Loads mood events based on selected feed type and filter options.
-     * Creates a MoodList with the appropriate QueryType and handles the response
-     * through the MoodListListener.
-     *
-     * The method determines the correct QueryType based on combinations of:
-     * - Feed type (History or Following)
-     * - Filter type (None, Recent, State, or Reason)
-     */
     private void loadFeed() {
-        Log.d("FeedFragment", "loadFeed() triggered");
+        if (User.getActiveUser() == null) return;
+
         String feedType = (String) binding.feedSpinner.getSelectedItem();
         String filter = (String) binding.filterSpinner.getSelectedItem();
-        Log.d("FeedFragment", "Selected Feed Type: " + feedType + ", Filter: " + filter);
-        if (User.getActiveUser() != null) {
-            Object filterValue = null;
-            QueryType selectedQueryType ;// = QueryType.FOLLOWING; // Unfiltered following posts is default value
+        boolean isFollowing = feedType.equals("Following");
 
-            // Determine the base QueryType (History or Following)
-            boolean isFollowing = feedType.equals("Following");
-
-            switch (filter) {
-                case "Filter...":  // Reset to default based on feed type
-                    selectedQueryType = isFollowing ? QueryType.FOLLOWING : QueryType.HISTORY_MODIFIABLE;
-                    if (feedViewModel != null) {
-                        feedViewModel.setMoodEvents(new ArrayList<>());
+        switch (filter) {
+            case "None":
+                fetchMoodEvents(isFollowing ? QueryType.FOLLOWING : QueryType.HISTORY_MODIFIABLE, null);
+                break;
+            case "Recent":
+                fetchMoodEvents(isFollowing ? QueryType.FOLLOWING_RECENT : QueryType.HISTORY_RECENT, null);
+                break;
+            case "Nearby":
+                getCurrentLocation(geoHash -> {
+                    if (geoHash != null) {
+                        fetchMoodEvents(QueryType.MAP_CLOSE, geoHash);
+                    } else {
+                        Toast.makeText(requireContext(), "Location unavailable", Toast.LENGTH_SHORT).show();
                     }
-                    break;
-                case "Recent":
-                    selectedQueryType = isFollowing ? QueryType.FOLLOWING_RECENT : QueryType.HISTORY_RECENT;
-                    break;
-                case "State":
-                    showEmotionalStateDialog(isFollowing);  // Open state selection dialog
-                    return;
-                case "Reason":
-                    showReasonInputDialog(isFollowing);  // Open reason input dialog
-                    return;
-                default:
-                    selectedQueryType = isFollowing ? QueryType.FOLLOWING : QueryType.HISTORY_MODIFIABLE;
-            }
-
-            Log.d("FeedFragment", "Selected QueryType: " + selectedQueryType);
-            MoodList.createMoodList(User.getActiveUser(), selectedQueryType,
-                    new MoodList.MoodListListener() {
-                        @Override
-                        public void returnMoodList(MoodList moodList) {
-                            Log.d("FeedFragment", "returnMoodList() called");
-                            moodList.clearMoodEvents(); // Clear old moods and then also refetch
-
-                            if (feedViewModel != null) {
-                                Log.d("FeedFragment", "Setting MoodEvents in ViewModel");
-                                feedViewModel.setMoodEvents(moodList.getMoodEvents());
-                            }
-                        }
-                      
-                        @Override
-                        public void onError(Exception e) {
-                            Log.e("DataList",e.getMessage());
-                        }
-
-                        @Override
-                        public void updatedMoodList() {
-                            Log.d("FeedFragment", "updatedMoodList() called");
-                            // Handled automatically
-                        }
-                    }, filterValue);
+                });
+                break;
+            case "State":
+                showEmotionalStateDialog(isFollowing);
+                break;
+            case "Reason":
+                showReasonInputDialog(isFollowing);
+                break;
+            default:
+                fetchMoodEvents(isFollowing ? QueryType.FOLLOWING : QueryType.HISTORY_MODIFIABLE, null);
         }
     }
-    private void showReasonInputDialog(boolean isFollowing) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        builder.setTitle("Enter Reason to Filter");
 
-        // Create input field
-        final EditText input = new EditText(requireContext());
-        input.setInputType(InputType.TYPE_CLASS_TEXT);
-        builder.setView(input);
-
-        builder.setPositiveButton("OK", (dialog, which) -> {
-            String reasonKeyword = input.getText().toString().trim();
-            Log.d("FeedFragment", "User entered reason: " + reasonKeyword);
-
-            if (!reasonKeyword.isEmpty()) {
-                applySelectedFilter(isFollowing ? QueryType.FOLLOWING_REASON : QueryType.HISTORY_REASON, reasonKeyword);
-            }
-        });
-
-        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
-        builder.show();
-    }
-
-    private void showEmotionalStateDialog(boolean isFollowing) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        builder.setTitle("Select Emotional State");
-
-        // Convert enum values to a list of strings
-        EmotionalState[] states = EmotionalState.values();
-        String[] stateNames = new String[states.length];
-        for (int i = 0; i < states.length; i++) {
-            stateNames[i] = states[i].getDescription();  // Use user-friendly names
-        }
-
-        builder.setItems(stateNames, (dialog, which) -> {
-            EmotionalState selectedState = states[which];  // Get selected state
-            Log.d("FeedFragment", "User selected state: " + selectedState);
-
-            // Now trigger loadFeed() with the selected state
-            applySelectedFilter(isFollowing ? QueryType.FOLLOWING_STATE : QueryType.HISTORY_STATE, selectedState);
-        });
-
-        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
-        builder.show();
-    }
-
-
-    private void applySelectedFilter(QueryType queryType, Object filterValue) {
-        Log.d("FeedFragment", "Applying filter: " + queryType + " | " + filterValue);
-
+    private void fetchMoodEvents(QueryType queryType, Object filterValue) {
         MoodList.createMoodList(User.getActiveUser(), queryType, new MoodList.MoodListListener() {
             @Override
-            public void returnMoodList(MoodList initializedMoodList) {
-                Log.d("FeedFragment", "returnMoodList() called");
-                if (feedViewModel != null) {
-                    feedViewModel.setMoodEvents(initializedMoodList.getMoodEvents());
-                }
-            }
-
-            @Override
-            public void updatedMoodList() {
-                Log.d("FeedFragment", "updatedMoodList() called");
+            public void returnMoodList(MoodList moodList) {
+                moodList.clearMoodEvents();
+                feedViewModel.setMoodEvents(moodList.getMoodEvents());
             }
 
             @Override
             public void onError(Exception e) {
-                Log.e("DataList",e.getMessage());
+                Log.e("DataList", e.getMessage());
+            }
+
+            @Override
+            public void updatedMoodList() {
+                // Handled automatically
             }
         }, filterValue);
     }
 
+    private void showReasonInputDialog(boolean isFollowing) {
+        EditText input = new EditText(requireContext());
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Enter Reason to Filter")
+                .setView(input)
+                .setPositiveButton("OK", (dialog, which) -> {
+                    String reasonKeyword = input.getText().toString().trim();
+                    if (!reasonKeyword.isEmpty()) {
+                        fetchMoodEvents(
+                                isFollowing ? QueryType.FOLLOWING_REASON : QueryType.HISTORY_REASON,
+                                reasonKeyword
+                        );
+                    }
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
+                .show();
+    }
+
+    private void showEmotionalStateDialog(boolean isFollowing) {
+        EmotionalState[] states = EmotionalState.values();
+        String[] stateNames = new String[states.length];
+        for (int i = 0; i < states.length; i++) {
+            stateNames[i] = states[i].getDescription();
+        }
+
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Select Emotional State")
+                .setItems(stateNames, (dialog, which) -> {
+                    fetchMoodEvents(
+                            isFollowing ? QueryType.FOLLOWING_STATE : QueryType.HISTORY_STATE,
+                            states[which]
+                    );
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
+                .show();
+    }
+
+    private void getCurrentLocation(LocationCallback callback) {
+        if (ActivityCompat.checkSelfPermission(requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1001);
+            callback.onLocationReceived(null);
+            return;
+        }
+
+        LocationServices.getFusedLocationProviderClient(requireActivity())
+                .getLastLocation()
+                .addOnSuccessListener(loc -> {
+                    if (loc != null) {
+                        callback.onLocationReceived(new GeoHash(loc.getLatitude(), loc.getLongitude()));
+                    } else {
+                        Toast.makeText(getContext(), "Couldn't get location", Toast.LENGTH_SHORT).show();
+                        callback.onLocationReceived(null);
+                    }
+                });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == 1001 && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            loadFeed();
+        }
+    }
+
+    interface LocationCallback {
+        void onLocationReceived(GeoHash geoHash);
+    }
 }

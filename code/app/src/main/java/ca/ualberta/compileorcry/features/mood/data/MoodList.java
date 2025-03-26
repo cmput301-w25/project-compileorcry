@@ -22,6 +22,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -829,8 +830,32 @@ public class MoodList {
      * @throws RuntimeException If Firestore operations fail or the geospatial query cannot be executed.
      */
     private void executeGeoQuery() {
+        if (filter == null) {
+            return;
+        }
+        
+        String currentLocation = null;
 
-        GeoLocation location = GeoHash.locationFromHash((String)this.filter);
+        try {
+            // Use reflection to check for a "geoHash" field
+            Field geoHashField = filter.getClass().getDeclaredField("geoHash");
+            // Allow access to private fields
+            geoHashField.setAccessible(true);
+            Object geoHashValue = geoHashField.get(filter);
+            currentLocation = (String) geoHashValue;
+        } catch (NoSuchFieldException e) {
+            // Field "geoHash" does not exist
+            return;
+        } catch (IllegalAccessException e) {
+            // Could not access the field
+            return;
+        }
+
+        if (currentLocation == null) {
+            return;
+        }
+
+        GeoLocation location = GeoHash.locationFromHash(currentLocation);
         List<GeoQueryBounds> bounds = GeoFireUtils.getGeoHashQueryBounds(location, 5000);
         final List<Task<QuerySnapshot>> tasks = new ArrayList<>();
         for (GeoQueryBounds b : bounds) {
@@ -843,68 +868,65 @@ public class MoodList {
             tasks.add(q.get());
         }
         Tasks.whenAllComplete(tasks)
-                .addOnCompleteListener(new OnCompleteListener<List<Task<?>>>() {
-                    @Override
-                    public void onComplete(@NonNull Task<List<Task<?>>> t) {
-                        List<DocumentSnapshot> matchingDocs = new ArrayList<>();
+                .addOnCompleteListener(t -> {
+                    List<DocumentSnapshot> matchingDocs = new ArrayList<>();
 
-                        for (Task<QuerySnapshot> task : tasks) {
-                            QuerySnapshot snap = task.getResult();
-                            for (DocumentSnapshot doc : snap.getDocuments()) {
-                                Map<String, Object> documentData = doc.getData();
-                                String id = doc.getId();
-                                MoodEvent moodEvent = new MoodEvent(id);
-                                if (isValidKeyPairDatatype(documentData, "location", String.class)) {
-                                    GeoHash geoHash = new GeoHash((String) documentData.get("location"));
-                                    moodEvent.setLocation(geoHash);
-                                } else if (mapType) {
-                                    listener.onError(new IllegalArgumentException("location cannot be null for map query or is not a the correct datatype"));
-                                    return;
-                                }
-                                GeoLocation docLocation = GeoHash.locationFromHash(moodEvent.getLocation().getGeoHashString());
-                                // We have to filter out a few false positives due to GeoHash
-                                // accuracy, but most will match
-                                double distanceInM = GeoFireUtils.getDistanceBetween(docLocation, location);
-                                if (distanceInM <= 5000) {
-                                    matchingDocs.add(doc);
-                                }
-                                if (isValidKeyPairDatatype(documentData, "emotional_state", Long.class)) {
-                                    moodEvent.setEmotionalState(EmotionalState.fromCode((Long) documentData.get("emotional_state")));
-                                } else {
-                                    listener.onError(new IllegalArgumentException("emotional state cannot be null"));
-                                    return;
-                                }
-                                if (isValidKeyPairDatatype(documentData, "date", Timestamp.class)) {
-                                    moodEvent.setTimestamp((Timestamp) documentData.get("date"));
-                                } else {
-                                    listener.onError(new IllegalArgumentException("date cannot be null"));
-                                    return;
-                                }
-                                if (isValidKeyPairDatatype(documentData, "username", String.class)) {
-                                    moodEvent.setUsername((String) documentData.get("username"));
-                                } else if (recentsType) {
-                                    listener.onError(new IllegalArgumentException("username cannot be null for querys of recentMoods or is not a String"));
-                                    return;
-                                }
-                                if (isValidKeyPairDatatype(documentData, "trigger", String.class)) {
-                                    moodEvent.setTrigger((String) documentData.get("trigger"));
-                                }
-                                if (isValidKeyPairDatatype(documentData, "social_situation", String.class)) {
-                                    moodEvent.setSocialSituation((String) documentData.get("social_situation"));
-                                }
-                                if (isValidKeyPairDatatype(documentData, "picture", String.class)) {
-                                    moodEvent.setPicture((String) documentData.get("picture"));
-                                }
-                                if (isValidKeyPairDatatype(documentData, "is_public", Boolean.class)) {
-                                    moodEvent.setIsPublic((Boolean) documentData.get("is_public"));
-                                }
-                                if(!containsMoodEvent(moodEvent)) {
-                                    moodEvents.add(moodEvent);
-                                }
+                    for (Task<QuerySnapshot> task : tasks) {
+                        QuerySnapshot snap = task.getResult();
+                        for (DocumentSnapshot doc : snap.getDocuments()) {
+                            Map<String, Object> documentData = doc.getData();
+                            String id = doc.getId();
+                            MoodEvent moodEvent = new MoodEvent(id);
+                            if (isValidKeyPairDatatype(documentData, "location", String.class)) {
+                                GeoHash geoHash = new GeoHash((String) documentData.get("location"));
+                                moodEvent.setLocation(geoHash);
+                            } else if (mapType) {
+                                listener.onError(new IllegalArgumentException("location cannot be null for map query or is not a the correct datatype"));
+                                return;
+                            }
+                            GeoLocation docLocation = GeoHash.locationFromHash(moodEvent.getLocation().getGeoHashString());
+                            // We have to filter out a few false positives due to GeoHash
+                            // accuracy, but most will match
+                            double distanceInM = GeoFireUtils.getDistanceBetween(docLocation, location);
+                            if (distanceInM <= 5000) {
+                                matchingDocs.add(doc);
+                            }
+                            if (isValidKeyPairDatatype(documentData, "emotional_state", Long.class)) {
+                                moodEvent.setEmotionalState(EmotionalState.fromCode((Long) documentData.get("emotional_state")));
+                            } else {
+                                listener.onError(new IllegalArgumentException("emotional state cannot be null"));
+                                return;
+                            }
+                            if (isValidKeyPairDatatype(documentData, "date", Timestamp.class)) {
+                                moodEvent.setTimestamp((Timestamp) documentData.get("date"));
+                            } else {
+                                listener.onError(new IllegalArgumentException("date cannot be null"));
+                                return;
+                            }
+                            if (isValidKeyPairDatatype(documentData, "username", String.class)) {
+                                moodEvent.setUsername((String) documentData.get("username"));
+                            } else if (recentsType) {
+                                listener.onError(new IllegalArgumentException("username cannot be null for querys of recentMoods or is not a String"));
+                                return;
+                            }
+                            if (isValidKeyPairDatatype(documentData, "trigger", String.class)) {
+                                moodEvent.setTrigger((String) documentData.get("trigger"));
+                            }
+                            if (isValidKeyPairDatatype(documentData, "social_situation", String.class)) {
+                                moodEvent.setSocialSituation((String) documentData.get("social_situation"));
+                            }
+                            if (isValidKeyPairDatatype(documentData, "picture", String.class)) {
+                                moodEvent.setPicture((String) documentData.get("picture"));
+                            }
+                            if (isValidKeyPairDatatype(documentData, "is_public", Boolean.class)) {
+                                moodEvent.setIsPublic((Boolean) documentData.get("is_public"));
+                            }
+                            if(!containsMoodEvent(moodEvent)) {
+                                moodEvents.add(moodEvent);
                             }
                         }
-                        listener.returnMoodList(ptrToSelf);
                     }
+                    listener.returnMoodList(ptrToSelf);
                 });
     }
     /**
