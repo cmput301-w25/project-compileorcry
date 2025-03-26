@@ -80,18 +80,18 @@ public class MoodInfoDialogFragment extends DialogFragment {
                 MoodList.createMoodList(User.getActiveUser(), QueryType.HISTORY_MODIFIABLE, new MoodList.MoodListListener() {
                     @Override
                     public void returnMoodList(MoodList moodList) {
-                        if (moodList.getMoodEvents().contains(moodEvent)) {
+                        if (moodList.containsMoodEvent( moodEvent)) {
                             moodList.editMoodEvent(moodEvent, changes);
                             notifyParentAndDismiss();
                         } else {
-                            Log.e("MoodInfoDialogFragment", "Mood event with ID " + moodEvent.getId() + " not found in MoodList. Cannot edit.");
+
                             notifyParentAndDismiss();
                         }
                     }
 
                     @Override
                     public void onError(Exception e) {
-                        // Handle errors if needed
+                        Log.e("MoodInfoDialogFragment", "Mood event with ID " + moodEvent.getId() + " not found in MoodList. Cannot edit.");
                     }
 
                     @Override
