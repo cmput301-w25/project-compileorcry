@@ -107,6 +107,11 @@ public class FeedFragment extends Fragment {
         );
         binding.recyclerViewMoodHistory.setAdapter(adapter);
 
+        // Search FAB
+        binding.fabAddMood.setOnClickListener(v -> {
+            findNavController(view).navigate(R.id.navigation_search);
+        });
+
         // Setup map FAB
         binding.fabMap.setOnClickListener(v -> {
             List<MoodEvent> moodEvents = feedViewModel.getMoodEvents().getValue();
