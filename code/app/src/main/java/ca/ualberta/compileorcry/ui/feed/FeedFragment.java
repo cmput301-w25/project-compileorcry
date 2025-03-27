@@ -71,6 +71,12 @@ public class FeedFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        getParentFragmentManager().setFragmentResultListener("moodEventUpdated", this, (requestKey, result) -> {
+            Log.d("FeedFragment", "Mood event was updated, reloading feed...");
+            adapter.notifyDataSetChanged();
+            loadFeed();
+
+        });
         super.onViewCreated(view, savedInstanceState);
 
         ImageView feedOrHistory = binding.imageView;

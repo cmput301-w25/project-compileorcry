@@ -2,11 +2,13 @@ package ca.ualberta.compileorcry.ui.feed;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -38,7 +40,11 @@ public class MoodInfoDialogFragment extends DialogFragment {
      * then dismisses this dialog.
      */
     private void notifyParentAndDismiss() {
-        getParentFragmentManager().setFragmentResult("moodEventUpdated", new Bundle());
+        if (isAdded()) {
+            getParentFragmentManager().setFragmentResult("moodEventUpdated", new Bundle());
+            Log.d("MoodInfoDialogFragment", "Sending result to parent before dismiss");
+
+        }
         dismiss();
     }
 
@@ -82,6 +88,7 @@ public class MoodInfoDialogFragment extends DialogFragment {
                     public void returnMoodList(MoodList moodList) {
                         if (moodList.containsMoodEvent( moodEvent)) {
                             moodList.editMoodEvent(moodEvent, changes);
+
                             notifyParentAndDismiss();
                         } else {
 
@@ -95,7 +102,9 @@ public class MoodInfoDialogFragment extends DialogFragment {
                     }
 
                     @Override
-                    public void updatedMoodList() {}
+                    public void updatedMoodList() {
+
+                    }
                 }, null);
             }
         });
@@ -108,13 +117,18 @@ public class MoodInfoDialogFragment extends DialogFragment {
                     public void returnMoodList(MoodList moodList) {
                         moodList.deleteMoodEvent(moodEvent);
                         notifyParentAndDismiss();
+                        Toast.makeText(requireContext(), "Mood deleted successfully", Toast.LENGTH_SHORT).show();
+
+
                     }
 
                     @Override
                     public void onError(Exception e) {}
 
                     @Override
-                    public void updatedMoodList() {}
+                    public void updatedMoodList() {
+
+                    }
                 }, null);
             }
         });
