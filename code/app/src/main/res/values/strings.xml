@@ -38,6 +38,8 @@
     <string name="history">History</string>
     <string name="requests">Requests</string>
     <string name="logout">Logout</string>
+    <string name="follow_button">Follow</string>
+    <string name="unfollow_button">Unfollow</string>
     <string name="sort_prompt">Sort</string>
     <string name="filter_prompt">Filter</string>
     <string name="add_friends">Add Friends</string>
