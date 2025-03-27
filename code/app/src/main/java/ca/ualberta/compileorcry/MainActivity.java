@@ -1,5 +1,6 @@
 package ca.ualberta.compileorcry;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -43,6 +44,19 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Check for QR Code link
+        Uri data = getIntent().getData();
+        if(data != null){
+            String page = data.getPath();
+            if(page != null){
+                Log.w("QR", page);
+            } else {
+                Log.w("QR", "Page Null");
+            }
+        } else {
+            Log.w("QR", "Data Null");
+        }
 
         // Hide the action bar
         if (getSupportActionBar() != null) {

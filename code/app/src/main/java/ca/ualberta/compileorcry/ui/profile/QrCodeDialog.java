@@ -42,7 +42,9 @@ public class QrCodeDialog extends DialogFragment {
         }
 
         builder.setView(newDialogView)
-                .setCancelable(true)
+                .setPositiveButton("Dismiss", (dialogInterface, i) -> {
+
+                })
                 .setTitle("Profile QR Code");
         return builder.create();
     }
