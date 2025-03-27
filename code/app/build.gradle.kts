@@ -42,6 +42,10 @@ android {
     }
 }
 
+//repositories {
+//    mavenCentral()
+//}
+
 dependencies {
     implementation(libs.appcompat)
     implementation(libs.material)
@@ -66,6 +70,9 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     androidTestImplementation("androidx.test.uiautomator:uiautomator:2.2.0")
     androidTestUtil("androidx.test:orchestrator:1.4.2")
+
+    //QR Codes
+    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
 
     //implementation(files("${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar")) // For javadocs
 
