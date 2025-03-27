@@ -45,6 +45,7 @@ import ca.ualberta.compileorcry.domain.models.User;
  * @see ExecutorService
  * @see User
  */
+
 public class FollowHelper {
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
