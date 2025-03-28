@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -15,7 +16,7 @@ import ca.ualberta.compileorcry.R;
 
 public class UserSearchAdapter extends RecyclerView.Adapter<UserSearchAdapter.ViewHolder> {
     private final Context context;
-    private final List<String> usernames;
+    private final List<String> usernames; // Ideally, you’d use a List<User> here
 
     public UserSearchAdapter(Context context, List<String> usernames) {
         this.context = context;
@@ -31,7 +32,11 @@ public class UserSearchAdapter extends RecyclerView.Adapter<UserSearchAdapter.Vi
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.usernameText.setText(usernames.get(position));
+        String username = usernames.get(position);
+        holder.usernameText.setText("@" + username);
+        holder.nameText.setText(username); // Placeholder: same as username for now
+        // You can load a real image here using Glide/Picasso
+        holder.profileImage.setImageResource(R.drawable.ic_person_24dp);
     }
 
     @Override
@@ -41,10 +46,14 @@ public class UserSearchAdapter extends RecyclerView.Adapter<UserSearchAdapter.Vi
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView usernameText;
+        TextView nameText;
+        ImageView profileImage;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             usernameText = itemView.findViewById(R.id.username_text);
+            nameText = itemView.findViewById(R.id.name_text);
+            profileImage = itemView.findViewById(R.id.profile_image);
         }
     }
 }
