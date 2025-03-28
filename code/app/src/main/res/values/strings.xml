@@ -3,11 +3,9 @@
     <string name="title_feed">Feed</string>
     <string name="title_new">New</string>
     <string name="title_profile">Profile</string>
-    <string name="hint_trigger">Enter trigger (optional)</string>
     <string name="button_save_mood">Save Mood</string>
     <string name="timestamp">Timestamp</string>
     <string name="emotional_state">Emotional State</string>
-    <string name="trigger">Trigger</string>
     <string name="social_situation">Social Situation</string>
     <string name="title_registration">Registration</string>
     <string name="title_login">Login</string>
@@ -27,7 +25,7 @@
     <string name="name">Name</string>
     <string name="new_event">New Event</string>
     <string name="social_situation_optional">Social Situation (Optional)</string>
-    <string name="trigger_optional">Trigger (Optional)</string>
+    <string name="reason_optional">Reason (Optional)</string>
     <string name="date_amp_time"><![CDATA[Date & Time]]></string>
     <string name="create">Create</string>
     <string name="back">Back</string>
