@@ -44,7 +44,7 @@ public class QrCodeDialog extends DialogFragment {
 
         builder.setView(newDialogView)
                 .setPositiveButton("Dismiss", (dialogInterface, i) -> {
-
+                    dismiss();
                 })
                 .setTitle("Profile QR Code");
         return builder.create();

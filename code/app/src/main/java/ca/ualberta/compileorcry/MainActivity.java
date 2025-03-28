@@ -50,12 +50,12 @@ public class MainActivity extends AppCompatActivity {
         if(data != null){
             String page = data.getPath();
             if(page != null){
-                Log.w("QR", page);
+                Log.d("QR", page);
             } else {
-                Log.w("QR", "Page Null");
+                Log.d("QR", "Page Null");
             }
         } else {
-            Log.w("QR", "Data Null");
+            Log.d("QR", "Data Null");
         }
 
         // Hide the action bar
