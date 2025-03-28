@@ -1,8 +1,6 @@
 package ca.ualberta.compileorcry.ui.search;
 
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,19 +14,17 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import ca.ualberta.compileorcry.R;
 
+import ca.ualberta.compileorcry.R;
 import ca.ualberta.compileorcry.databinding.FragmentUserSearchBinding;
 import ca.ualberta.compileorcry.domain.models.UserSearch;
 
 public class UserSearchFragment extends Fragment {
     private FragmentUserSearchBinding binding;
-    private ca.ualberta.compileorcry.ui.search.UserSearchAdapter adapter;
+    private UserSearchAdapter adapter;
     private ArrayList<String> searchResults;
 
-    public UserSearchFragment() {
-        // Required empty constructor
-    }
+    public UserSearchFragment() {}
 
     @Nullable
     @Override
@@ -42,62 +38,35 @@ public class UserSearchFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         searchResults = new ArrayList<>();
-        adapter = new ca.ualberta.compileorcry.ui.search.UserSearchAdapter(requireContext(), searchResults);
-
-        // Setup RecyclerView
+        adapter = new UserSearchAdapter(requireContext(), searchResults);
         binding.searchResultsList.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.searchResultsList.setAdapter(adapter);
-/*
-        // Add text watcher for search input
-        binding.searchInput.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (s.length() > 0) {
-                    binding.searchIcon.setImageResource(R.drawable.ic_baseline_search_24dp); // Change to "X" icon
-                    binding.searchResultsList.setVisibility(View.VISIBLE); // Show results
-                } else {
-                    binding.searchIcon.setImageResource(R.drawable.ic_baseline_search_24dp); // Change back to search icon
-                    binding.searchResultsList.setVisibility(View.GONE); // Hide results
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                if (s.length() > 0) {
-                    performSearch(s.toString());
-                } else {
-                    searchResults.clear();
-                    adapter.notifyDataSetChanged();
-                }
-            }
-        });*/
-
-        // Handle clear button click
+        // Search only when user taps the icon
         binding.searchIcon.setOnClickListener(v -> {
-            if (binding.searchInput.getText().length() > 0) {
-                binding.searchInput.setText("");  // Clear input
-                binding.searchIcon.setImageResource(R.drawable.ic_baseline_search_24dp); // Reset icon
-                binding.searchResultsList.setVisibility(View.GONE); // Hide results
+            String query = binding.searchInput.getText().toString().trim();
+            if (!query.isEmpty()) {
+                performSearch(query);
+                binding.searchResultsList.setVisibility(View.VISIBLE);
+            } else {
+                Toast.makeText(requireContext(), "Enter a username", Toast.LENGTH_SHORT).show();
             }
         });
     }
-    /*
+
     private void performSearch(String query) {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             try {
                 ArrayList<String> results = UserSearch.findUser(query);
                 requireActivity().runOnUiThread(() -> {
-                    if (results != null) {
-                        searchResults.clear();
+                    searchResults.clear();
+                    if (results != null && !results.isEmpty()) {
                         searchResults.addAll(results);
-                        adapter.notifyDataSetChanged();
                     } else {
                         Toast.makeText(requireContext(), "No users found", Toast.LENGTH_SHORT).show();
                     }
+                    adapter.notifyDataSetChanged();
                 });
             } catch (InterruptedException e) {
                 requireActivity().runOnUiThread(() ->
@@ -105,7 +74,7 @@ public class UserSearchFragment extends Fragment {
             }
         });
         executor.shutdown();
-    } */
+    }
 
     @Override
     public void onDestroyView() {
