@@ -22,6 +22,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -853,7 +854,33 @@ public class MoodList {
                     .whereNotEqualTo("location",null)
                     .orderBy("location");
         }
-        GeoLocation location = GeoHash.locationFromHash((String)this.filter);
+
+        if (filter == null) {
+            return;
+        }
+
+        String currentLocation = null;
+
+        try {
+            // Use reflection to check for a "geoHash" field
+            Field geoHashField = filter.getClass().getDeclaredField("geoHash");
+            // Allow access to private fields
+            geoHashField.setAccessible(true);
+            Object geoHashValue = geoHashField.get(filter);
+            currentLocation = (String) geoHashValue;
+        } catch (NoSuchFieldException e) {
+            // Field "geoHash" does not exist
+            return;
+        } catch (IllegalAccessException e) {
+            // Could not access the field
+            return;
+        }
+
+        if (currentLocation == null) {
+            return;
+        }
+
+        GeoLocation location = GeoHash.locationFromHash(currentLocation);
         List<GeoQueryBounds> bounds = GeoFireUtils.getGeoHashQueryBounds(location, 5000);
         final List<Task<QuerySnapshot>> tasks = new ArrayList<>();
         for (GeoQueryBounds b : bounds) {

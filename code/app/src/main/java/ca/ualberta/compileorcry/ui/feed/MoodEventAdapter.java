@@ -33,6 +33,7 @@ public class MoodEventAdapter extends RecyclerView.Adapter<MoodEventAdapter.View
     /** The current list of mood events to display */
     private List<MoodEvent> moodEvents;
     private OnItemClickListener clickListener;
+    private boolean isFollowing = false;
 
     public interface OnItemClickListener {
         void onItemClick(MoodEvent moodEvent);
@@ -56,8 +57,9 @@ public class MoodEventAdapter extends RecyclerView.Adapter<MoodEventAdapter.View
      *
      * @param newEvents New list of mood events to display
      */
-    public void updateData(List<MoodEvent> newEvents) {
+    public void updateData(List<MoodEvent> newEvents, boolean isFollowing) {
         moodEvents = newEvents != null ? newEvents : new ArrayList<>();
+        this.isFollowing = isFollowing;
         notifyDataSetChanged();
     }
 
@@ -102,7 +104,7 @@ public class MoodEventAdapter extends RecyclerView.Adapter<MoodEventAdapter.View
         Drawable wrappedDrawable = DrawableCompat.wrap(background);
         DrawableCompat.setTint(wrappedDrawable, moodColor);
         holder.itemView.setBackground(wrappedDrawable);
-        holder.bind(event);
+        holder.bind(event, isFollowing);
 
         // Open MoodEventDialogFragment when clicked
         holder.itemView.setOnClickListener(v -> {
@@ -139,9 +141,18 @@ public class MoodEventAdapter extends RecyclerView.Adapter<MoodEventAdapter.View
             moodIconImageView = itemView.findViewById(R.id.mood_icon);
         }
 
-        public void bind(MoodEvent event) {
+        public void bind(MoodEvent event, boolean isFollowing) {
             if (event != null) {
-                emotionalStateTextView.setText(event.getEmotionalState().getDescription());
+                // Format text based on feed type
+                if (isFollowing) {
+                    emotionalStateTextView.setText(
+                            String.format("@%s's %s Event",
+                                    event.getUsername(),
+                                    event.getEmotionalState().getDescription())
+                    );
+                } else {
+                    emotionalStateTextView.setText(event.getEmotionalState().getDescription());
+                }
                 timestampTextView.setText(event.getFormattedDate());
                 moodIconImageView.setImageResource(event.getEmotionalState().getIconResId());
             }
