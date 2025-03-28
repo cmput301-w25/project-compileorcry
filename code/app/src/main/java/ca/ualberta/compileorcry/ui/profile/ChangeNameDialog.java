@@ -1,6 +1,8 @@
 package ca.ualberta.compileorcry.ui.profile;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +23,12 @@ import ca.ualberta.compileorcry.domain.models.User;
  * Dialog fragment that allows users to change their display name.
  * This class displays a custom styled dialog with a TextInputEditText field pre-populated with
  * the user's current name and provides options to save or cancel the change.
+ *
+ * Features:
+ * - Pre-populates the input field with the current user name
+ * - Provides Save and Cancel buttons
+ * - Updates the user's name in the database upon confirmation
+ * - Follows Android's dialog design patterns
  */
 public class ChangeNameDialog extends DialogFragment {
 
