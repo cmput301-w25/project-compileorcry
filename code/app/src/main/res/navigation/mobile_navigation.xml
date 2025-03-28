@@ -42,6 +42,9 @@
         android:label="View Profile"
         tools:layout="@layout/fragment_view_profile">
 
+        <argument
+            android:name="profileUsername"
+            app:argType="string" />
     </fragment>
 
     <fragment
