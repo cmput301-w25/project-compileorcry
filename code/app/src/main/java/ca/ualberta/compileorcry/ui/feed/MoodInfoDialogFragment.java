@@ -13,6 +13,10 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 
+import com.bumptech.glide.Glide;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -60,13 +64,24 @@ public class MoodInfoDialogFragment extends DialogFragment {
             String trigger = args.getString("trigger", "No Trigger");
             String socialSituation = args.getString("socialSituation", "No Situation");
 
+            // Handle image loading
+            String imagePath = args.getString("imagePath");
+            if (imagePath != null && !imagePath.isEmpty()) {
+                loadImage(imagePath);
+            } else {
+                // Hide image view if no image
+                binding.moodInfoImageView.setVisibility(View.GONE);
+            }
+
             // Populate the UI with initial values
             setupEmotionalStateDropdown(emotionalState);
             setupSocialSituationDropdown(socialSituation);
             binding.moodinfoTriggerText.setText(trigger);
             binding.getRoot().setBackgroundColor(backgroundColor);
+            binding.saveButton.setTextColor(backgroundColor);
 
             moodEvent = new MoodEvent(moodId);
+            moodEvent.setEmotionalState(state);
         }
 
         // Save button logic
@@ -159,5 +174,24 @@ public class MoodInfoDialogFragment extends DialogFragment {
         );
         binding.moodinfoSituationAutoComplete.setAdapter(adapter);
         binding.moodinfoSituationAutoComplete.setText(selected, false);
+    }
+
+    private void loadImage(String imagePath) {
+        StorageReference imageRef = FirebaseStorage.getInstance().getReference(imagePath);
+
+        imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+            // Use Glide to load the image
+            Glide.with(requireContext())
+                    .load(uri)
+                    .centerCrop()
+                    .error(R.drawable.ic_broken_image_80dp)
+                    .into(binding.moodInfoImageView);
+
+            // Make image visible
+            binding.moodInfoImageView.setVisibility(View.VISIBLE);
+        }).addOnFailureListener(e -> {
+            binding.moodInfoImageView.setVisibility(View.GONE);
+            Log.e("MoodInfoDialogFragment", "Error loading image", e);
+        });
     }
 }
