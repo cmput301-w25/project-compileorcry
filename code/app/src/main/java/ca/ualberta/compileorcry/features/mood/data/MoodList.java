@@ -181,10 +181,6 @@ public class MoodList {
                 // Handle MAP_CLOSE query type
                 new MoodList(user, queryType, listener, filter);
                 break;
-            case MAP_PERSONAL_CLOSE:
-                // Handle MAP_CLOSE query type
-                new MoodList(user, queryType, listener, filter);
-                break;
             default:
                 // Handle unexpected query types
                 throw new IllegalArgumentException("unsupported query type: " + queryType);
@@ -259,21 +255,16 @@ public class MoodList {
                 attachFollowersListener();
                 break;
             case HISTORY_REASON:
-                getQuery();
-                attachMoodEventsListener(this.query);
+                attachFollowersListener();
                 break;
             case FOLLOWING_REASON:
                 this.recentsType = true;
-
+                attachFollowersListener();
                 break;
             case MAP_CLOSE:
                 this.recentsType = true;
                 this.mapType = true;
-                attachFollowersListener();
-                break;
-            case MAP_PERSONAL_CLOSE:
-                this.mapType = true;
-                executeGeoQuery(true);
+                executeGeoQuery();
                 break;
             default:
                 throw new IllegalArgumentException("unsupported query type: " + queryType);
@@ -641,14 +632,9 @@ public class MoodList {
                 return;
             }
             if (!followingLoaded) {
-                if(ptrToSelf.queryType == QueryType.MAP_CLOSE){
-                    executeGeoQuery(false);
-                    followingLoaded = true;
-                } else {
-                    ptrToSelf.getQuery();
-                    attachMoodEventsListener(ptrToSelf.query);
-                    followingLoaded = true;
-                }
+                ptrToSelf.getQuery();
+                attachMoodEventsListener(ptrToSelf.query);
+                followingLoaded = true;
             } else {
                 ptrToSelf.getQuery();
                 //if needed a listener call here for update to followers
@@ -843,18 +829,6 @@ public class MoodList {
      * @throws IllegalArgumentException If the location filter is invalid or the query results are invalid.
      * @throws RuntimeException If Firestore operations fail or the geospatial query cannot be executed.
      */
-    private void executeGeoQuery(boolean personal) {
-        Query query;
-        if(personal){
-            query=this.moodEventsRef.whereNotEqualTo("location",null)
-                    .orderBy("location");
-        } else {
-            query = db.collectionGroup("recent_moods")
-                    .whereIn("username", followings)
-                    .whereNotEqualTo("location",null)
-                    .orderBy("location");
-        }
-
     private void executeGeoQuery() {
         if (filter == null) {
             return;
@@ -885,67 +859,70 @@ public class MoodList {
         List<GeoQueryBounds> bounds = GeoFireUtils.getGeoHashQueryBounds(location, 5000);
         final List<Task<QuerySnapshot>> tasks = new ArrayList<>();
         for (GeoQueryBounds b : bounds) {
-            Query q = query.startAt(b.startHash)
+            Query q = db.collectionGroup("recent_moods")
+                    .whereNotEqualTo("location",null)
+                    .orderBy("location")
+                    .startAt(b.startHash)
                     .endAt(b.endHash);
+
             tasks.add(q.get());
         }
         Tasks.whenAllComplete(tasks)
-                .addOnCompleteListener(new OnCompleteListener<List<Task<?>>>() {
-                    @Override
-                    public void onComplete(@NonNull Task<List<Task<?>>> t) {
-                        for (Task<QuerySnapshot> task : tasks) {
-                            QuerySnapshot snap = task.getResult();
-                            for (DocumentSnapshot doc : snap.getDocuments()) {
-                                Map<String, Object> documentData = doc.getData();
-                                String id = doc.getId();
-                                MoodEvent moodEvent = new MoodEvent(id);
-                                if (isValidKeyPairDatatype(documentData, "location", String.class)) {
-                                    GeoHash geoHash = new GeoHash((String) documentData.get("location"));
-                                    moodEvent.setLocation(geoHash);
-                                } else if (mapType) {
-                                    listener.onError(new IllegalArgumentException("location cannot be null for map query or is not a the correct datatype"));
-                                    return;
-                                }
-                                GeoLocation docLocation = GeoHash.locationFromHash(moodEvent.getLocation().getGeoHashString());
-                                // We have to filter out a few false positives due to GeoHash
-                                // accuracy, but most will match
-                                double distanceInM = GeoFireUtils.getDistanceBetween(docLocation, location);
-                                if (distanceInM > 5000) {
-                                    continue;
-                                }
-                                if (isValidKeyPairDatatype(documentData, "emotional_state", Long.class)) {
-                                    moodEvent.setEmotionalState(EmotionalState.fromCode((Long) documentData.get("emotional_state")));
-                                } else {
-                                    listener.onError(new IllegalArgumentException("emotional state cannot be null"));
-                                    return;
-                                }
-                                if (isValidKeyPairDatatype(documentData, "date", Timestamp.class)) {
-                                    moodEvent.setTimestamp((Timestamp) documentData.get("date"));
-                                } else {
-                                    listener.onError(new IllegalArgumentException("date cannot be null"));
-                                    return;
-                                }
-                                if (isValidKeyPairDatatype(documentData, "username", String.class)) {
-                                    moodEvent.setUsername((String) documentData.get("username"));
-                                } else if (recentsType) {
-                                    listener.onError(new IllegalArgumentException("username cannot be null for querys of recentMoods or is not a String"));
-                                    return;
-                                }
-                                if (isValidKeyPairDatatype(documentData, "trigger", String.class)) {
-                                    moodEvent.setTrigger((String) documentData.get("trigger"));
-                                }
-                                if (isValidKeyPairDatatype(documentData, "social_situation", String.class)) {
-                                    moodEvent.setSocialSituation((String) documentData.get("social_situation"));
-                                }
-                                if (isValidKeyPairDatatype(documentData, "picture", String.class)) {
-                                    moodEvent.setPicture((String) documentData.get("picture"));
-                                }
-                                if (isValidKeyPairDatatype(documentData, "is_public", Boolean.class)) {
-                                    moodEvent.setIsPublic((Boolean) documentData.get("is_public"));
-                                }
-                                if(!containsMoodEvent(moodEvent)) {
-                                    moodEvents.add(moodEvent);
-                                }
+                .addOnCompleteListener(t -> {
+                    List<DocumentSnapshot> matchingDocs = new ArrayList<>();
+
+                    for (Task<QuerySnapshot> task : tasks) {
+                        QuerySnapshot snap = task.getResult();
+                        for (DocumentSnapshot doc : snap.getDocuments()) {
+                            Map<String, Object> documentData = doc.getData();
+                            String id = doc.getId();
+                            MoodEvent moodEvent = new MoodEvent(id);
+                            if (isValidKeyPairDatatype(documentData, "location", String.class)) {
+                                GeoHash geoHash = new GeoHash((String) documentData.get("location"));
+                                moodEvent.setLocation(geoHash);
+                            } else if (mapType) {
+                                listener.onError(new IllegalArgumentException("location cannot be null for map query or is not a the correct datatype"));
+                                return;
+                            }
+                            GeoLocation docLocation = GeoHash.locationFromHash(moodEvent.getLocation().getGeoHashString());
+                            // We have to filter out a few false positives due to GeoHash
+                            // accuracy, but most will match
+                            double distanceInM = GeoFireUtils.getDistanceBetween(docLocation, location);
+                            if (distanceInM <= 5000) {
+                                matchingDocs.add(doc);
+                            }
+                            if (isValidKeyPairDatatype(documentData, "emotional_state", Long.class)) {
+                                moodEvent.setEmotionalState(EmotionalState.fromCode((Long) documentData.get("emotional_state")));
+                            } else {
+                                listener.onError(new IllegalArgumentException("emotional state cannot be null"));
+                                return;
+                            }
+                            if (isValidKeyPairDatatype(documentData, "date", Timestamp.class)) {
+                                moodEvent.setTimestamp((Timestamp) documentData.get("date"));
+                            } else {
+                                listener.onError(new IllegalArgumentException("date cannot be null"));
+                                return;
+                            }
+                            if (isValidKeyPairDatatype(documentData, "username", String.class)) {
+                                moodEvent.setUsername((String) documentData.get("username"));
+                            } else if (recentsType) {
+                                listener.onError(new IllegalArgumentException("username cannot be null for querys of recentMoods or is not a String"));
+                                return;
+                            }
+                            if (isValidKeyPairDatatype(documentData, "trigger", String.class)) {
+                                moodEvent.setTrigger((String) documentData.get("trigger"));
+                            }
+                            if (isValidKeyPairDatatype(documentData, "social_situation", String.class)) {
+                                moodEvent.setSocialSituation((String) documentData.get("social_situation"));
+                            }
+                            if (isValidKeyPairDatatype(documentData, "picture", String.class)) {
+                                moodEvent.setPicture((String) documentData.get("picture"));
+                            }
+                            if (isValidKeyPairDatatype(documentData, "is_public", Boolean.class)) {
+                                moodEvent.setIsPublic((Boolean) documentData.get("is_public"));
+                            }
+                            if(!containsMoodEvent(moodEvent)) {
+                                moodEvents.add(moodEvent);
                             }
                         }
                     }
@@ -1073,8 +1050,7 @@ public class MoodList {
     //firestore doesn't have a feature to do this using queries.
     //The only options are to do it serverside which we cant, use a third party software which can cost $$, or do filtering clientside
     /**
-     * removes all moodEvents that do not contain the reasonString.
-     * Case insensitive.
+     * removes all moodEvents that do not contain the reasonString
      *
      * @param reasonString The substring to search
      */
@@ -1086,7 +1062,7 @@ public class MoodList {
                 iter.remove();
                 continue;
             }
-            if(!event.getTrigger().toLowerCase().contains(reasonString.toLowerCase())) {
+            if(!event.getTrigger().contains(reasonString)) {
                 iter.remove(); // Removes the 'current' item
             }
         }
