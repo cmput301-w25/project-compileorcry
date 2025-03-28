@@ -189,6 +189,8 @@ public class FeedFragment extends Fragment {
     private void onMoodEventClick(MoodEvent clickedEvent) {
         if (clickedEvent != null) {
             Log.d("FeedFragment", "Mood Event Clicked: " + clickedEvent.getId());
+            String feedType = (String) binding.feedSpinner.getSelectedItem();  // "History" or "Following"
+
             // Create a Bundle to pass data
             Bundle args = new Bundle();
             args.putString("moodId", clickedEvent.getId());
@@ -196,7 +198,8 @@ public class FeedFragment extends Fragment {
             args.putString("trigger", clickedEvent.getTrigger());
             args.putString("socialSituation", clickedEvent.getSocialSituation());
             args.putString("username", clickedEvent.getUsername());
-            Log.d("FeedFragment", "feed mood user "+clickedEvent.getUsername());
+            args.putString("feedType", feedType);
+
 
             // Create an instance of MoodInfoDialogFragment and pass the arguments
             MoodInfoDialogFragment dialog = new MoodInfoDialogFragment();

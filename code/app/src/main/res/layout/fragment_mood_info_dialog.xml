@@ -36,6 +36,32 @@
             android:inputType="none"
             android:dropDownHeight="200dp"
             android:textColor="@color/dark" />
+
+
+    </com.google.android.material.textfield.TextInputLayout>
+    <!-- HIDDEN read-only version of emotional state -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/moodinfo_state_readonly_layout"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:hint="@string/emotional_state"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/moodinfo_edit_text"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <EditText
+            android:id="@+id/moodinfo_state_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:enabled="false"
+            android:focusable="false"
+            android:background="@null"
+            android:textColor="@color/dark"
+            android:padding="12dp"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -54,6 +80,31 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="text" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+    <!-- HIDDEN read-only version of trigger -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/moodinfo_trigger_readonly_layout"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:hint="@string/trigger"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/moodinfo_state_readonly_layout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <EditText
+            android:id="@+id/moodinfo_trigger_display"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:enabled="false"
+            android:focusable="false"
+            android:background="@null"
+            android:textColor="@color/dark"
+            android:padding="12dp"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -74,6 +125,31 @@
             android:inputType="none"
             android:dropDownHeight="200dp"
             android:textColor="@color/dark" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+    <!-- HIDDEN read-only version of social situation -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/moodinfo_situation_readonly_layout"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:hint="@string/social_situation"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/moodinfo_trigger_readonly_layout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <EditText
+            android:id="@+id/moodinfo_situation_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:enabled="false"
+            android:focusable="false"
+            android:background="@null"
+            android:textColor="@color/dark"
+            android:padding="12dp"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <LinearLayout

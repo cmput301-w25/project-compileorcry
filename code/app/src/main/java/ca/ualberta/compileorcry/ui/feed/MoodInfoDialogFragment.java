@@ -53,12 +53,14 @@ public class MoodInfoDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         String currentUser = User.getActiveUser().getUsername();
         String moodOwner = "";
-        Log.d("MoodINfoDialogFragment", "current user"+currentUser);
+        String feedType = null;
+
         binding = FragmentMoodInfoDialogBinding.inflate(getLayoutInflater());
         binding.moodinfoStateAutoComplete.setDropDownBackgroundResource(R.color.dark);
         binding.moodinfoSituationAutoComplete.setDropDownBackgroundResource(R.color.dark);
 
         Bundle args = getArguments();
+
 
         if (args != null) {
             Log.d("MoodInfoDialogFragment", "Arguments: " + args);
@@ -69,19 +71,36 @@ public class MoodInfoDialogFragment extends DialogFragment {
             String trigger = args.getString("trigger", "No Trigger");
             String socialSituation = args.getString("socialSituation", "No Situation");
             moodOwner = args.getString("username", "None");
-            Log.d("MoodINfoDialogFragment", "mood user"+moodOwner);
+            feedType = args.getString("feedType", "Feed");
+
+
             // Populate the UI with initial values
             setupEmotionalStateDropdown(emotionalState);
             setupSocialSituationDropdown(socialSituation);
             binding.moodinfoTriggerText.setText(trigger);
             binding.getRoot().setBackgroundColor(backgroundColor);
+            if (!"History".equals(feedType)) {
+                // Hide editable components
+                binding.moodinfoStateLayout.setVisibility(View.GONE);
+                binding.moodinfoTriggerLayout.setVisibility(View.GONE);
+                binding.moodinfoSituationLayout.setVisibility(View.GONE);
+                binding.buttonBar.setVisibility(View.GONE);
+                binding.moodinfoEditText.setText("View Mood Event");
 
+                // Show read-only layouts
+                binding.moodinfoStateReadonlyLayout.setVisibility(View.VISIBLE);
+                binding.moodinfoTriggerReadonlyLayout.setVisibility(View.VISIBLE);
+                binding.moodinfoSituationReadonlyLayout.setVisibility(View.VISIBLE);
+
+                // Set text values
+                binding.moodinfoStateText.setText(emotionalState);
+                binding.moodinfoTriggerDisplay.setText(trigger);
+                binding.moodinfoSituationText.setText(socialSituation);
+            }
             moodEvent = new MoodEvent(moodId);
         }
 
-        if (!currentUser.equals(moodOwner)) {
-            binding.buttonBar.setVisibility(View.GONE);  // or View.INVISIBLE if you want spacing to remain
-        }
+
 
         // Save button logic
         binding.saveButton.setOnClickListener(v -> {
