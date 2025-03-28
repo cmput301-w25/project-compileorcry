@@ -51,38 +51,10 @@
             android:gravity="center_horizontal"
             android:orientation="horizontal">
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="16dp"
-                android:gravity="center_horizontal"
-                android:orientation="vertical">
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/unfollow_button"
-                    style="@style/Widget.Material3.Button.IconButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:insetTop="8dp"
-                    android:insetBottom="0dp"
-                    app:icon="@drawable/ic_star_outline_40dp"
-                    app:iconTint="@color/light"
-                    app:strokeColor="@color/light" />
-
-                <TextView
-                    android:id="@+id/unfollow_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/source_sans_pro_semibold"
-                    android:text="@string/unfollow_button"
-                    android:textColor="@color/light"
-                    android:textSize="16sp" />
-            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="16dp"
                 android:gravity="center_horizontal"
                 android:orientation="vertical">
 
@@ -98,11 +70,11 @@
                     app:strokeColor="@color/light" />
 
                 <TextView
-                    android:id="@+id/follow_text"
+                    android:id="@+id/follow_button_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/source_sans_pro_semibold"
-                    android:text="@string/follow_button"
+                    android:text="@string/button_follow"
                     android:textColor="@color/light"
                     android:textSize="16sp" />
             </LinearLayout>
@@ -110,127 +82,6 @@
 
         </LinearLayout>
 
-<!--        <LinearLayout-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_marginTop="12dp"-->
-<!--            android:gravity="center_horizontal"-->
-<!--            android:orientation="horizontal">-->
-
-<!--            <LinearLayout-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_marginEnd="16dp"-->
-<!--                android:gravity="center_horizontal"-->
-<!--                android:orientation="vertical">-->
-
-<!--                <com.google.android.material.button.MaterialButton-->
-<!--                    android:id="@+id/requests_button"-->
-<!--                    style="@style/Widget.Material3.Button.IconButton"-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:insetTop="8dp"-->
-<!--                    android:insetBottom="0dp"-->
-<!--                    app:icon="@drawable/ic_star_outline_40dp"-->
-<!--                    app:iconTint="@color/light"-->
-<!--                    app:strokeColor="@color/light" />-->
-
-<!--                <TextView-->
-<!--                    android:id="@+id/requests_text"-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:fontFamily="@font/source_sans_pro_semibold"-->
-<!--                    android:text="@string/requests"-->
-<!--                    android:textColor="@color/light"-->
-<!--                    android:textSize="16sp" />-->
-<!--            </LinearLayout>-->
-
-<!--            <LinearLayout-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_marginEnd="16dp"-->
-<!--                android:gravity="center_horizontal"-->
-<!--                android:orientation="vertical">-->
-
-<!--                <com.google.android.material.button.MaterialButton-->
-<!--                    android:id="@+id/history_button"-->
-<!--                    style="@style/Widget.Material3.Button.IconButton"-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:insetTop="8dp"-->
-<!--                    android:insetBottom="0dp"-->
-<!--                    app:icon="@drawable/ic_history_40dp"-->
-<!--                    app:iconTint="@color/light"-->
-<!--                    app:strokeColor="@color/light" />-->
-
-<!--                <TextView-->
-<!--                    android:id="@+id/history_text"-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:fontFamily="@font/source_sans_pro_semibold"-->
-<!--                    android:text="@string/history"-->
-<!--                    android:textColor="@color/light"-->
-<!--                    android:textSize="16sp" />-->
-<!--            </LinearLayout>-->
-
-<!--            <LinearLayout-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_marginEnd="16dp"-->
-<!--                android:gravity="center_horizontal"-->
-<!--                android:orientation="vertical">-->
-
-<!--                <com.google.android.material.button.MaterialButton-->
-<!--                    android:id="@+id/edit_button"-->
-<!--                    style="@style/Widget.Material3.Button.IconButton"-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:insetTop="8dp"-->
-<!--                    android:insetBottom="0dp"-->
-<!--                    app:icon="@drawable/ic_edit_40dp"-->
-<!--                    app:iconTint="@color/light"-->
-<!--                    app:strokeColor="@color/light" />-->
-
-<!--                <TextView-->
-<!--                    android:id="@+id/edit_text"-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:fontFamily="@font/source_sans_pro_semibold"-->
-<!--                    android:text="@string/edit"-->
-<!--                    android:textColor="@color/light"-->
-<!--                    android:textSize="16sp" />-->
-<!--            </LinearLayout>-->
-
-<!--            <LinearLayout-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:gravity="center_horizontal"-->
-<!--                android:orientation="vertical">-->
-
-<!--                <com.google.android.material.button.MaterialButton-->
-<!--                    android:id="@+id/friends_button"-->
-<!--                    style="@style/Widget.Material3.Button.IconButton"-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:insetTop="8dp"-->
-<!--                    android:insetBottom="0dp"-->
-<!--                    android:textSize="14sp"-->
-<!--                    app:icon="@drawable/ic_friends_40dp"-->
-<!--                    app:iconTint="@color/light"-->
-<!--                    app:strokeColor="@color/light" />-->
-
-<!--                <TextView-->
-<!--                    android:id="@+id/friends_text"-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:fontFamily="@font/source_sans_pro_semibold"-->
-<!--                    android:text="@string/friends"-->
-<!--                    android:textColor="@color/light"-->
-<!--                    android:textSize="16sp" />-->
-<!--            </LinearLayout>-->
-
-
-<!--        </LinearLayout>-->
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
