@@ -31,7 +31,7 @@ public class UserSearchAdapter extends RecyclerView.Adapter<UserSearchAdapter.Us
      * Constructs a new UserSearchAdapter.
      *
      * @param context   the context in which the adapter is used
-     * @param usernames a list of usernames to display
+     * @param users a list of usernames to display
      */
     public UserSearchAdapter(Context context, List<User> users) {
         this.context = context;

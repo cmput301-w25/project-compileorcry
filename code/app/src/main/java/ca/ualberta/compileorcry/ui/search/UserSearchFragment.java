@@ -19,6 +19,7 @@ import java.util.concurrent.Executors;
 
 import ca.ualberta.compileorcry.R;
 import ca.ualberta.compileorcry.databinding.FragmentUserSearchBinding;
+import ca.ualberta.compileorcry.domain.models.User;
 import ca.ualberta.compileorcry.domain.models.UserSearch;
 
 /**
@@ -29,7 +30,7 @@ public class UserSearchFragment extends Fragment {
 
     private FragmentUserSearchBinding binding;
     private UserSearchAdapter adapter;
-    private ArrayList<String> searchResults;
+    private ArrayList<User> searchResults;
     private boolean isClearIconVisible = false;
 
     /**
@@ -63,7 +64,7 @@ public class UserSearchFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        searchResults = new ArrayList<>();
+        searchResults = new ArrayList<User>();
         adapter = new UserSearchAdapter(requireContext(), searchResults);
         binding.searchResultsList.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.searchResultsList.setAdapter(adapter);
@@ -115,20 +116,44 @@ public class UserSearchFragment extends Fragment {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             try {
-                ArrayList<String> results = UserSearch.findUser(query);
-                requireActivity().runOnUiThread(() -> {
-                    searchResults.clear();
-                    if (results != null && !results.isEmpty()) {
-                        searchResults.addAll(results);
-                        adapter.notifyDataSetChanged();
-                        binding.searchResultsList.setVisibility(View.VISIBLE);
-                        binding.emptyStateContainer.setVisibility(View.GONE);
-                    } else {
+                ArrayList<String> usernames = UserSearch.findUser(query);
+
+                if (usernames == null || usernames.isEmpty()) {
+                    requireActivity().runOnUiThread(() -> {
+                        searchResults.clear();
                         adapter.notifyDataSetChanged();
                         binding.searchResultsList.setVisibility(View.GONE);
                         showEmptyState(R.drawable.ic_clear_big, "No users with this username");
-                    }
-                });
+                    });
+                    return;
+                }
+
+                ArrayList<User> users = new ArrayList<>();
+                int[] loadedCount = {0};
+
+                for (String username : usernames) {
+                    User.get_user(username, (user, error) -> {
+                        loadedCount[0]++;
+                        if (user != null) {
+                            users.add(user);
+                        }
+                        if (loadedCount[0] == usernames.size()) {
+                            requireActivity().runOnUiThread(() -> {
+                                searchResults.clear();
+                                searchResults.addAll(users);
+                                adapter.notifyDataSetChanged();
+
+                                if (users.isEmpty()) {
+                                    binding.searchResultsList.setVisibility(View.GONE);
+                                    showEmptyState(R.drawable.ic_clear_big, "No users with this username");
+                                } else {
+                                    binding.emptyStateContainer.setVisibility(View.GONE);
+                                    binding.searchResultsList.setVisibility(View.VISIBLE);
+                                }
+                            });
+                        }
+                    });
+                }
             } catch (InterruptedException e) {
                 requireActivity().runOnUiThread(() ->
                         Toast.makeText(requireContext(), "Search failed", Toast.LENGTH_SHORT).show());
@@ -136,6 +161,7 @@ public class UserSearchFragment extends Fragment {
         });
         executor.shutdown();
     }
+
 
     /**
      * Resets the search input, results, and UI state to default.
