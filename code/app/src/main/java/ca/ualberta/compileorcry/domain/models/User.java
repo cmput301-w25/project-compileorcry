@@ -201,15 +201,28 @@ public class User {
 
 
     /**
-     * Change the name of a user.
-     * For display-only users, only updates the local name.
-     * For regular users, also updates the name in Firestore.
+     * Change the name of a user locally.
+     * Only updates the local name, does not update Firestore.
+     * For updating both local and Firestore, use updateName() instead.
      *
      * @param name New name for the user
      */
     public void setName(String name) {
         this.name = name;
     }
+
+    /**
+     * Updates the user's name both locally and in Firestore.
+     *
+     * @param name The new name to set
+     */
+    public void updateName(String name) {
+        this.name = name;
+        if (userDocRef != null) {
+            userDocRef.update("name", name);
+        }
+    }
+
     /*
     The following function was has significant help in design from Deepseek, a bunch of it's mine
     Input: On the android java dev. If I have a document with sub collections. How do I delete all its sub collections considering the limits on the api for java android.
