@@ -101,7 +101,7 @@ public class MoodInfoDialogFragment extends DialogFragment {
                 MoodList.createMoodList(User.getActiveUser(), QueryType.HISTORY_MODIFIABLE, new MoodList.MoodListListener() {
                     @Override
                     public void returnMoodList(MoodList moodList) {
-                        if (moodList.containsMoodEvent( moodEvent)) {
+                        if (moodList.containsMoodEvent(moodEvent)) {
                             moodList.editMoodEvent(moodEvent, changes);
 
                             notifyParentAndDismiss();
