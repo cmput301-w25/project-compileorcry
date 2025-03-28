@@ -95,11 +95,6 @@ public class ProfileFragment extends Fragment {
             // TODO: Implement Request Function
         });
 
-        binding.historyButton.setOnClickListener((View v) -> {
-            // Navigate to the feed fragment to view history
-            Navigation.findNavController(view).navigate(R.id.navigation_feed);
-        });
-
         binding.editButton.setOnClickListener((View v) -> { // Edit Name Dialog
             DialogFragment editNameDialog = new ChangeNameDialog();
             editNameDialog.show(getActivity().getSupportFragmentManager(), "editName");

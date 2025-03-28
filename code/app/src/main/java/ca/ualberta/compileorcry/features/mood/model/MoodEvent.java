@@ -187,9 +187,9 @@ public class MoodEvent {
      * Returns the picture associated with this mood event.
      * Note: Picture handling is not fully implemented yet.
      *
-     * @return The picture object, or null if not set
+     * @return The picture path, or null if not set
      */
-    public Object getPicture() {
+    public String getPicture() {
         return picture;
     }
 
