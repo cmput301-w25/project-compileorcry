@@ -51,12 +51,15 @@ public class MoodInfoDialogFragment extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-
+        String currentUser = User.getActiveUser().getUsername();
+        String moodOwner = "";
+        Log.d("MoodINfoDialogFragment", "current user"+currentUser);
         binding = FragmentMoodInfoDialogBinding.inflate(getLayoutInflater());
         binding.moodinfoStateAutoComplete.setDropDownBackgroundResource(R.color.dark);
         binding.moodinfoSituationAutoComplete.setDropDownBackgroundResource(R.color.dark);
 
         Bundle args = getArguments();
+
         if (args != null) {
             Log.d("MoodInfoDialogFragment", "Arguments: " + args);
             String moodId = args.getString("moodId", "Unknown");
@@ -65,7 +68,8 @@ public class MoodInfoDialogFragment extends DialogFragment {
             int backgroundColor = state.getColor(requireContext());
             String trigger = args.getString("trigger", "No Trigger");
             String socialSituation = args.getString("socialSituation", "No Situation");
-
+            moodOwner = args.getString("username", "None");
+            Log.d("MoodINfoDialogFragment", "mood user"+moodOwner);
             // Populate the UI with initial values
             setupEmotionalStateDropdown(emotionalState);
             setupSocialSituationDropdown(socialSituation);
@@ -73,6 +77,10 @@ public class MoodInfoDialogFragment extends DialogFragment {
             binding.getRoot().setBackgroundColor(backgroundColor);
 
             moodEvent = new MoodEvent(moodId);
+        }
+
+        if (!currentUser.equals(moodOwner)) {
+            binding.buttonBar.setVisibility(View.GONE);  // or View.INVISIBLE if you want spacing to remain
         }
 
         // Save button logic
@@ -86,7 +94,7 @@ public class MoodInfoDialogFragment extends DialogFragment {
                 MoodList.createMoodList(User.getActiveUser(), QueryType.HISTORY_MODIFIABLE, new MoodList.MoodListListener() {
                     @Override
                     public void returnMoodList(MoodList moodList) {
-                        if (moodList.containsMoodEvent( moodEvent)) {
+                        if (moodList.containsMoodEvent(moodEvent)) {
                             moodList.editMoodEvent(moodEvent, changes);
 
                             notifyParentAndDismiss();
@@ -123,7 +131,8 @@ public class MoodInfoDialogFragment extends DialogFragment {
                     }
 
                     @Override
-                    public void onError(Exception e) {}
+                    public void onError(Exception e) {
+                    }
 
                     @Override
                     public void updatedMoodList() {

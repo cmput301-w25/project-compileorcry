@@ -195,6 +195,8 @@ public class FeedFragment extends Fragment {
             args.putString("emotionalState", clickedEvent.getEmotionalState().getDescription());
             args.putString("trigger", clickedEvent.getTrigger());
             args.putString("socialSituation", clickedEvent.getSocialSituation());
+            args.putString("username", clickedEvent.getUsername());
+            Log.d("FeedFragment", "feed mood user "+clickedEvent.getUsername());
 
             // Create an instance of MoodInfoDialogFragment and pass the arguments
             MoodInfoDialogFragment dialog = new MoodInfoDialogFragment();
