@@ -56,6 +56,9 @@ public class MoodInfoDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
 
+
+        String feedType = null;
+
         binding = FragmentMoodInfoDialogBinding.inflate(getLayoutInflater());
         binding.moodinfoStateAutoComplete.setDropDownBackgroundResource(R.color.dark);
         binding.moodinfoSituationAutoComplete.setDropDownBackgroundResource(R.color.dark);
@@ -69,7 +72,7 @@ public class MoodInfoDialogFragment extends DialogFragment {
             int backgroundColor = state.getColor(requireContext());
             String trigger = args.getString("trigger", "No Trigger");
             String socialSituation = args.getString("socialSituation", "No Situation");
-
+            feedType = args.getString("feedType", "Feed");
             // Handle image loading
             String imagePath = args.getString("imagePath");
             if (imagePath != null && !imagePath.isEmpty()) {
@@ -85,7 +88,24 @@ public class MoodInfoDialogFragment extends DialogFragment {
             binding.moodinfoTriggerText.setText(trigger);
             binding.getRoot().setBackgroundColor(backgroundColor);
             binding.saveButton.setTextColor(backgroundColor);
+            if (!"History".equals(feedType)) {
+                // Hide editable components
+                binding.moodinfoStateLayout.setVisibility(View.GONE);
+                binding.moodinfoTriggerLayout.setVisibility(View.GONE);
+                binding.moodinfoSituationLayout.setVisibility(View.GONE);
+                binding.buttonBar.setVisibility(View.GONE);
+                binding.moodinfoEditText.setText("View Mood Event");
 
+                // Show read-only layouts
+                binding.moodinfoStateReadonlyLayout.setVisibility(View.VISIBLE);
+                binding.moodinfoTriggerReadonlyLayout.setVisibility(View.VISIBLE);
+                binding.moodinfoSituationReadonlyLayout.setVisibility(View.VISIBLE);
+
+                // Set text values
+                binding.moodinfoStateText.setText(emotionalState);
+                binding.moodinfoTriggerDisplay.setText(trigger);
+                binding.moodinfoSituationText.setText(socialSituation);
+            }
             moodEvent = new MoodEvent(moodId);
             moodEvent.setEmotionalState(state);
         }

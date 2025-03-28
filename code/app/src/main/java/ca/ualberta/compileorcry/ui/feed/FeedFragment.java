@@ -150,15 +150,17 @@ public class FeedFragment extends Fragment {
             Log.e("FeedFragment", "Clicked MoodEvent is null!");
             return;
         }
-        
+        String feedType = (String) binding.feedSpinner.getSelectedItem();  // "History" or "Following"
+
         Log.d("FeedFragment", "Mood Event Clicked: " + clickedEvent.getId());
-        
+
         Bundle args = new Bundle();
         args.putString("moodId", clickedEvent.getId());
         args.putString("emotionalState", clickedEvent.getEmotionalState().getDescription());
         args.putString("trigger", clickedEvent.getTrigger());
         args.putString("socialSituation", clickedEvent.getSocialSituation());
         args.putString("imagePath", clickedEvent.getPicture());
+        args.putString("feedType", feedType);
 
         MoodInfoDialogFragment dialog = new MoodInfoDialogFragment();
         dialog.setArguments(args);
