@@ -209,6 +209,9 @@ public class User {
      */
     public void setName(String name) {
         this.name = name;
+        if(this.userDocRef != null){
+            userDocRef.update(Map.of("name", this.name));
+        }
     }
     /*
     The following function was has significant help in design from Deepseek, a bunch of it's mine
