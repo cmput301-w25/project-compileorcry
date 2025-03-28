@@ -35,7 +35,8 @@ public class QrCodeDialog extends DialogFragment {
 
         try {
             BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
-            Bitmap bitmap = barcodeEncoder.encodeBitmap(User.getActiveUser().getUsername(), BarcodeFormat.QR_CODE, 400, 400);
+            String qrCodeData = "compileorcry://profile/" + User.getActiveUser().getUsername();
+            Bitmap bitmap = barcodeEncoder.encodeBitmap(qrCodeData, BarcodeFormat.QR_CODE, 400, 400);
             qrCodeImage.setImageBitmap(bitmap);
         } catch (WriterException e){
             Log.e("QR", "Error Generating Profile QRCode");
