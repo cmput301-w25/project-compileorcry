@@ -78,7 +78,6 @@ public class FeedFragment extends Fragment {
             Log.d("FeedFragment", "Mood event was updated, reloading feed...");
             adapter.notifyDataSetChanged();
             loadFeed();
-
         });
         super.onViewCreated(view, savedInstanceState);
         setupUI(view);

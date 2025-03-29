@@ -47,7 +47,6 @@ public class MoodInfoDialogFragment extends DialogFragment {
         if (isAdded()) {
             getParentFragmentManager().setFragmentResult("moodEventUpdated", new Bundle());
             Log.d("MoodInfoDialogFragment", "Sending result to parent before dismiss");
-
         }
         dismiss();
     }
@@ -55,20 +54,12 @@ public class MoodInfoDialogFragment extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        String currentUser = User.getActiveUser().getUsername();
-        String moodOwner = "";
-        String feedType = null;
-
-
-
 
         binding = FragmentMoodInfoDialogBinding.inflate(getLayoutInflater());
         binding.moodinfoStateAutoComplete.setDropDownBackgroundResource(R.color.dark);
         binding.moodinfoSituationAutoComplete.setDropDownBackgroundResource(R.color.dark);
 
         Bundle args = getArguments();
-
-
         if (args != null) {
             Log.d("MoodInfoDialogFragment", "Arguments: " + args);
             String moodId = args.getString("moodId", "Unknown");
@@ -77,7 +68,7 @@ public class MoodInfoDialogFragment extends DialogFragment {
             int backgroundColor = state.getColor(requireContext());
             String trigger = args.getString("trigger", "No Trigger");
             String socialSituation = args.getString("socialSituation", "No Situation");
-            feedType = args.getString("feedType", "Feed");
+            String feedType = args.getString("feedType");
             // Handle image loading
             String imagePath = args.getString("imagePath");
             if (imagePath != null && !imagePath.isEmpty()) {
@@ -93,7 +84,7 @@ public class MoodInfoDialogFragment extends DialogFragment {
             binding.moodinfoTriggerText.setText(trigger);
             binding.getRoot().setBackgroundColor(backgroundColor);
             binding.saveButton.setTextColor(backgroundColor);
-            if (!"History".equals(feedType)) {
+            if (!feedType.equals("History")) {
                 // Hide editable components
                 binding.moodinfoStateLayout.setVisibility(View.GONE);
                 binding.moodinfoTriggerLayout.setVisibility(View.GONE);
