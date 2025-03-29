@@ -264,7 +264,7 @@ public class MoodList {
                 break;
             case FOLLOWING_REASON:
                 this.recentsType = true;
-
+                attachFollowersListener();
                 break;
             case MAP_CLOSE:
                 this.recentsType = true;
