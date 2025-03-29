@@ -383,7 +383,7 @@ public class MoodEvent {
      * Listener for AddCommentCallbacks
      */
     public interface AddCommentCallback {
-        void onSuccess();
+        void onSuccess() throws InterruptedException;
         void onFailure(Exception e);
     }
 
@@ -416,7 +416,11 @@ public class MoodEvent {
                     .addOnSuccessListener(aVoid -> {
                         // Write succeeded
                         comments.add(toAdd);
-                        callback.onSuccess();
+                        try {
+                            callback.onSuccess();
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
                     })
                     .addOnFailureListener(callback::onFailure);
         }

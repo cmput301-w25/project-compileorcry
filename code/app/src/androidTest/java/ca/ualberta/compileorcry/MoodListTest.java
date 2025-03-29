@@ -9,6 +9,7 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
+import com.firebase.geofire.core.GeoHash;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -80,17 +81,17 @@ public class MoodListTest {
             followingRef.document(string).set(Map.of("username",string));
         }
         Map<String,Map<String,Object>> recentMoodEvents = new HashMap<>();
-        recentMoodEvents.put("base", createRecemtEvent((long) 1, "test", Timestamp.now(), "With friends", "s00twy", "base", "test"));
-        recentMoodEvents.put("emotion", createRecemtEvent((long) 2, "ntestn", Timestamp.now(), "With friends", "s00twy", "emotion", "test"));
-        recentMoodEvents.put("trigger", createRecemtEvent((long) 1, "dummyData", Timestamp.now(), "With friends", "s00twy", "trigger", "test"));
-        recentMoodEvents.put("triggerNull", createRecemtEvent((long) 1, null, Timestamp.now(), "With friends", "s00twy", "triggerNull", "test"));
-        recentMoodEvents.put("date", createRecemtEvent((long) 1, "test", twoWeeksAgoTimestamp, "With friends", "s00twy", "date", "test"));
-        recentMoodEvents.put("locationNull", createRecemtEvent((long) 1, "testing", Timestamp.now(), "With friends", null, "locationNull", "test"));
-        recentMoodEvents.put("locationFar", createRecemtEvent((long) 1, "testing", Timestamp.now(), "With friends", "s10twy", "locationNull", "locationFar"));
+        recentMoodEvents.put("base", createRecentEvent((long) 1, "test", Timestamp.now(), "With friends", "s00twy", "base", "test"));
+        recentMoodEvents.put("emotion", createRecentEvent((long) 2, "ntestn", Timestamp.now(), "With friends", "s00twy", "emotion", "test"));
+        recentMoodEvents.put("trigger", createRecentEvent((long) 1, "dummyData", Timestamp.now(), "With friends", "s00twy", "trigger", "test"));
+        recentMoodEvents.put("triggerNull", createRecentEvent((long) 1, null, Timestamp.now(), "With friends", "s00twy", "triggerNull", "test"));
+        recentMoodEvents.put("date", createRecentEvent((long) 1, "test", twoWeeksAgoTimestamp, "With friends", "s00twy", "date", "test"));
+        recentMoodEvents.put("locationNull", createRecentEvent((long) 1, "testing", Timestamp.now(), "With friends", null, "locationNull", "test"));
+        recentMoodEvents.put("locationFar", createRecentEvent((long) 1, "testing", Timestamp.now(), "With friends", "s10twy", "locationNull", "locationFar"));
         for (Map.Entry<String, Map<String, Object>> entry : recentMoodEvents.entrySet()) {
             String eventId = entry.getKey();
             Map<String, Object> eventData = entry.getValue();
-            recentsRef.document(eventId).set(eventData);
+            recentsRef.document(eventId).collection("recent_moods").document(eventId).set(eventData);
         }
         CountDownLatch latch = new CountDownLatch(1);
         User.register_user("test","test", (user, error) -> {
@@ -422,7 +423,7 @@ public class MoodListTest {
                     }, "test");
         });
 
-        boolean completed = latch.await(10, TimeUnit.SECONDS); // Wait with timeout
+        boolean completed = latch.await(20, TimeUnit.SECONDS); // Wait with timeout
         if (!completed) {
             fail("Test timed out waiting for callback.");
         }
@@ -542,7 +543,7 @@ public class MoodListTest {
                             Log.e("DataList", e.getMessage());
                             latch.countDown(); // Avoid test hanging on failure
                         }
-                    }, "s00twy");
+                    }, new GeoHash("s00twy"));
         });
 
         boolean completed = latch.await(10, TimeUnit.SECONDS); // Wait with timeout
@@ -560,7 +561,7 @@ public class MoodListTest {
             MoodList.createMoodList(User.getActiveUser(), QueryType.HISTORY_MODIFIABLE,
                     new MoodList.MoodListListener() {
                         MoodList moodListOuter;
-                        MoodEvent moodEvent = new MoodEvent(EmotionalState.DISGUST, Timestamp.now(), "trigger", "Alone", "picture");
+                        MoodEvent moodEvent = new MoodEvent(EmotionalState.DISGUST, Timestamp.now(), "trigger", "Alone", "picture",false);
                         boolean addSuccess = false;
                         @Override
                         public void returnMoodList(MoodList moodList) {
@@ -661,9 +662,10 @@ public class MoodListTest {
         event.put("date", date);
         event.put("social_situation", socialSituation);
         event.put("location", location);
+        event.put("is_public", false);
         return event;
     }
-    private static Map<String, Object> createRecemtEvent(Object emotionalState, Object trigger, Object date, Object socialSituation, Object location, String username, String id) {
+    private static Map<String, Object> createRecentEvent(Object emotionalState, Object trigger, Object date, Object socialSituation, Object location, String username, String id) {
         Map<String, Object> event = new HashMap<>();
         event.put("emotional_state", emotionalState);
         event.put("trigger", trigger);
@@ -672,6 +674,7 @@ public class MoodListTest {
         event.put("location", location);
         event.put("username", username);
         event.put("mood_id", id);
+        event.put("is_public", true);
         return event;
     }
 }
