@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp">
+
+    <ImageView
+        android:id="@+id/user_icon"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:contentDescription="User Profile"
+        android:src="@drawable/img_profile"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textview_username"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="8dp"
+        android:fontFamily="@font/source_sans_pro_semibold"
+        android:textColor="@color/light"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toTopOf="@+id/textview_name"
+        app:layout_constraintEnd_toStartOf="@+id/button_accept"
+        app:layout_constraintStart_toEndOf="@+id/user_icon"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:text="@username" />
+
+    <TextView
+        android:id="@+id/textview_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="8dp"
+        android:fontFamily="@font/source_sans_pro"
+        android:textColor="@color/light"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/button_accept"
+        app:layout_constraintStart_toEndOf="@+id/user_icon"
+        app:layout_constraintTop_toBottomOf="@+id/textview_username"
+        tools:text="Display Name" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button_accept"
+        style="@style/Widget.Material3.Button.TonalButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:minWidth="0dp"
+        android:minHeight="36dp"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:text="Accept"
+        android:textColor="@color/dark"
+        android:textSize="14sp"
+        app:backgroundTint="@color/confusion"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/button_decline"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button_decline"
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minWidth="0dp"
+        android:minHeight="36dp"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:text="Decline"
+        android:textColor="@color/light"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:strokeColor="@color/dark" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
