@@ -105,7 +105,7 @@ public class FeedFragment extends Fragment {
         binding.recyclerViewMoodHistory.setAdapter(adapter);
 
         // Search FAB
-        binding.fabAddMood.setOnClickListener(v -> {
+        binding.fabUserSearch.setOnClickListener(v -> {
             findNavController(view).navigate(R.id.navigation_search);
         });
 
