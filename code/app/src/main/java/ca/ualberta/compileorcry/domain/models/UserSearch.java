@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
  *
  * <p>Example usage: Searching for users with "john" in their username would return "john_doe", "ajohnson", etc.
  *
- * @throws InterruptedException If the thread is interrupted while waiting for the database operation to complete.
+ *  InterruptedException If the thread is interrupted while waiting for the database operation to complete.
  */
 public class UserSearch {
     /**
