@@ -55,6 +55,9 @@ public class MoodInfoDialogFragment extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+        String currentUser = User.getActiveUser().getUsername();
+        String moodOwner = "";
+        String feedType = null;
 
 
         String feedType = null;
@@ -64,6 +67,8 @@ public class MoodInfoDialogFragment extends DialogFragment {
         binding.moodinfoSituationAutoComplete.setDropDownBackgroundResource(R.color.dark);
 
         Bundle args = getArguments();
+
+
         if (args != null) {
             Log.d("MoodInfoDialogFragment", "Arguments: " + args);
             String moodId = args.getString("moodId", "Unknown");
@@ -158,7 +163,8 @@ public class MoodInfoDialogFragment extends DialogFragment {
                     }
 
                     @Override
-                    public void onError(Exception e) {}
+                    public void onError(Exception e) {
+                    }
 
                     @Override
                     public void updatedMoodList() {
