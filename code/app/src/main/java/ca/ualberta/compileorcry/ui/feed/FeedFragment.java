@@ -197,7 +197,6 @@ public class FeedFragment extends Fragment {
             args.putString("emotionalState", clickedEvent.getEmotionalState().getDescription());
             args.putString("trigger", clickedEvent.getTrigger());
             args.putString("socialSituation", clickedEvent.getSocialSituation());
-            args.putString("username", clickedEvent.getUsername());
             args.putString("feedType", feedType);
 
 

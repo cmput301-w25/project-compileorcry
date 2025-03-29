@@ -70,7 +70,6 @@ public class MoodInfoDialogFragment extends DialogFragment {
             int backgroundColor = state.getColor(requireContext());
             String trigger = args.getString("trigger", "No Trigger");
             String socialSituation = args.getString("socialSituation", "No Situation");
-            moodOwner = args.getString("username", "None");
             feedType = args.getString("feedType", "Feed");
 
 
