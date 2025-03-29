@@ -71,7 +71,7 @@ public class UserSearchFragment extends Fragment {
 
         // Show default empty state
         showEmptyState(R.drawable.ic_search_big,
-                "Search your friends' username to view their profile!");
+                "Search your friend's username to view their profile!");
 
         // Watch for user input to update icon state
         binding.searchInput.addTextChangedListener(new TextWatcher() {
