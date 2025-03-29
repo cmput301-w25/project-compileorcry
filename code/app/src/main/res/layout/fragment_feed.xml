@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.feed.FeedFragment">
+    tools:context=".ui.feed.FeedFragment"
+    android:background="@color/dark">
 
     <ImageView
         android:id="@+id/imageView"
