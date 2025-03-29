@@ -345,6 +345,7 @@ public class MoodEvent implements Serializable {
             throw new RuntimeException("username and moodEvent username are null");
         }
         if(!commentsLoaded){
+            comments.clear();
             //Executor prevents deadlock due to the firestore operations callbacks hapening on main
             ExecutorService executor = Executors.newSingleThreadExecutor();
             //Runs the firestore stuff

@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import ca.ualberta.compileorcry.domain.models.User;
 import ca.ualberta.compileorcry.features.mood.model.Comment;
 import ca.ualberta.compileorcry.features.mood.model.MoodEvent;
 
@@ -38,18 +39,21 @@ public class CommentViewModel extends ViewModel {
             Log.e("CommentViewModel", "MoodEvent is null, cannot add comment");
             return;
         }
+        CommentViewModel ptr = this;
 
         moodEvent.addComment(comment, new MoodEvent.AddCommentCallback() {
+
             @Override
             public void onSuccess() {
                 Log.d("CommentViewModel", "Comment added successfully");
+                ptr.reloadComments(User.getActiveUser().getUsername());
             }
 
             @Override
             public void onFailure(Exception e) {
                 Log.e("CommentViewModel", "Failed to add comment", e);
             }
-        }, "TestUser"); // Pass the correct username here
+        }, User.getActiveUser().getUsername()); // Pass the correct username here
     }
 
     public void loadComments(String username) {

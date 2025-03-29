@@ -12,6 +12,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
@@ -87,11 +88,18 @@ public class CommentFragment extends Fragment {
         recyclerViewComments.setAdapter(commentAdapter);
 
         // Observe commentsLiveData
-        commentViewModel.getCommentsLiveData().observe(getViewLifecycleOwner(), comments -> {
-            if (comments != null) {
-                commentAdapter.submitList(comments);
-            }
-        });
+        commentViewModel.getCommentsLiveData().observe(getViewLifecycleOwner(),
+                new Observer<List<Comment>>() {
+                    @Override
+                    public void onChanged(List<Comment> comments) {
+                        if (comments != null) {
+                            if(commentAdapter.getCurrentList().isEmpty()){
+                                commentAdapter.submitList(comments);
+                            }
+                            commentAdapter.notifyDataSetChanged();
+                        }
+                    }
+                });
 
         // Load comments
         // commentViewModel.loadComments(username);
