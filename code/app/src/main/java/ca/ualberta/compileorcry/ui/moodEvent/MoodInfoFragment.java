@@ -1,7 +1,9 @@
 package ca.ualberta.compileorcry.ui.moodEvent;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,13 +16,18 @@ import androidx.fragment.app.Fragment;
 import java.util.HashMap;
 import java.util.Map;
 
+import ca.ualberta.compileorcry.R;
 import ca.ualberta.compileorcry.databinding.FragmentMoodInfoBinding;
 import ca.ualberta.compileorcry.domain.models.User;
 import ca.ualberta.compileorcry.features.mood.data.MoodList;
 import ca.ualberta.compileorcry.features.mood.data.QueryType;
 import ca.ualberta.compileorcry.features.mood.model.EmotionalState;
 import ca.ualberta.compileorcry.features.mood.model.MoodEvent;
+import ca.ualberta.compileorcry.ui.feed.CommentFragment;
 
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -30,8 +37,28 @@ public class MoodInfoFragment extends Fragment {
     private FragmentMoodInfoBinding binding;
     private MoodEvent moodEvent;
     private MoodList moodList;
+    private String moodEventId;
 
     public MoodInfoFragment() {}
+
+    public static MoodInfoFragment newInstance(String moodEventId) {
+        MoodInfoFragment fragment = new MoodInfoFragment();
+        Bundle args = new Bundle();
+        args.putString("moodEventId", moodEventId);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        if (getArguments() != null) {
+            moodEventId = getArguments().getString("moodEventId");
+            Log.d("MoodInfoFragment", "Received moodEventId: " + moodEventId);
+        }
+    }
 
     @Override
     public View onCreateView(
@@ -52,67 +79,16 @@ public class MoodInfoFragment extends Fragment {
     ){
         super.onViewCreated(view, savedInstanceState);
 
-        String moodEventId = null;
-
 
         // Retrieve moodEventId from bundle
         if (getArguments() != null) {
             moodEventId = getArguments().getString("moodEventId");
         }
-        /*
-        if (moodEventId != null) {
-            // Fetch MoodList and get the specific mood event
-            MoodList.createMoodList(
-                    User.getActiveUser(),
-                    QueryType.HISTORY_MODIFIABLE,
-                    initializedMoodList -> {
-                        moodList = initializedMoodList;
-
-                        for (MoodEvent event : moodList.getMoodEvents()) {
-                            if (event.getId().equals(moodEventId)) {
-                                moodEvent = event;
-                                populateUI();
-                                break;
-                            }
-                        }
-                    },
-                    null
-            );
-        }*/
 
         // Add button listeners
         binding.saveButton.setOnClickListener(v -> editMoodEvent());
         binding.deleteButton.setOnClickListener(v -> deleteMoodEvent());
-
-
-    }
-
-
-    //TODO add the button listeners
-    private void populateUI() {
-        if (moodEvent == null) return;
-
-        // Set the emotional state text
-        binding.moodinfoStateText.setText(moodEvent.getEmotionalState().getDescription());
-
-        // Set the description
-        binding.moodinfoDescriptionText.setText(moodEvent.getTrigger());
-
-        // Set the trigger (if available)
-        if (moodEvent.getTrigger() != null) {
-            binding.moodinfoTriggerText.setText(moodEvent.getTrigger());
-        } else {
-            binding.moodinfoTriggerText.setText(""); // Clear if null
-        }
-
-        // Set the social situation (if available)
-        if (moodEvent.getSocialSituation() != null) {
-            binding.moodinfoSituationText.setText(moodEvent.getSocialSituation());
-        } else {
-            binding.moodinfoSituationText.setText(""); // Clear if null
-        }
-
-
+        binding.buttonViewComments.setOnClickListener(v -> viewComments());
     }
 
     private void editMoodEvent() {
@@ -168,6 +144,18 @@ public class MoodInfoFragment extends Fragment {
         binding = null; // recommended best practice to avoid memory leaks
     }
 
+    private void viewComments() {
+        Log.d("MoodInfoFragment", "viewcomments button clicked");
+        if (moodEventId != null) {
+            Log.d("MoodInfoFragment", "MoodEventID not null");
+            Bundle bundle = new Bundle();
+            bundle.putString("moodEventId", moodEventId);
 
+            NavController navController = Navigation.findNavController(requireActivity(), R.id.navigation_feed);
+            navController.navigate(R.id.commentFragment, bundle);
 
+        } else {
+            Toast.makeText(getContext(), "Error: Mood event ID is missing.", Toast.LENGTH_SHORT).show();
+        }
+    }
 }

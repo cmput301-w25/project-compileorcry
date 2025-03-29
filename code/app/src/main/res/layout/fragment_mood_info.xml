@@ -217,6 +217,16 @@
                     android:textColor="@color/light"/>
             </LinearLayout>
 
+            <Button
+                android:id="@+id/buttonViewComments"
+                style="@style/Widget.Material3.Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/dark"
+                android:textColor="@color/light"
+                android:text="View Comments"
+                 />
+
         </LinearLayout>
 
     </androidx.cardview.widget.CardView>

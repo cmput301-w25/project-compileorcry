@@ -2,6 +2,7 @@ package ca.ualberta.compileorcry.features.mood.model;
 
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.core.GeoHash;
+import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.Timestamp;
@@ -162,9 +163,33 @@ public class MoodEvent {
      *
      * @return The username, or null if not set
      */
+//    public String getUsername() {
+//        return username;
+//    }
     public String getUsername() {
-        return username;
+        if (this.username != null) {
+            return this.username; // If already set, return it
+        }
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        Task<QuerySnapshot> userTask = db.collection("users").get(); // Get all users
+
+        try {
+            QuerySnapshot userSnapshot = Tasks.await(userTask);
+            for (DocumentSnapshot userDoc : userSnapshot.getDocuments()) {
+                String username = userDoc.getId(); // Username is stored as the document ID
+                DocumentReference moodRef = userDoc.getReference().collection("mood_events").document(this.id);
+                if (moodRef.get().isSuccessful()) { // Check if the mood event exists under this user
+                    this.username = username; // Store it so we don't query again
+                    return username;
+                }
+            }
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException("Error fetching username from Firestore", e);
+        }
+        throw new RuntimeException("MoodEvent not found under any user!");
     }
+
 
     /**
      * Returns the location where this mood event occurred.
@@ -332,9 +357,10 @@ public class MoodEvent {
      * @throws RuntimeException
      */
     public ArrayList<Comment> getComments(String moodUsername) throws InterruptedException {
-        if(!this.isPublic){
-            throw new RuntimeException("private moodEvents cannot have comments");
-        }
+        // TODO: UNCOMMENT BEFORE PUSHING
+//        if(!this.isPublic){
+//            throw new RuntimeException("private moodEvents cannot have comments");
+//        }
         if(!(this.username == null)){
             moodUsername = this.username;
         }
@@ -376,7 +402,7 @@ public class MoodEvent {
                 return comments;
             }
         }
-        return comments;
+        return comments != null ? comments : new ArrayList<>();
     }
 
     /**

@@ -7,18 +7,35 @@
     android:clipToOutline="true"
     android:gravity="center_vertical"
     android:orientation="vertical"
+    android:color="@color/dark"
     android:padding="8dp">
 
 
-        <TextView
-            android:id="@+id/textview_username"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/open_sans_bold"
-            android:text="@string/username"
-            android:textColor="@color/dark"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/textview_username"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/open_sans_bold"
+                    android:text="@string/username"
+                    android:textColor="@color/dark"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/textview_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/source_sans_pro"
+                    android:text="time DD/MM/YYYY"
+                    android:textAlignment="textEnd"
+                    android:textColor="@color/material_dynamic_neutral60" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/textview_comment"

@@ -107,4 +107,17 @@
             android:textColor="@color/light"
             android:text="@string/button_save_mood" />
     </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/buttonViewComments"
+        style="@style/Widget.Material3.Button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/dark"
+        android:text="View Comments"
+        android:textColor="@color/light"
+        app:layout_constraintTop_toBottomOf="@id/button_bar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

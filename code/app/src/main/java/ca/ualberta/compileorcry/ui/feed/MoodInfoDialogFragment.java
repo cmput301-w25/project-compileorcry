@@ -7,11 +7,15 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -68,6 +72,22 @@ public class MoodInfoDialogFragment extends DialogFragment {
 
             moodEvent = new MoodEvent(moodId);
         }
+
+        binding.buttonViewComments.setOnClickListener(v -> {
+            Log.d("MoodInfoFragment", "viewcomments button clicked");
+            if (moodEvent != null) {
+                CommentFragment commentFragment = new CommentFragment();
+                Bundle bundle = new Bundle();
+                bundle.putString("moodEventId", moodEvent.getId());
+                commentFragment.setArguments(bundle);
+
+                NavController navController = NavHostFragment.findNavController(
+                        requireActivity().getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_activity_main)
+                );
+                dismiss();
+                navController.navigate(R.id.commentFragment, bundle);
+            }
+        });
 
         // Save button logic
         binding.saveButton.setOnClickListener(v -> {
