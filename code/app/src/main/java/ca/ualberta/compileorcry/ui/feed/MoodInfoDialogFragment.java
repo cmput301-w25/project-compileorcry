@@ -2,11 +2,13 @@ package ca.ualberta.compileorcry.ui.feed;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -42,19 +44,31 @@ public class MoodInfoDialogFragment extends DialogFragment {
      * then dismisses this dialog.
      */
     private void notifyParentAndDismiss() {
-        getParentFragmentManager().setFragmentResult("moodEventUpdated", new Bundle());
+        if (isAdded()) {
+            getParentFragmentManager().setFragmentResult("moodEventUpdated", new Bundle());
+            Log.d("MoodInfoDialogFragment", "Sending result to parent before dismiss");
+
+        }
         dismiss();
     }
 
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+        String currentUser = User.getActiveUser().getUsername();
+        String moodOwner = "";
+        String feedType = null;
+
+
+
 
         binding = FragmentMoodInfoDialogBinding.inflate(getLayoutInflater());
         binding.moodinfoStateAutoComplete.setDropDownBackgroundResource(R.color.dark);
         binding.moodinfoSituationAutoComplete.setDropDownBackgroundResource(R.color.dark);
 
         Bundle args = getArguments();
+
+
         if (args != null) {
             Log.d("MoodInfoDialogFragment", "Arguments: " + args);
             String moodId = args.getString("moodId", "Unknown");
@@ -63,7 +77,7 @@ public class MoodInfoDialogFragment extends DialogFragment {
             int backgroundColor = state.getColor(requireContext());
             String trigger = args.getString("trigger", "No Trigger");
             String socialSituation = args.getString("socialSituation", "No Situation");
-
+            feedType = args.getString("feedType", "Feed");
             // Handle image loading
             String imagePath = args.getString("imagePath");
             if (imagePath != null && !imagePath.isEmpty()) {
@@ -79,7 +93,24 @@ public class MoodInfoDialogFragment extends DialogFragment {
             binding.moodinfoTriggerText.setText(trigger);
             binding.getRoot().setBackgroundColor(backgroundColor);
             binding.saveButton.setTextColor(backgroundColor);
+            if (!"History".equals(feedType)) {
+                // Hide editable components
+                binding.moodinfoStateLayout.setVisibility(View.GONE);
+                binding.moodinfoTriggerLayout.setVisibility(View.GONE);
+                binding.moodinfoSituationLayout.setVisibility(View.GONE);
+                binding.buttonBar.setVisibility(View.GONE);
+                binding.moodinfoEditText.setText("View Mood Event");
 
+                // Show read-only layouts
+                binding.moodinfoStateReadonlyLayout.setVisibility(View.VISIBLE);
+                binding.moodinfoTriggerReadonlyLayout.setVisibility(View.VISIBLE);
+                binding.moodinfoSituationReadonlyLayout.setVisibility(View.VISIBLE);
+
+                // Set text values
+                binding.moodinfoStateText.setText(emotionalState);
+                binding.moodinfoTriggerDisplay.setText(trigger);
+                binding.moodinfoSituationText.setText(socialSituation);
+            }
             moodEvent = new MoodEvent(moodId);
             moodEvent.setEmotionalState(state);
         }
@@ -95,8 +126,9 @@ public class MoodInfoDialogFragment extends DialogFragment {
                 MoodList.createMoodList(User.getActiveUser(), QueryType.HISTORY_MODIFIABLE, new MoodList.MoodListListener() {
                     @Override
                     public void returnMoodList(MoodList moodList) {
-                        if (moodList.containsMoodEvent( moodEvent)) {
+                        if (moodList.containsMoodEvent(moodEvent)) {
                             moodList.editMoodEvent(moodEvent, changes);
+
                             notifyParentAndDismiss();
                         } else {
 
@@ -110,7 +142,9 @@ public class MoodInfoDialogFragment extends DialogFragment {
                     }
 
                     @Override
-                    public void updatedMoodList() {}
+                    public void updatedMoodList() {
+
+                    }
                 }, null);
             }
         });
@@ -123,13 +157,19 @@ public class MoodInfoDialogFragment extends DialogFragment {
                     public void returnMoodList(MoodList moodList) {
                         moodList.deleteMoodEvent(moodEvent);
                         notifyParentAndDismiss();
+                        Toast.makeText(requireContext(), "Mood deleted successfully", Toast.LENGTH_SHORT).show();
+
+
                     }
 
                     @Override
-                    public void onError(Exception e) {}
+                    public void onError(Exception e) {
+                    }
 
                     @Override
-                    public void updatedMoodList() {}
+                    public void updatedMoodList() {
+
+                    }
                 }, null);
             }
         });
