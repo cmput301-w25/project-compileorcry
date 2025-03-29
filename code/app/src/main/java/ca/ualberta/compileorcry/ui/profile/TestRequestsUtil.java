@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -25,7 +26,7 @@ public class TestRequestsUtil {
     /**
      * Creates dummy follow requests from test users to the active user.
      * This method adds random users from a predefined list to the active user's
-     * follow_request collection.
+     * follow_requests collection.
      *
      * @param context The context to show Toast messages
      * @param count Number of dummy requests to create (max 5)
@@ -85,11 +86,15 @@ public class TestRequestsUtil {
         for (int i = 0; i < count; i++) {
             String requestUser = testUsers.get(indices.get(i));
 
-            // Create empty document in follow_request collection
+            // Create document with proper structure in follow_requests collection
+            Map<String, Object> requestData = new HashMap<>();
+            requestData.put("username", requestUser);
+            requestData.put("date", Timestamp.now());
+
             activeUser.getUserDocRef()
-                    .collection("follow_request")
+                    .collection("follow_requests")  // Using plural form to match FollowHelper
                     .document(requestUser)
-                    .set(new HashMap<>())
+                    .set(requestData)
                     .addOnSuccessListener(aVoid ->
                             Log.d(TAG, "Follow request added from: " + requestUser))
                     .addOnFailureListener(e ->
@@ -113,7 +118,7 @@ public class TestRequestsUtil {
             return;
         }
 
-        activeUser.getUserDocRef().collection("follow_request")
+        activeUser.getUserDocRef().collection("follow_requests")  // Using plural form
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
