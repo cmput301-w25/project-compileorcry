@@ -51,5 +51,8 @@
     <string name="location">Location</string>
     <string name="current_location">Current location</string>
     <string name="search_for_users">Search for users...</string>
+    <string name="save">SAVE</string>
+    <string name="cancel">Cancel</string>
+    <string name="edit_your_name">Edit Your Name</string>
 
 </resources>
