@@ -67,7 +67,7 @@ public class ChangeNameDialog extends DialogFragment {
             String newName = editNameText.getText().toString().trim();
             if (!newName.isEmpty()) {
                 // This line needs to be corrected - we need to use the updateName method
-                User.getActiveUser().updateName(newName);
+                User.getActiveUser().setName(newName);
                 dismiss();
             } else {
                 editNameText.setError("Name cannot be empty");
