@@ -60,7 +60,7 @@ public class MoodInfoDialogFragment extends DialogFragment {
         String feedType = null;
 
 
-        String feedType = null;
+
 
         binding = FragmentMoodInfoDialogBinding.inflate(getLayoutInflater());
         binding.moodinfoStateAutoComplete.setDropDownBackgroundResource(R.color.dark);
