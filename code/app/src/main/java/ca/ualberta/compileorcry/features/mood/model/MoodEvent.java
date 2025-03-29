@@ -11,6 +11,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,7 +43,7 @@ import java.util.concurrent.TimeUnit;
  * - Picture data handling is not fully implemented (marked with TODO)
  * - Location data handling needs further implementation
  */
-public class MoodEvent {
+public class MoodEvent implements Serializable {
     private String id;
     public void setUsername(String username) {
         this.username = username;
@@ -163,33 +164,9 @@ public class MoodEvent {
      *
      * @return The username, or null if not set
      */
-//    public String getUsername() {
-//        return username;
-//    }
     public String getUsername() {
-        if (this.username != null) {
-            return this.username; // If already set, return it
-        }
-
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        Task<QuerySnapshot> userTask = db.collection("users").get(); // Get all users
-
-        try {
-            QuerySnapshot userSnapshot = Tasks.await(userTask);
-            for (DocumentSnapshot userDoc : userSnapshot.getDocuments()) {
-                String username = userDoc.getId(); // Username is stored as the document ID
-                DocumentReference moodRef = userDoc.getReference().collection("mood_events").document(this.id);
-                if (moodRef.get().isSuccessful()) { // Check if the mood event exists under this user
-                    this.username = username; // Store it so we don't query again
-                    return username;
-                }
-            }
-        } catch (ExecutionException | InterruptedException e) {
-            throw new RuntimeException("Error fetching username from Firestore", e);
-        }
-        throw new RuntimeException("MoodEvent not found under any user!");
+        return username;
     }
-
 
     /**
      * Returns the location where this mood event occurred.
@@ -402,7 +379,7 @@ public class MoodEvent {
                 return comments;
             }
         }
-        return comments != null ? comments : new ArrayList<>();
+        return comments;
     }
 
     /**
@@ -423,9 +400,9 @@ public class MoodEvent {
      * @param username  optional username for if the moodEvent has a null username
      */
     public void addComment(Comment toAdd, AddCommentCallback callback, String username){
-        if(!this.isPublic){
-            throw new RuntimeException("private moodEvents cannot have comments");
-        }
+//        if(!this.isPublic){
+//            throw new RuntimeException("private moodEvents cannot have comments");
+//        }
         if(!this.containsComment(toAdd)){
             FirebaseFirestore db = FirebaseFirestore.getInstance();
             if(!(this.username == null)){

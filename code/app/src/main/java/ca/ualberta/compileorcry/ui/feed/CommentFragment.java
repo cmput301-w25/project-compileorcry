@@ -49,10 +49,10 @@ public class CommentFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static CommentFragment newInstance(String moodEventId) {
+    public static CommentFragment newInstance(MoodEvent moodEvent) {
         CommentFragment fragment = new CommentFragment();
         Bundle args = new Bundle();
-        args.putString("moodEventId", moodEventId);
+        args.putSerializable("moodEvent", moodEvent);
         fragment.setArguments(args);
         return fragment;
     }
@@ -112,14 +112,16 @@ public class CommentFragment extends Fragment {
         Log.d("CommentFragment", "onViewCreated called");
 
         if (getArguments() != null) {
-            String moodEventId = getArguments().getString("moodEventId");
-            Log.d("CommentFragment", "Received moodEventId: " + moodEventId);
+            // moodEventId = getArguments().getParcelable("moodEvent");
+            //Log.d("CommentFragment", "Received moodEventId: " + moodEventId);
         }else {
             Log.e("CommentFragment", "getArguments() is NULL!");
         }
         // need to pass username of mood poster to fetch this mood's comments
-        moodEvent = new MoodEvent(moodEventId);
-        commentViewModel.loadComments(moodEvent.getUsername());
+          // moodEvent = new MoodEvent(moodEventId);
+//        MyParcelableObject obj = getArguments().getParcelable("key");
+//        moodEvent = getArguments().getParcelable("moodEvent");
+        commentViewModel.loadComments(username);
     }
 
     private void goBack() {
@@ -132,11 +134,12 @@ public class CommentFragment extends Fragment {
         if (text.isEmpty() || moodEventId == null) return;
 
         // need to pass in username of commenter to make new comment
-        Comment newComment = new Comment(new MoodEvent(moodEventId), username, "", Timestamp.now(), text);
+        Comment newComment = new Comment(commentViewModel.getMoodEvent(), username, "", Timestamp.now(), text);
 
         commentViewModel.addComment(newComment); // Use ViewModel to handle it
 
         editTextComment.setText(""); // Clear input field
+        commentViewModel.reloadComments(username);
     }
 
 

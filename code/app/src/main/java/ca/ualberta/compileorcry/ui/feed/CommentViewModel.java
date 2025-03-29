@@ -25,6 +25,9 @@ public class CommentViewModel extends ViewModel {
     public CommentViewModel(String moodId) {
         this.moodEvent = new MoodEvent(moodId);
     }
+    public MoodEvent getMoodEvent() {
+        return moodEvent;
+    }
 
     public LiveData<List<Comment>> getCommentsLiveData() {
         return commentsLiveData;
