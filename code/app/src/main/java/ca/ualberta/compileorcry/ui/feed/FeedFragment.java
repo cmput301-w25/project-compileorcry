@@ -74,6 +74,11 @@ public class FeedFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        getParentFragmentManager().setFragmentResultListener("moodEventUpdated", this, (requestKey, result) -> {
+            Log.d("FeedFragment", "Mood event was updated, reloading feed...");
+            adapter.notifyDataSetChanged();
+            loadFeed();
+        });
         super.onViewCreated(view, savedInstanceState);
         setupUI(view);
         setupViewModel();
@@ -149,15 +154,17 @@ public class FeedFragment extends Fragment {
             Log.e("FeedFragment", "Clicked MoodEvent is null!");
             return;
         }
-        
+        String feedType = (String) binding.feedSpinner.getSelectedItem();  // "History" or "Following"
+
         Log.d("FeedFragment", "Mood Event Clicked: " + clickedEvent.getId());
-        
+
         Bundle args = new Bundle();
         args.putString("moodId", clickedEvent.getId());
         args.putString("emotionalState", clickedEvent.getEmotionalState().getDescription());
         args.putString("trigger", clickedEvent.getTrigger());
         args.putString("socialSituation", clickedEvent.getSocialSituation());
         args.putString("imagePath", clickedEvent.getPicture());
+        args.putString("feedType", feedType);
 
         MoodInfoDialogFragment dialog = new MoodInfoDialogFragment();
         dialog.setArguments(args);
