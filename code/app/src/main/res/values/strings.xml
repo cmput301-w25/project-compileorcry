@@ -42,4 +42,16 @@
     <string name="filter_prompt">Filter</string>
     <string name="add_friends">Add Friends</string>
     <string name="view_map">View Map</string>
+    <string name="exit_map">Exit Map</string>
+    <string name="edit_mood">Edit Mood Event</string>
+    <string name="view_mood">View Mood Event</string>
+    <string name="button_delete">Delete</string>
+    <string name="text_private">Private</string>
+    <string name="text_formatted_public">"Public  "</string>
+    <string name="date">Date</string>
+    <string name="location">Location</string>
+    <string name="current_location">Current location</string>
+    <string name="save">SAVE</string>
+    <string name="cancel">Cancel</string>
+    <string name="edit_your_name">Edit Your Name</string>
 </resources>

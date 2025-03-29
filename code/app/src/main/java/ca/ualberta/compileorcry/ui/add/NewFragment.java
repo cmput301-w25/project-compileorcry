@@ -2,8 +2,10 @@ package ca.ualberta.compileorcry.ui.add;
 
 import static android.app.Activity.RESULT_OK;
 
+import android.Manifest;
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -20,9 +22,21 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
+import com.firebase.geofire.core.GeoHash;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.model.RectangularBounds;
+import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.widget.AutocompleteActivity;
+import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.Timestamp;
@@ -31,11 +45,14 @@ import com.google.firebase.storage.StorageReference;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
+import ca.ualberta.compileorcry.BuildConfig;
 import ca.ualberta.compileorcry.R;
 import ca.ualberta.compileorcry.domain.models.User;
 import ca.ualberta.compileorcry.features.mood.data.MoodList;
@@ -57,9 +74,12 @@ import ca.ualberta.compileorcry.features.mood.model.MoodEvent;
 public class NewFragment extends Fragment {
 
     private static final long MAX_FILE_SIZE_BYTES = 65536;
+    private MaterialSwitch visibilitySwitch;
     private AutoCompleteTextView emotionalStateAutoCompleteText;
     private TextInputEditText dateEditText;
     private TextInputEditText triggerEditText;
+    private TextInputEditText locationEditText;
+    private MaterialButton myLocationButton;
     private AutoCompleteTextView  socialSituationAutoCompleteText;
     private MaterialButton uploadImageButton;
     private TextView imagePathText;
@@ -69,10 +89,11 @@ public class NewFragment extends Fragment {
     private TextInputLayout dateLayout;
     private Uri imagePath;
     private String uploadedImagePath;
+    private GeoHash location;
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
     // Const for image upload
-
     private static final int PICK_IMAGE_REQUEST = 71;
+    private static final int AUTOCOMPLETE_REQUEST_CODE = 1;
 
 
     /**
@@ -112,9 +133,12 @@ public class NewFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         // Initialize UI components
+        visibilitySwitch = view.findViewById(R.id.visibility_switch);
         emotionalStateAutoCompleteText = view.findViewById(R.id.new_event_emotional_state_autocomplete);
         dateEditText = view.findViewById(R.id.new_event_date_text);
         triggerEditText = view.findViewById(R.id.new_event_trigger_text);
+        locationEditText = view.findViewById(R.id.new_event_location_text);
+        myLocationButton = view.findViewById(R.id.my_location_button);
         socialSituationAutoCompleteText = view.findViewById(R.id.new_event_social_situation_autocomplete);
         uploadImageButton = view.findViewById(R.id.image_upload_button);
         imagePathText = view.findViewById(R.id.image_path_text);
@@ -122,8 +146,8 @@ public class NewFragment extends Fragment {
         createButton = view.findViewById(R.id.create_button);
 
         // Get AutoComplete references
-        emotionalStateLayout = getView().findViewById(R.id.new_event_emotional_state_layout);
-        dateLayout = getView().findViewById(R.id.new_event_date_layout);
+        emotionalStateLayout = view.findViewById(R.id.new_event_emotional_state_layout);
+        dateLayout = view.findViewById(R.id.new_event_date_layout);
 
         // Initialize emotional state dropdown
         setupEmotionalStateDropdown();
@@ -134,6 +158,46 @@ public class NewFragment extends Fragment {
         // Handle date picker dialog
         dateEditText.setOnClickListener(v -> showDatePickerDialog());
 
+        // Initialize Google Places API
+        if (!Places.isInitialized()) {
+            Places.initializeWithNewPlacesApiEnabled(requireContext(), BuildConfig.MAPS_API_KEY);
+        }
+
+        // Handle location autocomplete
+        locationEditText.setOnClickListener(v -> {
+            Intent intent = new Autocomplete.IntentBuilder(
+                    AutocompleteActivityMode.FULLSCREEN,
+                    Arrays.asList(Place.Field.ADDRESS, Place.Field.LAT_LNG))
+                    .setLocationBias(RectangularBounds.newInstance(
+                            new LatLng(50.7, -114.6),
+                            new LatLng(53.8, -113.3)))
+                    .setCountries(List.of("CA"))
+                    .build(requireContext());
+            startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
+        });
+
+        myLocationButton.setOnClickListener(v -> {
+            if (ActivityCompat.checkSelfPermission(requireContext(),
+                    Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+
+                LocationServices.getFusedLocationProviderClient(requireActivity())
+                        .getLastLocation()
+                        .addOnSuccessListener(loc -> {
+                            if (loc != null) {
+                                locationEditText.setText(R.string.current_location);
+                                this.location = new GeoHash(loc.getLatitude(), loc.getLongitude());
+                            } else {
+                                Toast.makeText(getContext(), "Couldn't get location", Toast.LENGTH_SHORT).show();
+                                locationEditText.setText("");
+                                locationEditText.clearFocus();
+                            }
+                        });
+            } else {
+                // Request permission if not granted
+                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1001);
+            }
+        });
+
         // Handle image upload (TODO)
         uploadImageButton.setOnClickListener(v -> {
             Intent intent = new Intent();
@@ -141,7 +205,6 @@ public class NewFragment extends Fragment {
             intent.setAction(Intent.ACTION_GET_CONTENT);
             startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
         });
-
 
         // Handle back button
         backButton.setOnClickListener(v ->
@@ -182,6 +245,7 @@ public class NewFragment extends Fragment {
     private void submitNewEvent() {
         boolean isValid = true;
 
+        Boolean isPublic = visibilitySwitch.isChecked();
         String emotionalState = emotionalStateAutoCompleteText.getText().toString().trim();
 
         // Parse date
@@ -211,8 +275,9 @@ public class NewFragment extends Fragment {
 
         Timestamp timestamp = new Timestamp(date);
 
+        // TODO: Pass in visibility boolean during event creation. isPublic is already defined above.
         MoodEvent event = new MoodEvent(EmotionalState.valueOf(emotionalState.toUpperCase()),
-                timestamp, trigger, socialSituation, uploadedImagePath);
+                timestamp, trigger, socialSituation, uploadedImagePath, isPublic, location);
 
         MoodList.createMoodList(User.getActiveUser(), QueryType.HISTORY_MODIFIABLE,
                 new MoodList.MoodListListener() {
@@ -294,6 +359,10 @@ public class NewFragment extends Fragment {
         triggerEditText.setText("");
         triggerEditText.clearFocus();
 
+        // Clear the location text field
+        locationEditText.setText("");
+        locationEditText.clearFocus();
+
         // Clear the social situation dropdown
         socialSituationAutoCompleteText.setText("", false);
         socialSituationAutoCompleteText.clearFocus();
@@ -311,6 +380,24 @@ public class NewFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                Place place = Autocomplete.getPlaceFromIntent(data);
+                locationEditText.setText(place.getAddress());
+                if (place.getLatLng() != null) {
+                    LatLng latLng = place.getLatLng();
+                    location = new GeoHash(latLng.latitude, latLng.longitude);
+                }
+            } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
+                Toast.makeText(getContext(), "Invalid location.",
+                        Toast.LENGTH_SHORT).show();
+                location = null;
+                locationEditText.setText("");
+                locationEditText.clearFocus();
+            }
+        }
+
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK
                 && data != null && data.getData() != null) {
             imagePath = data.getData();
@@ -325,7 +412,19 @@ public class NewFragment extends Fragment {
                         Toast.LENGTH_LONG).show();
                 imagePath = null;
                 uploadedImagePath = null;
+                imagePathText.setText("");
+                imagePathText.setVisibility(View.GONE);
             }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        if (requestCode == 1001 && grantResults.length > 0
+                && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            // Permission granted - trigger location fetch again
+            myLocationButton.performClick();
         }
     }
 
@@ -340,12 +439,10 @@ public class NewFragment extends Fragment {
                     .addOnSuccessListener(taskSnapshot -> {
                         Toast.makeText(getContext(), "Image Uploaded", Toast.LENGTH_SHORT).show();
 
-                        // Save the URL
-                        ref.getDownloadUrl().addOnSuccessListener(uri -> {
-                            uploadedImagePath = uri.toString();
-                        });
+                        // Save image path
+                        uploadedImagePath = ref.getPath();
                     })
-                    .addOnFailureListener(e -> Toast.makeText(getContext() , "Image Upload Failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                    .addOnFailureListener(e -> Toast.makeText(getContext(), "Image Upload Failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
         }
     }
 

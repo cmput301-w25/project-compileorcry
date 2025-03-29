@@ -4,6 +4,7 @@ import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -31,6 +32,12 @@ import ca.ualberta.compileorcry.features.mood.model.MoodEvent;
 public class MoodEventAdapter extends RecyclerView.Adapter<MoodEventAdapter.ViewHolder> {
     /** The current list of mood events to display */
     private List<MoodEvent> moodEvents;
+    private OnItemClickListener clickListener;
+    private boolean isFollowing = false;
+
+    public interface OnItemClickListener {
+        void onItemClick(MoodEvent moodEvent);
+    }
 
     /**
      * Constructs a new adapter with the given list of mood events.
@@ -38,8 +45,9 @@ public class MoodEventAdapter extends RecyclerView.Adapter<MoodEventAdapter.View
      *
      * @param moodEvents List of mood events to display
      */
-    public MoodEventAdapter(List<MoodEvent> moodEvents) {
+    public MoodEventAdapter(List<MoodEvent> moodEvents, OnItemClickListener clickListener) {
         this.moodEvents = moodEvents != null ? moodEvents : new ArrayList<>();
+        this.clickListener = clickListener;
     }
 
     /**
@@ -49,8 +57,9 @@ public class MoodEventAdapter extends RecyclerView.Adapter<MoodEventAdapter.View
      *
      * @param newEvents New list of mood events to display
      */
-    public void updateData(List<MoodEvent> newEvents) {
+    public void updateData(List<MoodEvent> newEvents, boolean isFollowing) {
         moodEvents = newEvents != null ? newEvents : new ArrayList<>();
+        this.isFollowing = isFollowing;
         notifyDataSetChanged();
     }
 
@@ -95,7 +104,14 @@ public class MoodEventAdapter extends RecyclerView.Adapter<MoodEventAdapter.View
         Drawable wrappedDrawable = DrawableCompat.wrap(background);
         DrawableCompat.setTint(wrappedDrawable, moodColor);
         holder.itemView.setBackground(wrappedDrawable);
-        holder.bind(event);
+        holder.bind(event, isFollowing);
+
+        // Open MoodEventDialogFragment when clicked
+        holder.itemView.setOnClickListener(v -> {
+            if (clickListener != null) {
+                clickListener.onItemClick(event);
+            }
+        });
     }
 
     /**
@@ -115,17 +131,30 @@ public class MoodEventAdapter extends RecyclerView.Adapter<MoodEventAdapter.View
     static class ViewHolder extends RecyclerView.ViewHolder {
         private final TextView emotionalStateTextView;
         private final TextView timestampTextView;
+        private final ImageView moodIconImageView;
+
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             emotionalStateTextView = itemView.findViewById(R.id.textview_emotional_state);
             timestampTextView = itemView.findViewById(R.id.textview_timestamp);
+            moodIconImageView = itemView.findViewById(R.id.mood_icon);
         }
 
-        public void bind(MoodEvent event) {
+        public void bind(MoodEvent event, boolean isFollowing) {
             if (event != null) {
-                emotionalStateTextView.setText(event.getEmotionalState().getDescription());
+                // Format text based on feed type
+                if (isFollowing) {
+                    emotionalStateTextView.setText(
+                            String.format("@%s's %s Event",
+                                    event.getUsername(),
+                                    event.getEmotionalState().getDescription())
+                    );
+                } else {
+                    emotionalStateTextView.setText(event.getEmotionalState().getDescription());
+                }
                 timestampTextView.setText(event.getFormattedDate());
+                moodIconImageView.setImageResource(event.getEmotionalState().getIconResId());
             }
         }
     }

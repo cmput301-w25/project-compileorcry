@@ -7,7 +7,6 @@ import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
-import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -59,9 +58,35 @@ public class MainActivity extends AppCompatActivity {
 
             // Set up bottom navigation
             navView = findViewById(R.id.nav_view);
+            
+            // Add destination change listener to keep nav view in sync
+            navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
+                int destId = destination.getId();
+                // Reveal bottom nav after login screens
+                if (destId != R.id.navigation_login &&
+                        destId != R.id.navigation_registration) {
+                    navView.setVisibility(View.VISIBLE);
+                    // Set bottom nav item to checked
+                    if (destId == R.id.navigation_feed ||
+                            destId == R.id.navigation_new ||
+                            destId == R.id.navigation_profile) {
+                        navView.getMenu().findItem(destId).setChecked(true);
+                    }
+                } else {
+                    navView.setVisibility(View.GONE);
+                }
+            });
 
-            // Just connect the nav view to controller, no action bar setup
-            NavigationUI.setupWithNavController(navView, navController);
+            // Custom navigation handling
+            navView.setOnItemSelectedListener(item -> {
+                int itemId = item.getItemId();
+                // If we're already on this destination, do nothing
+                if (navController.getCurrentDestination().getId() == itemId) {
+                    return true;
+                }
+                // Otherwise navigate while clearing back stack
+                return handleNavigation(itemId);
+            });
 
             // Handle login navigation
             if (User.getActiveUser() == null) {
@@ -69,36 +94,38 @@ public class MainActivity extends AppCompatActivity {
                     if(error != null){
                         Log.e("UserResume", error);
                     }
-
                     if(resumed){
                         Log.i("UserResume", "ActiveUser Resumed");
                         navController.navigate(R.id.navigation_feed);
                         navView.setSelectedItemId(R.id.navigation_feed);
-                        navView.setVisibility(View.VISIBLE);
                     } else {
                         navController.navigate(R.id.navigation_login);
-                        navView.setVisibility(View.GONE);
                     }
                 });
             } else {
                 // If user is already logged in, navigate to feed
                 navController.navigate(R.id.navigation_feed);
-                // Make sure the correct menu item is selected
                 navView.setSelectedItemId(R.id.navigation_feed);
-                navView.setVisibility(View.VISIBLE);
             }
         }
     }
 
-    /**
-     * Shows the bottom navigation bar and navigates to the feed screen.
-     * This method is typically called after a successful login or registration.
-     */
-    public void showNavigation() {
-        if (navView != null) {
-            navView.setVisibility(View.VISIBLE);
+    // Helper method to handle navigation
+    private boolean handleNavigation(int itemId) {
+        // Clear the back stack to start destination and navigate
+        if (itemId == R.id.navigation_feed) {
+            navController.popBackStack(navController.getGraph().getStartDestinationId(), false);
             navController.navigate(R.id.navigation_feed);
-            navView.setSelectedItemId(R.id.navigation_feed);
+            return true;
+        } else if (itemId == R.id.navigation_new) {
+            navController.popBackStack(navController.getGraph().getStartDestinationId(), false);
+            navController.navigate(R.id.navigation_new);
+            return true;
+        } else if (itemId == R.id.navigation_profile) {
+            navController.popBackStack(navController.getGraph().getStartDestinationId(), false);
+            navController.navigate(R.id.navigation_profile);
+            return true;
         }
+        return false;
     }
 }

@@ -22,6 +22,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -30,18 +31,25 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
 
 import ca.ualberta.compileorcry.domain.models.User;
 import ca.ualberta.compileorcry.features.mood.model.EmotionalState;
 import ca.ualberta.compileorcry.features.mood.model.MoodEvent;
+
+
 //Comment creation assisted using deepseek
 //From: deepseek.com
 //Prompt: suggest a class comment for this
 //When: March 2nd 2025
+
 /**
  * The MoodList class manages a collection of MoodEvent objects and interacts with Firestore to perform CRUD operations.
  * It supports various query types to filter and retrieve mood events based on different criteria such as emotional state,
@@ -89,6 +97,7 @@ public class MoodList {
     private final ArrayList<String> followings;     //list of username of who the user follows
     private static final EnumSet<QueryType> reasonQueryTypes = EnumSet.of(QueryType.FOLLOWING_REASON,QueryType.HISTORY_REASON);     //a EnumSet of the reason query types
     private Object filter;      //the criteria for filtering in state and reason query types
+    Semaphore recentSemi = new Semaphore(1,true);
     /**
      * Callback listener to handle returning data from asyn events
      */
@@ -172,6 +181,10 @@ public class MoodList {
                 // Handle MAP_CLOSE query type
                 new MoodList(user, queryType, listener, filter);
                 break;
+            case MAP_PERSONAL_CLOSE:
+                // Handle MAP_CLOSE query type
+                new MoodList(user, queryType, listener, filter);
+                break;
             default:
                 // Handle unexpected query types
                 throw new IllegalArgumentException("unsupported query type: " + queryType);
@@ -246,7 +259,8 @@ public class MoodList {
                 attachFollowersListener();
                 break;
             case HISTORY_REASON:
-                attachFollowersListener();
+                getQuery();
+                attachMoodEventsListener(this.query);
                 break;
             case FOLLOWING_REASON:
                 this.recentsType = true;
@@ -255,7 +269,11 @@ public class MoodList {
             case MAP_CLOSE:
                 this.recentsType = true;
                 this.mapType = true;
-                executeGeoQuery();
+                attachFollowersListener();
+                break;
+            case MAP_PERSONAL_CLOSE:
+                this.mapType = true;
+                executeGeoQuery(true);
                 break;
             default:
                 throw new IllegalArgumentException("unsupported query type: " + queryType);
@@ -287,54 +305,101 @@ public class MoodList {
         } else {
             moodEventDocRef.set(eventMap);
         }
-        DocumentReference recentEventDocRef = this.moodEventsRecentRef.document(this.user.getUsername());
-        recentEventDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        if (document.get("date") != null && document.get("date") instanceof Timestamp){
-                            Timestamp recentTime = (Timestamp) document.get("date");
-                            //if the new event is more recent than the old recent one
-                            if(event.getTimestamp().compareTo(recentTime) > 0){
-                                Map<String,Object> eventMap = event.toFireStoreMap();
+        if(event.getIsPublic()){
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+            executor.execute(() -> {
+                try {
+                    recentSemi.acquire();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                CollectionReference recentEventDocRef = this.moodEventsRecentRef.document(this.user.getUsername()).collection("recent_moods");
+                recentEventDocRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        Map<String, Timestamp> current_recents = new HashMap<>();
+                        boolean allValid = true;
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                // Access the document data
+                                String documentId = document.getId();
+                                Object timestamp = document.get("date");
+                                if (timestamp != null && timestamp instanceof Timestamp) {
+                                    current_recents.put(documentId, (Timestamp) timestamp);
+                                } else {
+                                    allValid = false;
+                                    break;
+                                }
+                            }
+                            if (current_recents.size() >= 3) {
+                                if (allValid) {
+                                    Timestamp leastRecentTime = null;
+                                    String leastRecentKey = null;
+                                    for (Map.Entry<String, Timestamp> entry : current_recents.entrySet()) {
+                                        Timestamp currentTimestamp = entry.getValue();
+                                        // If leastRecentTimestamp is null or currentTimestamp is older than leastRecentTimestamp
+                                        if (leastRecentTime == null || currentTimestamp.compareTo(leastRecentTime) < 0) {
+                                            leastRecentTime = currentTimestamp;
+                                            leastRecentKey = entry.getKey();
+                                        }
+                                    }
+                                    //if the new event is more recent than the old recent one
+                                    if (event.getTimestamp().compareTo(leastRecentTime) > 0) {
+                                        Map<String, Object> eventMap = event.toFireStoreMap();
+                                        eventMap.put("username", user.getUsername());
+                                        eventMap.put("mood_id", id);
+                                        if (!ptrToSelf.isRecentEventMapValid(eventMap)) {
+                                            //this error should only occur under extreme circumstances
+                                            //if this becomes an issue, a clone method on the event should be used
+                                            listener.onError(new RuntimeException("recent event is invalid"));
+                                            return;
+                                        }
+                                        try {
+                                            Tasks.await(recentEventDocRef.document(leastRecentKey).delete());
+                                        } catch (Exception e) {
+                                            listener.onError(e);
+                                        }
+                                        try {
+                                            Tasks.await(recentEventDocRef.document(event.getId()).set(eventMap));
+                                        } catch (Exception e) {
+                                            listener.onError(e);
+                                        }
+                                        ptrToSelf.recentSemi.release();
+                                    }
+                                } else {
+                                    ptrToSelf.recentSemi.release();
+                                    listener.onError(new IllegalArgumentException("the recent document for the user has an invalid timestamp"));
+                                }
+
+                            } else {
+                                // Document does not exist, thus should be set
+                                Map<String, Object> eventMap = event.toFireStoreMap();
                                 eventMap.put("username", user.getUsername());
                                 eventMap.put("mood_id", id);
-                                if(!ptrToSelf.isRecentEventMapValid(eventMap)){
+                                if (!ptrToSelf.isRecentEventMapValid(eventMap)) {
                                     //this error should only occur under extreme circumstances
                                     //if this becomes an issue, a clone method on the event should be used
-                                    listener.onError(new RuntimeException("recent event is invalid"));
-                                    return;
+                                    throw new RuntimeException("the event map was incorrectly formatted");
                                 }
-                                recentEventDocRef.set(eventMap);
+                                try {
+                                    Tasks.await(recentEventDocRef.document(event.getId()).set(eventMap));
+                                } catch (Exception e) {
+                                    listener.onError(e);
+                                }
+                                ptrToSelf.recentSemi.release();
                             }
                         } else {
-                            listener.onError(new IllegalArgumentException("the recent document for the user has an invalid timestamp"));
+                            // Handle any errors that occurred while fetching the document
+                            Exception e = task.getException();
+                            if (e != null) {
+                                ptrToSelf.recentSemi.release();
+                                e.printStackTrace();
+                            }
                         }
-
-                    } else {
-                        // Document does not exist, thus should be set
-                        Map<String,Object> eventMap = event.toFireStoreMap();
-                        eventMap.put("username", user.getUsername());
-                        eventMap.put("mood_id", id);
-                        if(!ptrToSelf.isRecentEventMapValid(eventMap)){
-                            //this error should only occur under extreme circumstances
-                            //if this becomes an issue, a clone method on the event should be used
-                            throw new RuntimeException("the event map was incorrectly formatted");
-                        }
-                        recentEventDocRef.set(eventMap);
-
-                        }
-                } else {
-                    // Handle any errors that occurred while fetching the document
-                    Exception e = task.getException();
-                    if (e != null) {
-                        e.printStackTrace();
                     }
-                }
-            }
-        });
+                });
+            });
+        }
         Collections.sort(moodEvents, new Comparator<MoodEvent>() {
             @Override
             public int compare(MoodEvent o1, MoodEvent o2) {
@@ -354,96 +419,114 @@ public class MoodList {
      * @throws RuntimeException If Firestore operations fail or the event cannot be deleted.
      */
     public void deleteMoodEvent(MoodEvent event) {
-        if(!this.writeAllowed){
-            throw new IllegalArgumentException("cannot add events to read only MoodList");
+        if (!this.writeAllowed) {
+            throw new IllegalArgumentException("Cannot delete events from a read-only MoodList.");
         }
-        if (event.getId() == null){
-            throw new IllegalArgumentException("an event needs a Id to be deleted");
-        } else {
-            DocumentReference recentEventDocRef = this.moodEventsRecentRef.document(user.getUsername());
-            recentEventDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        if (document.exists()) {
-                            //The SDK was telling me to do it this way thater than putting it in the if statement
-                            //This is a check to see if the document we're deleting is the most recent.
-                            boolean equals = document.get("mood_id").equals(event.getId());
-                            if(equals){
-                                // Replace the most recent with the new most recent before deleting it
-                                Collections.sort(moodEvents, new Comparator<MoodEvent>() {
-                                    @Override
-                                    public int compare(MoodEvent o1, MoodEvent o2) {
-                                        return o2.getTimestamp().compareTo(o1.getTimestamp());
-                                    }
-                                });
-                                //Subtract one because we haven't deleted the mood event
-                                if(moodEvents.size()-1 > 0){
-                                    Map<String,Object> eventMap = moodEvents.get(0).toFireStoreMap();
-                                    MoodEvent newEvent = moodEvents.get(0);
-                                    if(moodEvents.get(0).getId().equals(event.getId())){
-                                        //this is likely true, as the most recent event should still be most recent
-                                        //This exist in the odd chance it isn't anymore.
-                                        newEvent = moodEvents.get(1);
-                                        eventMap = moodEvents.get(1).toFireStoreMap();
-                                    }
-                                    eventMap.put("username", user.getUsername());
-                                    //this shouldn't be empty as the MoodList assigns an ID to every moodEvent in it
-                                    eventMap.put("mood_id", newEvent.getId());
-                                    if(!ptrToSelf.isRecentEventMapValid(eventMap)){
-                                        //this error should only occur under extreme circumstances
-                                        //If this happened it's likely that some bad dummy data found it's way into the db
-                                        listener.onError(new RuntimeException("the event incorrectly formatted"));
-                                        return;
-                                    }
-                                    recentEventDocRef.set(eventMap);
-                                } else {
-                                    recentEventDocRef.delete();
-                                }
+        if (event.getId() == null) {
+            throw new IllegalArgumentException("Event must have an ID to be deleted.");
+        }
+        if(!this.containsMoodEvent(event)){
+            throw new IllegalArgumentException("Event does not exist in MoodList deleted.");
+        } else if(!this.moodEvents.contains(event)){
+            event = this.getMoodEventOfSameID(event);
+            if(event == null){
+                throw new RuntimeException("This shouldn't happen");
+            }
+        }
+
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        MoodEvent finalEvent = event;
+        executor.execute(() -> {
+            try {
+                recentSemi.acquire();
+
+                // Remove from local list first to reflect deletion immediately
+                moodEvents.remove(finalEvent);
+
+                // Reference to recent_moods collection
+                CollectionReference recentEventDocRef = this.moodEventsRecentRef
+                        .document(this.user.getUsername())
+                        .collection("recent_moods");
+
+                // Check if the event is in recent_moods and handle accordingly
+                boolean isRecent = false;
+                HashSet<String> recentIds = new HashSet<>();
+                try {
+                    QuerySnapshot recentSnapshot = Tasks.await(recentEventDocRef.get());
+                    for (QueryDocumentSnapshot doc : recentSnapshot) {
+                        recentIds.add(doc.getId());
+                        if (doc.getId().equals(finalEvent.getId())) {
+                            isRecent = true;
+                        }
+                    }
+                } catch (Exception e) {
+                    listener.onError(e);
+                }
+
+                // If the event is a recent event, replace it before deleting
+                if (isRecent) {
+                    if (!moodEvents.isEmpty()) {
+                        // Sort to find the new most recent event
+                        Collections.sort(moodEvents, (o1, o2) -> o2.getTimestamp().compareTo(o1.getTimestamp()));
+                        int index = -1;
+                        for(int i = 0; i < moodEvents.size(); i++){
+                            if(recentIds.contains(moodEvents.get(i).getId()) || !moodEvents.get(i).getIsPublic()){
+                                continue;
+                            } else {
+                                index = i;
+                                break;
+                            }
+                        }
+                        if(index == -1){
+                            try {
+                                Tasks.await(recentEventDocRef.document(finalEvent.getId()).delete());
+                            } catch (Exception e) {
+                                listener.onError(e);
                             }
                         } else {
-                            // Document should exist, if it doesn't that should be rectified by setting one
-                            // First ensure moodEvents are sorted so we can grab the most recent.
-                            Collections.sort(moodEvents, new Comparator<MoodEvent>() {
-                                @Override
-                                public int compare(MoodEvent o1, MoodEvent o2) {
-                                    return o2.getTimestamp().compareTo(o1.getTimestamp());
-                                }
-                            });
-                            Map<String,Object> eventMap = moodEvents.get(0).toFireStoreMap();
-                            eventMap = event.toFireStoreMap();
+                            MoodEvent newMostRecent = moodEvents.get(index);
+                            Map<String, Object> eventMap = newMostRecent.toFireStoreMap();
                             eventMap.put("username", user.getUsername());
-                            //this shouldn't be empty as the MoodList assigns an ID to every moodEvent in it
-                            eventMap.put("mood_id", event.getId());
-                            if(!ptrToSelf.isRecentEventMapValid(eventMap)){
-                                //this error should only occur under extreme circumstances
-                                //If this happened it's likely that some bad dummy data found it's way into the db
-                                listener.onError(new RuntimeException("the event that tried to replace most recent was incorrectly formatted"));
-                                return;
+                            eventMap.put("mood_id", newMostRecent.getId());
+
+                            // Update recent_moods with the new event and delete the old one
+                            try {
+                                Tasks.await(recentEventDocRef.document(newMostRecent.getId()).set(eventMap));
+                                Tasks.await(recentEventDocRef.document(finalEvent.getId()).delete());
+                            } catch (Exception e) {
+                                listener.onError(e);
                             }
-                            recentEventDocRef.set(eventMap);
-                            }
-                        moodEventsRef.document(event.getId()).delete();
-                        moodEvents.remove(event);
-                        Collections.sort(moodEvents, new Comparator<MoodEvent>() {
-                            @Override
-                            public int compare(MoodEvent o1, MoodEvent o2) {
-                                return o2.getTimestamp().compareTo(o1.getTimestamp());
-                            }
-                        });
-                        if(!dontUpdate) {
-                            listener.updatedMoodList();
                         }
                     } else {
-                        Exception e = task.getException();
-                        if (e != null) {
-                            e.printStackTrace();
+                        // No events left, delete from recent_moods
+                        try {
+                            Tasks.await(recentEventDocRef.document(finalEvent.getId()).delete());
+                        } catch (Exception e) {
+                            listener.onError(e);
                         }
                     }
                 }
-            });
-        }
+
+                // Delete from the main collection regardless of recent processing
+                try {
+                    Tasks.await(moodEventsRef.document(finalEvent.getId()).delete());
+                } catch (Exception e) {
+                    listener.onError(e);
+                }
+
+                // Update the local list and notify listener
+                Collections.sort(moodEvents, (o1, o2) -> o2.getTimestamp().compareTo(o1.getTimestamp()));
+                if (!dontUpdate) {
+                    listener.updatedMoodList();
+                }
+
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                listener.onError(e);
+            } finally {
+                recentSemi.release();
+            }
+        });
     }
     /**
      * Edits an existing MoodEvent and updates Firestore.
@@ -463,14 +546,21 @@ public class MoodList {
         if(event.getId() == null){
             throw new IllegalArgumentException("mood event does not have an Id");
         }
-        if(!moodEvents.contains(event)){
+        if(!containsMoodEvent(event)){
             throw new IllegalArgumentException("mood event is not in MoodList");
+        } else if (!this.moodEvents.contains(event)){
+            event = this.getMoodEventOfSameID(event);
+            if(event == null){
+                throw new RuntimeException("This shouldn't happen");
+            }
         }
         Map<String,Object> map = event.toFireStoreMap();
         final List<Task<DocumentSnapshot>> tasks = new ArrayList<>();
         tasks.add(this.moodEventsRef.document(event.getId()).get());
-        tasks.add(this.moodEventsRecentRef.document(user.getUsername()).get());
+        tasks.add(this.moodEventsRecentRef.document(user.getUsername()).collection("recent_moods").document(event.getId()).get());
+        DocumentReference recentMoodDocRef = this.moodEventsRecentRef.document(user.getUsername()).collection("recent_moods").document(event.getId());
         updateEventFromMap(event,changes);
+        MoodEvent finalEvent = event;
         Tasks.whenAllComplete(tasks).addOnCompleteListener(new OnCompleteListener<List<Task<?>>>() {
             @Override
             public void onComplete(@NonNull Task<List<Task<?>>> t) {
@@ -480,35 +570,35 @@ public class MoodList {
                 for (Task<?> task : tasks) {
                     if (task.isSuccessful() && task.getResult() instanceof DocumentSnapshot) {
                         DocumentSnapshot doc = (DocumentSnapshot) task.getResult();
-                        if (doc.getReference().equals(ptrToSelf.moodEventsRef.document(event.getId()))) {
-                            docMap.put(ptrToSelf.moodEventsRef.document(event.getId()), doc);
-                        } else if (doc.getReference().equals(ptrToSelf.moodEventsRecentRef.document(user.getUsername()))) {
-                            docMap.put(ptrToSelf.moodEventsRecentRef.document(user.getUsername()), doc);
+                        if (doc.getReference().equals(ptrToSelf.moodEventsRef.document(finalEvent.getId()))) {
+                            docMap.put(ptrToSelf.moodEventsRef.document(finalEvent.getId()), doc);
+                        } else if (doc.getReference().equals(recentMoodDocRef)) {
+                            docMap.put((recentMoodDocRef), doc);
                         }
                     }
                 }
-                DocumentSnapshot personalDoc = docMap.get(ptrToSelf.moodEventsRef.document(event.getId()));
-                DocumentSnapshot recentDoc = docMap.get(ptrToSelf.moodEventsRecentRef.document(user.getUsername()));
+                DocumentSnapshot personalDoc = docMap.get(ptrToSelf.moodEventsRef.document(finalEvent.getId()));
+                DocumentSnapshot recentDoc = docMap.get(recentMoodDocRef);
                 if(personalDoc == null){
                     listener.onError(new IllegalArgumentException("no document related to this mood event"));
                     return;
                 }
-                Map<String,Object> eventMap  = event.toFireStoreMap();
+                Map<String,Object> eventMap  = finalEvent.toFireStoreMap();
                 if(!ptrToSelf.isPersonalEventMapValid(eventMap)){
                     listener.onError(new IllegalArgumentException("the eventMap is bad value(s)"));
                     return;
                 }
                 eventMap.remove("username");
-                ptrToSelf.moodEventsRef.document(event.getId()).set(eventMap);
+                ptrToSelf.moodEventsRef.document(finalEvent.getId()).set(eventMap);
                 if (personalDoc != null && personalDoc.exists() && recentDoc != null && recentDoc.exists()){
                     if(personalDoc.get("mood_id").equals(recentDoc.get("mood_id"))){
                         eventMap.put("username", user.getUsername());
-                        eventMap.put("mood_id", event.getId());
+                        eventMap.put("mood_id", finalEvent.getId());
                         if(!ptrToSelf.isRecentEventMapValid(eventMap)){
                             listener.onError(new IllegalArgumentException("the eventMap has bad value(s)"));
                             return;
                         }
-                        ptrToSelf.moodEventsRecentRef.document(user.getUsername()).set(eventMap);
+                        recentMoodDocRef.set(eventMap);
                     }
 
                 }
@@ -551,9 +641,14 @@ public class MoodList {
                 return;
             }
             if (!followingLoaded) {
-                ptrToSelf.getQuery();
-                attachMoodEventsListener(ptrToSelf.query);
-                followingLoaded = true;
+                if(ptrToSelf.queryType == QueryType.MAP_CLOSE){
+                    executeGeoQuery(false);
+                    followingLoaded = true;
+                } else {
+                    ptrToSelf.getQuery();
+                    attachMoodEventsListener(ptrToSelf.query);
+                    followingLoaded = true;
+                }
             } else {
                 ptrToSelf.getQuery();
                 //if needed a listener call here for update to followers
@@ -623,7 +718,10 @@ public class MoodList {
                         if (isValidKeyPairDatatype(documentData, "picture", String.class)) {
                             moodEvent.setPicture((String) documentData.get("picture"));
                         }
-                        if(!moodEvents.contains(moodEvent)) {
+                        if (isValidKeyPairDatatype(documentData, "is_public", Boolean.class)) {
+                            moodEvent.setIsPublic((Boolean) documentData.get("is_public"));
+                        }
+                        if(!containsMoodEvent(moodEvent)) {
                             moodEvents.add(moodEvent);
                         }
                     }
@@ -692,12 +790,12 @@ public class MoodList {
                 // Handle HISTORY_REASON query type
                 break;
             case FOLLOWING:
-                query = this.moodEventsRecentRef.whereIn("username", followings)
+                query = db.collectionGroup("recent_moods").whereIn("username", followings)
                         .orderBy("username", Query.Direction.DESCENDING);
                 // Handle FOLLOWING query type
                 break;
             case FOLLOWING_RECENT:
-                query = this.moodEventsRecentRef.whereIn("username", followings)
+                query = db.collectionGroup("recent_moods").whereIn("username", followings)
                         .orderBy("date", Query.Direction.DESCENDING)
                         .endAt(lastWeek)
                         .startAt(Timestamp.now());
@@ -706,13 +804,13 @@ public class MoodList {
                 break;
             case FOLLOWING_STATE:
                 filterState = (EmotionalState) filter;
-                query = this.moodEventsRecentRef.whereIn("username", followings)
+                query = db.collectionGroup("recent_moods").whereIn("username", followings)
                         .whereEqualTo("emotional_state", filterState.getCode())
                         .orderBy("date", Query.Direction.DESCENDING);
                 // Handle FOLLOWING_STATE query type
                 break;
             case FOLLOWING_REASON:
-                query = this.moodEventsRecentRef.whereIn("username", followings)
+                query = db.collectionGroup("recent_moods").whereIn("username", followings)
                         .orderBy("date", Query.Direction.DESCENDING);
                 // Handle FOLLOWING_REASON query type
                 break;
@@ -720,7 +818,7 @@ public class MoodList {
                 query = query.whereNotEqualTo("location", null);
                 break;
             case MAP_FOLLOWING:
-                query = this.moodEventsRecentRef.whereIn("username", followings)
+                query = db.collectionGroup("recent_moods").whereIn("username", followings)
                         .whereNotEqualTo("location", null)
                         .orderBy("date", Query.Direction.DESCENDING);
                 // Handle MAP_FOLLOWED query type
@@ -745,26 +843,55 @@ public class MoodList {
      * @throws IllegalArgumentException If the location filter is invalid or the query results are invalid.
      * @throws RuntimeException If Firestore operations fail or the geospatial query cannot be executed.
      */
-    private void executeGeoQuery() {
+    private void executeGeoQuery(boolean personal) {
+        Query query;
+        if(personal){
+            query=this.moodEventsRef.whereNotEqualTo("location",null)
+                    .orderBy("location");
+        } else {
+            query = db.collectionGroup("recent_moods")
+                    .whereIn("username", followings)
+                    .whereNotEqualTo("location",null)
+                    .orderBy("location");
+        }
 
-        GeoLocation location = GeoHash.locationFromHash((String)this.filter);
+        if (filter == null) {
+            return;
+        }
+
+        String currentLocation = null;
+
+        try {
+            // Use reflection to check for a "geoHash" field
+            Field geoHashField = filter.getClass().getDeclaredField("geoHash");
+            // Allow access to private fields
+            geoHashField.setAccessible(true);
+            Object geoHashValue = geoHashField.get(filter);
+            currentLocation = (String) geoHashValue;
+        } catch (NoSuchFieldException e) {
+            // Field "geoHash" does not exist
+            return;
+        } catch (IllegalAccessException e) {
+            // Could not access the field
+            return;
+        }
+
+        if (currentLocation == null) {
+            return;
+        }
+
+        GeoLocation location = GeoHash.locationFromHash(currentLocation);
         List<GeoQueryBounds> bounds = GeoFireUtils.getGeoHashQueryBounds(location, 5000);
         final List<Task<QuerySnapshot>> tasks = new ArrayList<>();
         for (GeoQueryBounds b : bounds) {
-            Query q = this.moodEventsRecentRef
-                    .whereNotEqualTo("location",null)
-                    .orderBy("location")
-                    .startAt(b.startHash)
+            Query q = query.startAt(b.startHash)
                     .endAt(b.endHash);
-
             tasks.add(q.get());
         }
         Tasks.whenAllComplete(tasks)
                 .addOnCompleteListener(new OnCompleteListener<List<Task<?>>>() {
                     @Override
                     public void onComplete(@NonNull Task<List<Task<?>>> t) {
-                        List<DocumentSnapshot> matchingDocs = new ArrayList<>();
-
                         for (Task<QuerySnapshot> task : tasks) {
                             QuerySnapshot snap = task.getResult();
                             for (DocumentSnapshot doc : snap.getDocuments()) {
@@ -782,8 +909,8 @@ public class MoodList {
                                 // We have to filter out a few false positives due to GeoHash
                                 // accuracy, but most will match
                                 double distanceInM = GeoFireUtils.getDistanceBetween(docLocation, location);
-                                if (distanceInM <= 5000) {
-                                    matchingDocs.add(doc);
+                                if (distanceInM > 5000) {
+                                    continue;
                                 }
                                 if (isValidKeyPairDatatype(documentData, "emotional_state", Long.class)) {
                                     moodEvent.setEmotionalState(EmotionalState.fromCode((Long) documentData.get("emotional_state")));
@@ -809,12 +936,13 @@ public class MoodList {
                                 if (isValidKeyPairDatatype(documentData, "social_situation", String.class)) {
                                     moodEvent.setSocialSituation((String) documentData.get("social_situation"));
                                 }
-
-                                //todo: picture datatype and retrieving the picture as the firestore cannot store pictures in a document
                                 if (isValidKeyPairDatatype(documentData, "picture", String.class)) {
                                     moodEvent.setPicture((String) documentData.get("picture"));
                                 }
-                                if(!moodEvents.contains(moodEvent)) {
+                                if (isValidKeyPairDatatype(documentData, "is_public", Boolean.class)) {
+                                    moodEvent.setIsPublic((Boolean) documentData.get("is_public"));
+                                }
+                                if(!containsMoodEvent(moodEvent)) {
                                     moodEvents.add(moodEvent);
                                 }
                             }
@@ -839,6 +967,9 @@ public class MoodList {
         if(!isValidKeyPairDatatype(map,"mood_id", String.class)){
             return false;
         }
+        if(!isValidKeyPairDatatype(map,"is_public", Boolean.class)){
+            return false;
+        }
         map.remove("username");
         return true;
     }
@@ -859,6 +990,9 @@ public class MoodList {
             return false;
         }
         if(!isValidKeyPairDatatype(map,"mood_id", String.class)){
+            return false;
+        }
+        if(!isValidKeyPairDatatype(map,"is_public", Boolean.class)){
             return false;
         }
         return true;
@@ -925,6 +1059,9 @@ public class MoodList {
                     case "emotional_state":
                         toBeUpdated.setEmotionalState((EmotionalState) updateMap.get(key)); // Set the emotional state
                         break;
+                    case "is_public":
+                        toBeUpdated.setIsPublic((Boolean) updateMap.get(key)); // Set the emotional state
+                        break;
                     default:
                         // Handle unexpected keys (if any)
                         break;
@@ -935,7 +1072,8 @@ public class MoodList {
     //firestore doesn't have a feature to do this using queries.
     //The only options are to do it serverside which we cant, use a third party software which can cost $$, or do filtering clientside
     /**
-     * removes all moodEvents that do not contain the reasonString
+     * removes all moodEvents that do not contain the reasonString.
+     * Case insensitive.
      *
      * @param reasonString The substring to search
      */
@@ -947,7 +1085,7 @@ public class MoodList {
                 iter.remove();
                 continue;
             }
-            if(!event.getTrigger().contains(reasonString)) {
+            if(!event.getTrigger().toLowerCase().contains(reasonString.toLowerCase())) {
                 iter.remove(); // Removes the 'current' item
             }
         }
@@ -961,6 +1099,38 @@ public class MoodList {
         } else {
             Log.d("MoodList", "Query is null, cannot re-fetch.");
         }
+    }
+    /**
+     * See if a moodEvent with the same ID as the mood event is passed in.
+     * Note that MoodEvents from different users can share the same ID.
+     * This is intended for internal use but I've left it public if someone finds use of it.
+     *
+     * @param event The event to check if it's contained in the MoodList
+     * @return Returns true if the moodList contains the event and false if not, the ID is the comparison
+     *
+     */
+    public boolean containsMoodEvent(MoodEvent event){
+        for(MoodEvent containedEvent: this.moodEvents){
+            if(event.getId().equals(containedEvent.getId())){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     *  This is used in the event that a MoodEvent in an activity has has a different reference but is for the same moodEvent.
+     *
+     * @param event     A event with the same ID but possibly different reference.
+     * @return          The event from within the DataList, returns null if no MoodEvent of same ID exists
+     */
+    public MoodEvent getMoodEventOfSameID(MoodEvent event){
+        for(MoodEvent containedEvent: this.moodEvents){
+            if(event.getId().equals(containedEvent.getId())){
+                return containedEvent;
+            }
+        }
+        return null;
     }
 
 
