@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     android:padding="16dp"
     tools:context=".ui.MoodInfoFragment">
+    <!-- MOODINFOFRAGMENT NOT USED! SEE MOODINFODIALOGFRAGMENT -->
 
     <!-- CardView for Mood Info -->
     <androidx.cardview.widget.CardView

@@ -7,7 +7,7 @@
     android:clipToOutline="true"
     android:gravity="center_vertical"
     android:orientation="vertical"
-    android:color="@color/dark"
+    android:backgroundTint="@color/light"
     android:padding="8dp">
 
 

@@ -31,6 +31,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColorHint="@color/light"
+            android:textColor="@color/light"
             android:hint="Write a comment..." />
 
         <Button
