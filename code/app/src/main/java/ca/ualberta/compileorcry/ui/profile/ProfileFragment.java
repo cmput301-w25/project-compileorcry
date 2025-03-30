@@ -109,7 +109,7 @@ public class ProfileFragment extends Fragment {
             User.logoutUser(getActivity());
         });
 
-        binding.profileImage.setOnClickListener((View v) -> {
+        binding.qrcodeButton.setOnClickListener((View v) -> {
             DialogFragment qrCodeFragment = new QrCodeDialog();
             qrCodeFragment.show(getActivity().getSupportFragmentManager(), "userQrCode");
         });
