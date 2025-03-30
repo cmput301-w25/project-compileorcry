@@ -108,6 +108,12 @@ public class ProfileFragment extends Fragment {
         binding.logoutButton.setOnClickListener((View v) -> {
             User.logoutUser(getActivity());
         });
+
+        binding.qrcodeButton.setOnClickListener((View v) -> {
+            DialogFragment qrCodeFragment = new QrCodeDialog();
+            qrCodeFragment.show(getActivity().getSupportFragmentManager(), "userQrCode");
+        });
+
     }
 
     /**

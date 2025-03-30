@@ -104,6 +104,11 @@ public class FeedFragment extends Fragment {
         binding.recyclerViewMoodHistory.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.recyclerViewMoodHistory.setAdapter(adapter);
 
+        // Search FAB
+        binding.fabUserSearch.setOnClickListener(v -> {
+            findNavController(view).navigate(R.id.navigation_search);
+        });
+
         // Setup map FAB
         binding.fabMap.setOnClickListener(v -> navigateToMap());
 
@@ -145,6 +150,7 @@ public class FeedFragment extends Fragment {
     }
 
     private void onMoodEventClick(MoodEvent clickedEvent) {
+
         if (clickedEvent == null) {
             Log.e("FeedFragment", "Clicked MoodEvent is null!");
             return;

@@ -42,7 +42,7 @@ public class UserSearch {
      * @return      the usernames of all users in the db with the name
      * @throws InterruptedException
      */
-    static ArrayList<String> findUser(String searchString) throws InterruptedException {
+    public static ArrayList<String> findUser(String searchString) throws InterruptedException {
         ArrayList<String> array = new ArrayList<>();
         ExecutorService executor = Executors.newSingleThreadExecutor();
 
