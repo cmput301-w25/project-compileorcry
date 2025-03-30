@@ -1,5 +1,6 @@
 package ca.ualberta.compileorcry.ui.search;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -11,6 +12,9 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import java.util.ArrayList;
@@ -65,7 +69,12 @@ public class UserSearchFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         searchResults = new ArrayList<User>();
-        adapter = new UserSearchAdapter(requireContext(), searchResults);
+        adapter = new UserSearchAdapter(requireContext(), searchResults, (username -> {
+            Bundle bundle = new Bundle();
+            bundle.putString("profileUsername", username);
+            NavController navController = NavHostFragment.findNavController(this);
+            navController.navigate(R.id.navigation_view_profile, bundle);
+        }));
         binding.searchResultsList.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.searchResultsList.setAdapter(adapter);
 
