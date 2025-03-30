@@ -334,9 +334,9 @@ public class MoodEvent implements Serializable {
      * @throws RuntimeException
      */
     public ArrayList<Comment> getComments(String moodUsername) throws InterruptedException {
-//        if(!this.isPublic){
-//            throw new RuntimeException("private moodEvents cannot have comments");
-//        }
+        if(!this.isPublic){
+            throw new RuntimeException("private moodEvents cannot have comments");
+        }
         if(!(this.username == null)){
             moodUsername = this.username;
         }
@@ -400,9 +400,9 @@ public class MoodEvent implements Serializable {
      * @param username  optional username for if the moodEvent has a null username
      */
     public void addComment(Comment toAdd, AddCommentCallback callback, String username){
-//        if(!this.isPublic){
-//            throw new RuntimeException("private moodEvents cannot have comments");
-//        }
+        if(!this.isPublic){
+            throw new RuntimeException("private moodEvents cannot have comments");
+        }
         if(!this.containsComment(toAdd)){
             FirebaseFirestore db = FirebaseFirestore.getInstance();
             if(!(this.username == null)){
