@@ -21,6 +21,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * The MoodEvent class represents a single mood event entry in the application.
@@ -481,5 +482,47 @@ public class MoodEvent {
             }
         }
         return false;
+    }
+
+    /**
+     * Use this to see if a MoodEvent has comments
+     *
+     * @param username      The username of the comment owner, will be overwritten if the parent event has a username
+     * @return              Returns a string, either "yes","no","null","failed", yes is an afirmation that the moodEvent has comments
+     * @throws InterruptedException
+     */
+    public String hasComments(String username) throws InterruptedException {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        AtomicReference<String> returnString = new AtomicReference<>("null");
+        // Runs the firestore stuff
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        if(!(this.username == null)){
+            username = this.username;
+        }
+        if(username == null){
+            throw new RuntimeException("username and moodEvent username are null");
+        }
+        String finalUsername = username;
+        executor.execute(() -> {
+            QuerySnapshot commentsSnapshot;
+            try {
+                commentsSnapshot = Tasks.await(db.collection("users").document(finalUsername).collection("mood_events").document(this.id).collection("comments").get());
+                if(commentsSnapshot.size() <= 0){
+                    returnString.set("no");
+                } else {
+                    returnString.set("yes");
+                }
+            } catch (ExecutionException | InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        executor.shutdown();
+        Boolean success = executor.awaitTermination(10, TimeUnit.SECONDS);
+        if(!success){
+            returnString.set("failed");
+            return returnString.get();
+        } else {
+            return returnString.get();
+        }
     }
 }
