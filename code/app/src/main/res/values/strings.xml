@@ -58,4 +58,7 @@
     <string name="save">SAVE</string>
     <string name="cancel">Cancel</string>
     <string name="edit_your_name">Edit Your Name</string>
+    <string name="qr_code">QR Code</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="friends_can_scan_this_to_follow_you">Friends can scan this to follow you!</string>
 </resources>
