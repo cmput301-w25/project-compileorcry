@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     id("com.google.gms.google-services")
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
+    id("androidx.navigation.safeargs")
 }
 
 android {
@@ -42,6 +43,16 @@ android {
     }
 }
 
+buildscript {
+    repositories {
+        google()
+    }
+    dependencies {
+        val nav_version = "2.7.6"
+        classpath("androidx.navigation:navigation-safe-args-gradle-plugin:$nav_version")
+    }
+}
+
 dependencies {
     implementation(libs.appcompat)
     implementation(libs.material)
@@ -68,6 +79,9 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     androidTestImplementation("androidx.test.uiautomator:uiautomator:2.2.0")
     androidTestUtil("androidx.test:orchestrator:1.4.2")
+
+    //QR Codes
+    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
 
     //implementation(files("${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar")) // For javadocs
 

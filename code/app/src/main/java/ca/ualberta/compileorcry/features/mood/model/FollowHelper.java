@@ -142,6 +142,50 @@ public class FollowHelper {
             return following;
         }
     }
+
+    /**
+     * Unfollows a user. Assumes user1 is following user2.
+     *
+     * @param user1 The following user
+     * @param user2 The user who is to be unfollowed.
+     * @return Returns true on success, otherwise false
+     */
+    public static boolean unfollowUser(String user1, String user2) throws InterruptedException {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.execute(()->{
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            try {
+                Tasks.await(db.runTransaction(new Transaction.Function<Void>() {
+                    @Override
+                    public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+                        transaction.delete(db.collection("users").document(user1).collection("following").document(user2));
+                        transaction.delete(db.collection("users").document(user2).collection("followers").document(user1));
+                        return null;
+                    }
+                }));
+            } catch (ExecutionException | InterruptedException e){
+                throw new RuntimeException(e);
+            }
+        });
+
+        executor.shutdown();
+        return executor.awaitTermination(10, TimeUnit.SECONDS);
+    }
+
+    /**
+     * Checks if user1 is following user2
+     *
+     * @param user1 User1
+     * @param user2 User2
+     * @return Returns true if user1 is following user2, otherwise false.
+     */
+    public static boolean isUserFollowing(String user1, String user2) throws InterruptedException {
+        ArrayList<String> followers = getFollowers(user2);
+        if (followers == null)
+            return false;
+        return followers.contains(user1);
+    }
+
     /**
      * Used to get a list of all follow requests for a user.
      * Check if the return is null, as it returns null in the event of a executor failure.
@@ -188,6 +232,20 @@ public class FollowHelper {
         } else {
             return followRequests;
         }
+    }
+
+    /**
+     * Check if user1 has requested to follow user2
+     *
+     * @param user1 User1
+     * @param user2 User2
+     * @return Returns true if user1 has requested to follow user2
+     */
+    public static boolean hasUserRequestedFollow(String user1, String user2) throws InterruptedException {
+        ArrayList<String> requests = getFollowRequest(user2);
+        if(requests == null)
+            return false;
+        return requests.contains(user1);
     }
 
     /**
