@@ -1,5 +1,6 @@
 package ca.ualberta.compileorcry;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -9,6 +10,8 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import java.util.List;
 
 import ca.ualberta.compileorcry.domain.models.User;
 
@@ -71,6 +74,8 @@ public class MainActivity extends AppCompatActivity {
                             destId == R.id.navigation_new ||
                             destId == R.id.navigation_profile) {
                         navView.getMenu().findItem(destId).setChecked(true);
+                    } else if (destId == R.id.navigation_view_profile){ // Select profile nav for ViewProfile
+                        navView.getMenu().findItem(R.id.navigation_profile).setChecked(true);
                     }
                 } else {
                     navView.setVisibility(View.GONE);
@@ -103,9 +108,29 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
             } else {
-                // If user is already logged in, navigate to feed
-                navController.navigate(R.id.navigation_feed);
-                navView.setSelectedItemId(R.id.navigation_feed);
+                // If user is already logged in, check for QR Profile Read then go to feed
+                // Check for QR Code link
+                Uri data = getIntent().getData();
+                boolean qrCodeRedirect = false;
+                if(data != null){
+                    List<String> pathSegments = data.getPathSegments();
+                    if (!pathSegments.isEmpty()){
+                        String profileUsername = pathSegments.get(0);
+                        qrCodeRedirect = true;
+                        Log.d("QRRead", "Display Profile: " + profileUsername);
+                        Bundle bundle = new Bundle();
+                        bundle.putString("profileUsername", profileUsername);
+                        navController.navigate(R.id.navigation_view_profile, bundle);
+                        //navView.
+                    } else {
+                        Log.d("QRRead", "No Profile");
+                    }
+                } else {
+                    Log.d("QRRead", "Data Null");
+                }
+                if(!qrCodeRedirect){
+                    navController.navigate(R.id.navigation_feed);
+                }
             }
         }
     }

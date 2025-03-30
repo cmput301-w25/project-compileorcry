@@ -38,6 +38,9 @@
     <string name="history">History</string>
     <string name="requests">Requests</string>
     <string name="logout">Logout</string>
+    <string name="button_follow">Follow</string>
+    <string name="button_requested">Requested…</string>
+    <string name="button_unfollow">Unfollow</string>
     <string name="sort_prompt">Sort</string>
     <string name="filter_prompt">Filter</string>
     <string name="add_friends">Add Friends</string>
@@ -51,6 +54,7 @@
     <string name="date">Date</string>
     <string name="location">Location</string>
     <string name="current_location">Current location</string>
+    <string name="error_loading_user">Error Loading User</string>
     <string name="save">SAVE</string>
     <string name="cancel">Cancel</string>
     <string name="edit_your_name">Edit Your Name</string>
