@@ -76,9 +76,8 @@ public class RequestsBottomSheet extends BottomSheetDialogFragment {
         // Load friend requests
         loadFriendRequests();
     }
-
     /**
-     * Load pending friend requests from Firestore
+     *
      */
     private void loadFriendRequests() {
         User activeUser = User.getActiveUser();
@@ -90,39 +89,33 @@ public class RequestsBottomSheet extends BottomSheetDialogFragment {
         // Show loading indicator
         showLoading(true);
 
-        DocumentReference userDocRef = activeUser.getUserDocRef();
-        if (userDocRef == null) {
+        try {
+            // Use FollowHelper to get the list of follow requests
+            ArrayList<String> requestUsernames = FollowHelper.getFollowRequest(activeUser.getUsername());
+
+            if (requestUsernames == null) {
+                showLoading(false);
+                showEmptyView("Error loading friend requests");
+                return;
+            }
+
+            if (requestUsernames.isEmpty()) {
+                showLoading(false);
+                showEmptyView("No pending friend requests");
+                return;
+            }
+
+            // Fetch user details for each requester
+            List<User> requestUsers = new ArrayList<>();
+            for (String username : requestUsernames) {
+                fetchUserDetails(username, requestUsers);
+            }
+
+        } catch (InterruptedException e) {
+            Log.e(TAG, "Error getting friend requests", e);
             showLoading(false);
-            showEmptyView("User data not available");
-            return;
+            showEmptyView("Unable to load friend requests");
         }
-
-        // Get friend requests from the "follow_requests" subcollection (note: plural form)
-        userDocRef.collection("follow_requests").get()
-                .addOnCompleteListener(task -> {
-                    showLoading(false);
-                    if (task.isSuccessful()) {
-                        if (task.getResult().isEmpty()) {
-                            showEmptyView("No pending friend requests");
-                            return;
-                        }
-
-                        List<User> requestUsers = new ArrayList<>();
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            String userId = document.getId();
-
-                            // If the document has a username field, use it instead of the document ID
-                            if (document.contains("username") && document.get("username") instanceof String) {
-                                userId = document.getString("username");
-                            }
-
-                            fetchUserDetails(userId, requestUsers);
-                        }
-                    } else {
-                        Log.e(TAG, "Error getting friend requests", task.getException());
-                        showEmptyView("Unable to load friend requests");
-                    }
-                });
     }
 
     /**
