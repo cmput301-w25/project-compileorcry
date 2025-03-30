@@ -175,7 +175,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_bar"
+        app:layout_constraintTop_toBottomOf="@+id/bottom_barrier"
         app:layout_goneMarginTop="16dp" />
 
     <LinearLayout
@@ -183,6 +183,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/moodinfo_situation_layout">
@@ -208,5 +209,13 @@
             android:text="@string/button_save_mood"
             android:textColor="@color/light" />
     </LinearLayout>
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/bottom_barrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="button_bar,moodinfo_situation_readonly_layout" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
