@@ -77,7 +77,7 @@ public class RequestsBottomSheet extends BottomSheetDialogFragment {
         loadFriendRequests();
     }
     /**
-     *
+     * Load pending friend requests from Firestore using FollowHelper
      */
     private void loadFriendRequests() {
         User activeUser = User.getActiveUser();
