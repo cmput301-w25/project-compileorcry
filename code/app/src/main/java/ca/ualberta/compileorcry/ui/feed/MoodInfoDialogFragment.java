@@ -87,6 +87,7 @@ public class MoodInfoDialogFragment extends DialogFragment {
             binding.moodinfoTriggerText.setText(trigger);
             binding.getRoot().setBackgroundColor(backgroundColor);
             binding.saveButton.setTextColor(backgroundColor);
+            binding.buttonViewComments.setTextColor(backgroundColor);
             if (!feedType.equals("History")) {
                 // Hide editable components
                 binding.moodinfoStateLayout.setVisibility(View.GONE);
