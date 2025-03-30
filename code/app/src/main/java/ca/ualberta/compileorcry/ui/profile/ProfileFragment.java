@@ -97,12 +97,6 @@ public class ProfileFragment extends Fragment {
             requestsBottomSheet.show(getChildFragmentManager(), "requestsBottomSheet");
         });
 
-        // Add long press listener for testing
-        binding.requestsButton.setOnLongClickListener(v -> {
-            showTestOptionsDialog();
-            return true;
-        });
-
         binding.editButton.setOnClickListener((View v) -> { // Edit Name Dialog
             DialogFragment editNameDialog = new ChangeNameDialog();
             editNameDialog.show(getActivity().getSupportFragmentManager(), "editName");
@@ -122,38 +116,6 @@ public class ProfileFragment extends Fragment {
             qrCodeFragment.show(getActivity().getSupportFragmentManager(), "userQrCode");
         });
 
-    }
-
-    /**
-     * Show dialog with test options for friend requests
-     */
-    private void showTestOptionsDialog() {
-        // Create dialog with test options
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle("Test Friend Requests")
-                .setItems(new CharSequence[]{
-                        "Add 1 Test Request",
-                        "Add 3 Test Requests",
-                        "Add 5 Test Requests",
-                        "Clear All Test Requests"
-                }, (dialog, which) -> {
-                    switch (which) {
-                        case 0:
-                            TestRequestsUtil.createDummyRequests(getContext(), 1);
-                            break;
-                        case 1:
-                            TestRequestsUtil.createDummyRequests(getContext(), 3);
-                            break;
-                        case 2:
-                            TestRequestsUtil.createDummyRequests(getContext(), 5);
-                            break;
-                        case 3:
-                            TestRequestsUtil.clearTestRequests(getContext());
-                            break;
-                    }
-                })
-                .setNegativeButton("Cancel", (dialog, id) -> dialog.dismiss());
-        builder.create().show();
     }
 
     /**
