@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,19 +19,20 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.Timestamp;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import ca.ualberta.compileorcry.R;
 import ca.ualberta.compileorcry.domain.models.User;
 import ca.ualberta.compileorcry.features.mood.model.Comment;
 import ca.ualberta.compileorcry.features.mood.model.MoodEvent;
-import ca.ualberta.compileorcry.ui.moodEvent.CommentAdapter;
-import ca.ualberta.compileorcry.ui.feed.CommentViewModel;
 
+/**
+ * Fragment responsible for displaying and managing comments related to a mood event.
+ * Has buttons for returning to the mood (exit the fragment) and a textbox and post button for adding comments.
+ * Uses CommentAdapter to display comments in a RecyclerView.
+ * Uses CommentViewModel (LiveData) to handle data and UI updates.
+ */
 public class CommentFragment extends Fragment {
 
     private RecyclerView recyclerViewComments;
@@ -46,43 +46,49 @@ public class CommentFragment extends Fragment {
     private String username;
     private CommentViewModel commentViewModel;
 
+    /**
+     * Constructor for CommentFragment.
+     * Required empty
+     */
     public CommentFragment() {
-        // Required empty public constructor
     }
 
-    public static CommentFragment newInstance(MoodEvent moodEvent) {
-        CommentFragment fragment = new CommentFragment();
-        Bundle args = new Bundle();
-        args.putSerializable("moodEvent", moodEvent);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
+    /**
+     * Called when the fragment is first created.
+     * Get moodID passed in from moodInfoDialogFragment and active user viewing comment fragment
+     * */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        // pass in the mood id of mood clicked on from feed, needed for adding comments
         if (getArguments() != null) {
             moodEventId = getArguments().getString("moodEventId");
             Log.d("CommentFragment", "Received moodEventId in onCreate: " + moodEventId);
         }
-
-        //commentViewModel = new CommentViewModel(moodEvent);
+        // viewmodel needs factory method to be initialized
         commentViewModel = new ViewModelProvider(this, new CommentViewModelFactory(moodEventId))
                 .get(CommentViewModel.class);
+        // get currently logged in user's username for posting comments and fetching moods
         username = commenter.getActiveUser().getUsername();
     }
 
+    /**
+     * Inflates the fragment's view and sets up UI elements.
+     * Initializes RecyclerView, EditText, and buttons. Sets up CommentAdapter and RecyclerView.
+     * Sets up observers for commentsLiveData and buttons for posting comments/exiting comment fragment
+     * */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_comments, container, false);
 
+        // Initialize views
         recyclerViewComments = view.findViewById(R.id.recyclerViewComments);
         editTextComment = view.findViewById(R.id.editTextComment);
         buttonAddComment = view.findViewById(R.id.buttonAddComment);
         buttonBack = view.findViewById(R.id.buttonBack);
 
+        // Set up RecyclerView (commentAdapter)
         recyclerViewComments.setLayoutManager(new LinearLayoutManager(getContext()));
         commentAdapter = new CommentAdapter();
         recyclerViewComments.setAdapter(commentAdapter);
@@ -94,6 +100,7 @@ public class CommentFragment extends Fragment {
                     public void onChanged(List<Comment> comments) {
                         if (comments != null) {
                             if(commentAdapter.getCurrentList().isEmpty()){
+                                // tell commentadapter (recyclerview) to update with diffutil
                                 commentAdapter.submitList(comments);
                             }
                             commentAdapter.notifyDataSetChanged();
@@ -101,12 +108,9 @@ public class CommentFragment extends Fragment {
                     }
                 });
 
-        // Load comments
-        // commentViewModel.loadComments(username);
-
+        // Button listeners
         buttonAddComment.setOnClickListener(v -> addComment());
 
-        // TODO: Fix navigation
         buttonBack.setOnClickListener(v -> {
             Log.d("CommentFragment", "Back button clicked");
             goBack();
@@ -114,34 +118,36 @@ public class CommentFragment extends Fragment {
         return view;
     }
 
+    /**
+     * Called when the fragment's view is created
+     * Loads comments from mood passed in
+     * */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         Log.d("CommentFragment", "onViewCreated called");
-
-        if (getArguments() != null) {
-            // moodEventId = getArguments().getParcelable("moodEvent");
-            //Log.d("CommentFragment", "Received moodEventId: " + moodEventId);
-        }else {
-            Log.e("CommentFragment", "getArguments() is NULL!");
-        }
-        // need to pass username of mood poster to fetch this mood's comments
-          // moodEvent = new MoodEvent(moodEventId);
-//        MyParcelableObject obj = getArguments().getParcelable("key");
-//        moodEvent = getArguments().getParcelable("moodEvent");
+        // username of commenter passed in, correct username and mood handled by MoodEvent.getComments()
         commentViewModel.loadComments(username);
     }
 
+    /**
+     * Navigates back to the previous fragment.
+     * Uses NavController to handle fragment navigation.
+     */
     private void goBack() {
         NavController navController = NavHostFragment.findNavController(this);
         navController.navigateUp();
-        //navController.navigate(R.id.action_navigation_feed_to_commentFragment, bundle);
     }
+
+    /**
+     * Button logic for posting a comment. Creates a new comment object,
+     * calls the viewmodel to handle the data, and clears text field after posting.
+     * Reloads feed immediately to show new comment in fragment
+     */
     private void addComment() {
         String text = editTextComment.getText().toString().trim();
         if (text.isEmpty() || moodEventId == null) return;
 
-        // need to pass in username of commenter to make new comment
         Comment newComment = new Comment(commentViewModel.getMoodEvent(), username, "", Timestamp.now(), text);
 
         commentViewModel.addComment(newComment); // Use ViewModel to handle it

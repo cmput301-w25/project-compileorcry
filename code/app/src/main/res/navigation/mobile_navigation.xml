@@ -10,9 +10,7 @@
         android:name="ca.ualberta.compileorcry.ui.feed.FeedFragment"
         android:label="@string/title_feed"
         tools:layout="@layout/fragment_feed">
-        <action
-            android:id="@+id/action_navigation_feed_to_commentFragment"
-            app:destination="@id/commentFragment" />
+
     </fragment>
 
     <fragment
@@ -78,9 +76,7 @@
             android:name="moodEventId"
             app:argType="string"
             android:defaultValue="" />
-        <action
-            android:id="@+id/action_commentFragment_to_navigation_feed"
-            app:destination="@id/navigation_feed" />
+
     </fragment>
 
     <fragment

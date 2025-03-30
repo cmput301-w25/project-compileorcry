@@ -334,7 +334,6 @@ public class MoodEvent implements Serializable {
      * @throws RuntimeException
      */
     public ArrayList<Comment> getComments(String moodUsername) throws InterruptedException {
-        // TODO: UNCOMMENT BEFORE PUSHING
 //        if(!this.isPublic){
 //            throw new RuntimeException("private moodEvents cannot have comments");
 //        }

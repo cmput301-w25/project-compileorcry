@@ -19,6 +19,10 @@ import ca.ualberta.compileorcry.domain.models.User;
 import ca.ualberta.compileorcry.features.mood.model.Comment;
 import ca.ualberta.compileorcry.features.mood.model.MoodEvent;
 
+/**
+ * ViewModel for managing and storing comment data related to a specific mood event.
+ * Uses LiveData to observe changes and update UI automatically.
+ */
 public class CommentViewModel extends ViewModel {
     private MutableLiveData<List<Comment>> commentsLiveData = new MutableLiveData<>();
     private MoodEvent moodEvent;
@@ -30,10 +34,22 @@ public class CommentViewModel extends ViewModel {
         return moodEvent;
     }
 
+    /**
+     * Gets the LiveData object containing the list of comments.
+     * Observers can listen for changes and update UI accordingly.
+     *
+     * @return LiveData object containing the list of comments.
+     */
     public LiveData<List<Comment>> getCommentsLiveData() {
         return commentsLiveData;
     }
 
+    /**
+     * Adds a new comment to the list and updates LiveData.
+     * Uses MoodEvent.java's addComment() method
+     *
+     * @param comment The comment to be added.
+     */
     public void addComment(Comment comment) {
         if (moodEvent == null) {
             Log.e("CommentViewModel", "MoodEvent is null, cannot add comment");
@@ -53,9 +69,15 @@ public class CommentViewModel extends ViewModel {
             public void onFailure(Exception e) {
                 Log.e("CommentViewModel", "Failed to add comment", e);
             }
-        }, User.getActiveUser().getUsername()); // Pass the correct username here
+        }, User.getActiveUser().getUsername());
     }
 
+    /**
+     * Adds a new comment to the list and updates LiveData.
+     * Uses MoodEvent.java's loadComment() method
+     *
+     * @param username The username of the commenter.
+     */
     public void loadComments(String username) {
         if (moodEvent == null) {
             Log.e("CommentViewModel", "MoodEvent is null, cannot load comments");
@@ -72,6 +94,12 @@ public class CommentViewModel extends ViewModel {
         }).start();
     }
 
+    /**
+     * Refreshes the comments, basically the same as loadComments().
+     * Uses MoodEvent.java's reloadComment() method
+     *
+     * @param username The username of the commenter.
+     */
     public void reloadComments(String username) {
         if (moodEvent == null) {
             Log.e("CommentViewModel", "MoodEvent is null, cannot reload comments");

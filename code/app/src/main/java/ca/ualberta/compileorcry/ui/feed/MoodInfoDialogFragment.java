@@ -109,6 +109,7 @@ public class MoodInfoDialogFragment extends DialogFragment {
             moodEvent.setEmotionalState(state);
         }
 
+        // view comments button logic
         binding.buttonViewComments.setOnClickListener(v -> {
             Log.d("MoodInfoFragment", "viewcomments button clicked");
             if (moodEvent != null) {
