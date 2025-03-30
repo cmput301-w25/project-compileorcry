@@ -9,7 +9,7 @@
         android:id="@+id/navigation_feed"
         android:name="ca.ualberta.compileorcry.ui.feed.FeedFragment"
         android:label="@string/title_feed"
-        tools:layout="@layout/fragment_feed" >
+        tools:layout="@layout/fragment_feed">
         <action
             android:id="@+id/action_navigation_feed_to_commentFragment"
             app:destination="@id/commentFragment" />
@@ -82,5 +82,11 @@
             android:id="@+id/action_commentFragment_to_navigation_feed"
             app:destination="@id/navigation_feed" />
     </fragment>
+
+    <fragment
+        android:id="@+id/navigation_search"
+        android:name="ca.ualberta.compileorcry.ui.search.UserSearchFragment"
+        android:label="Search"
+        tools:layout="@layout/fragment_user_search" />
 
 </navigation>
