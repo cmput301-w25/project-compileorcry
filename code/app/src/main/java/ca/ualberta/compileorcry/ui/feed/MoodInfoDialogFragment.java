@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -12,6 +13,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 
@@ -101,6 +104,32 @@ public class MoodInfoDialogFragment extends DialogFragment {
                 binding.moodinfoStateText.setText(emotionalState);
                 binding.moodinfoTriggerDisplay.setText(trigger);
                 binding.moodinfoSituationText.setText(socialSituation);
+
+                ConstraintLayout layout = binding.getRoot();
+                ConstraintSet set = new ConstraintSet();
+                set.clone(layout);
+
+                int marginInPx = (int) TypedValue.applyDimension(
+                        TypedValue.COMPLEX_UNIT_DIP,
+                        16,
+                        getResources().getDisplayMetrics()
+                );
+
+                // Remove old top constraint (if any)
+                set.clear(R.id.mood_info_image_view, ConstraintSet.TOP);
+
+                // Apply new constraint: position below moodinfo_situation_readonly_layout
+                set.connect(
+                        R.id.mood_info_image_view,
+                        ConstraintSet.TOP,
+                        R.id.moodinfo_situation_readonly_layout,
+                        ConstraintSet.BOTTOM,
+                        marginInPx
+                );
+
+                // Apply the changes to the layout
+                set.applyTo(layout);
+
             }
             moodEvent = new MoodEvent(moodId);
             moodEvent.setEmotionalState(state);
@@ -159,7 +188,6 @@ public class MoodInfoDialogFragment extends DialogFragment {
 
                     @Override
                     public void updatedMoodList() {
-
                     }
                 }, null);
             }
