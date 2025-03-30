@@ -507,7 +507,7 @@ public class MoodList {
                         }
                     }
                 }
-                //have to delete all comments manually when deleting a moodEvent, fault of firestore client side
+                // Have to delete all comments manually when deleting a moodEvent, fault of firestore client side
                 if(finalEvent.hasComments(user.getUsername()).equals("yes")){
                     try {
                         QuerySnapshot comments = Tasks.await(moodEventsRef.document(finalEvent.getId()).collection("comments").get());
@@ -526,7 +526,7 @@ public class MoodList {
                     listener.onError(e);
                 }
 
-                //Delete picture from storage
+                // Delete picture from storage
                 if(finalEvent.getPicture() != null) {
                     try {
                         FirebaseStorage storage = FirebaseStorage.getInstance();

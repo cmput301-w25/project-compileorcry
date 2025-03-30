@@ -494,7 +494,7 @@ public class MoodEvent {
     public String hasComments(String username) throws InterruptedException {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         AtomicReference<String> returnString = new AtomicReference<>("null");
-        //Runs the firestore stuff
+        // Runs the firestore stuff
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         if(!(this.username == null)){
             username = this.username;
