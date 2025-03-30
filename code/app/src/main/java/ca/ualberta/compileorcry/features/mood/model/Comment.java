@@ -5,6 +5,7 @@ import com.google.firebase.firestore.DocumentReference;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * The Comment class represents a single comment entry for a mood event.
@@ -87,6 +88,18 @@ public class Comment {
         if (value != null) {
             map.put(key, value);
         }
+    }
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;  // Same object reference
+        if (obj == null || getClass() != obj.getClass()) return false; // Type check
+        Comment comment = (Comment) obj;
+        return id.equals(comment.id);  // Compare IDs
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 
 }
