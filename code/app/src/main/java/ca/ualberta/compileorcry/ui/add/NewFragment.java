@@ -439,12 +439,10 @@ public class NewFragment extends Fragment {
                     .addOnSuccessListener(taskSnapshot -> {
                         Toast.makeText(getContext(), "Image Uploaded", Toast.LENGTH_SHORT).show();
 
-                        // Save the URL
-                        ref.getDownloadUrl().addOnSuccessListener(uri -> {
-                            uploadedImagePath = uri.toString();
-                        });
+                        // Save image path
+                        uploadedImagePath = ref.getPath();
                     })
-                    .addOnFailureListener(e -> Toast.makeText(getContext() , "Image Upload Failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                    .addOnFailureListener(e -> Toast.makeText(getContext(), "Image Upload Failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
         }
     }
 

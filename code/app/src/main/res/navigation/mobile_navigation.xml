@@ -41,6 +41,17 @@
     </fragment>
 
     <fragment
+        android:id="@+id/navigation_view_profile"
+        android:name="ca.ualberta.compileorcry.ui.view_profile.ViewProfileFragment"
+        android:label="View Profile"
+        tools:layout="@layout/fragment_view_profile">
+
+        <argument
+            android:name="profileUsername"
+            app:argType="string" />
+    </fragment>
+
+    <fragment
         android:id="@+id/navigation_friends"
         android:name="ca.ualberta.compileorcry.ui.profile.FriendsFragment"
         android:label="Friends"

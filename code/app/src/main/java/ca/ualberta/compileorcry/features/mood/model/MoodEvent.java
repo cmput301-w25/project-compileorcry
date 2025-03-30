@@ -189,9 +189,9 @@ public class MoodEvent implements Serializable {
      * Returns the picture associated with this mood event.
      * Note: Picture handling is not fully implemented yet.
      *
-     * @return The picture object, or null if not set
+     * @return The picture path, or null if not set
      */
-    public Object getPicture() {
+    public String getPicture() {
         return picture;
     }
 
@@ -387,7 +387,7 @@ public class MoodEvent implements Serializable {
      * Listener for AddCommentCallbacks
      */
     public interface AddCommentCallback {
-        void onSuccess();
+        void onSuccess() throws InterruptedException;
         void onFailure(Exception e);
     }
 
@@ -420,7 +420,11 @@ public class MoodEvent implements Serializable {
                     .addOnSuccessListener(aVoid -> {
                         // Write succeeded
                         comments.add(toAdd);
-                        callback.onSuccess();
+                        try {
+                            callback.onSuccess();
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
                     })
                     .addOnFailureListener(callback::onFailure);
         }

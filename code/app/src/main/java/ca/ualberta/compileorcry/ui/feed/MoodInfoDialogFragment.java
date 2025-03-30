@@ -2,6 +2,7 @@ package ca.ualberta.compileorcry.ui.feed;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -16,6 +17,10 @@ import androidx.fragment.app.DialogFragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
+
+import com.bumptech.glide.Glide;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -42,7 +47,10 @@ public class MoodInfoDialogFragment extends DialogFragment {
      * then dismisses this dialog.
      */
     private void notifyParentAndDismiss() {
-        getParentFragmentManager().setFragmentResult("moodEventUpdated", new Bundle());
+        if (isAdded()) {
+            getParentFragmentManager().setFragmentResult("moodEventUpdated", new Bundle());
+            Log.d("MoodInfoDialogFragment", "Sending result to parent before dismiss");
+        }
         dismiss();
     }
 
@@ -63,14 +71,42 @@ public class MoodInfoDialogFragment extends DialogFragment {
             int backgroundColor = state.getColor(requireContext());
             String trigger = args.getString("trigger", "No Trigger");
             String socialSituation = args.getString("socialSituation", "No Situation");
+            String feedType = args.getString("feedType");
+            // Handle image loading
+            String imagePath = args.getString("imagePath");
+            if (imagePath != null && !imagePath.isEmpty()) {
+                loadImage(imagePath);
+            } else {
+                // Hide image view if no image
+                binding.moodInfoImageView.setVisibility(View.GONE);
+            }
 
             // Populate the UI with initial values
             setupEmotionalStateDropdown(emotionalState);
             setupSocialSituationDropdown(socialSituation);
             binding.moodinfoTriggerText.setText(trigger);
             binding.getRoot().setBackgroundColor(backgroundColor);
+            binding.saveButton.setTextColor(backgroundColor);
+            if (!feedType.equals("History")) {
+                // Hide editable components
+                binding.moodinfoStateLayout.setVisibility(View.GONE);
+                binding.moodinfoTriggerLayout.setVisibility(View.GONE);
+                binding.moodinfoSituationLayout.setVisibility(View.GONE);
+                binding.buttonBar.setVisibility(View.GONE);
+                binding.moodinfoEditText.setText("View Mood Event");
 
+                // Show read-only layouts
+                binding.moodinfoStateReadonlyLayout.setVisibility(View.VISIBLE);
+                binding.moodinfoTriggerReadonlyLayout.setVisibility(View.VISIBLE);
+                binding.moodinfoSituationReadonlyLayout.setVisibility(View.VISIBLE);
+
+                // Set text values
+                binding.moodinfoStateText.setText(emotionalState);
+                binding.moodinfoTriggerDisplay.setText(trigger);
+                binding.moodinfoSituationText.setText(socialSituation);
+            }
             moodEvent = new MoodEvent(moodId);
+            moodEvent.setEmotionalState(state);
         }
 
         binding.buttonViewComments.setOnClickListener(v -> {
@@ -100,22 +136,25 @@ public class MoodInfoDialogFragment extends DialogFragment {
                 MoodList.createMoodList(User.getActiveUser(), QueryType.HISTORY_MODIFIABLE, new MoodList.MoodListListener() {
                     @Override
                     public void returnMoodList(MoodList moodList) {
-                        if (moodList.getMoodEvents().contains(moodEvent)) {
+                        if (moodList.containsMoodEvent(moodEvent)) {
                             moodList.editMoodEvent(moodEvent, changes);
+
                             notifyParentAndDismiss();
                         } else {
-                            Log.e("MoodInfoDialogFragment", "Mood event with ID " + moodEvent.getId() + " not found in MoodList. Cannot edit.");
+
                             notifyParentAndDismiss();
                         }
                     }
 
                     @Override
                     public void onError(Exception e) {
-                        // Handle errors if needed
+                        Log.e("MoodInfoDialogFragment", "Mood event with ID " + moodEvent.getId() + " not found in MoodList. Cannot edit.");
                     }
 
                     @Override
-                    public void updatedMoodList() {}
+                    public void updatedMoodList() {
+
+                    }
                 }, null);
             }
         });
@@ -128,13 +167,19 @@ public class MoodInfoDialogFragment extends DialogFragment {
                     public void returnMoodList(MoodList moodList) {
                         moodList.deleteMoodEvent(moodEvent);
                         notifyParentAndDismiss();
+                        Toast.makeText(requireContext(), "Mood deleted successfully", Toast.LENGTH_SHORT).show();
+
+
                     }
 
                     @Override
-                    public void onError(Exception e) {}
+                    public void onError(Exception e) {
+                    }
 
                     @Override
-                    public void updatedMoodList() {}
+                    public void updatedMoodList() {
+
+                    }
                 }, null);
             }
         });
@@ -179,5 +224,24 @@ public class MoodInfoDialogFragment extends DialogFragment {
         );
         binding.moodinfoSituationAutoComplete.setAdapter(adapter);
         binding.moodinfoSituationAutoComplete.setText(selected, false);
+    }
+
+    private void loadImage(String imagePath) {
+        StorageReference imageRef = FirebaseStorage.getInstance().getReference(imagePath);
+
+        imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+            // Use Glide to load the image
+            Glide.with(requireContext())
+                    .load(uri)
+                    .centerCrop()
+                    .error(R.drawable.ic_broken_image_80dp)
+                    .into(binding.moodInfoImageView);
+
+            // Make image visible
+            binding.moodInfoImageView.setVisibility(View.VISIBLE);
+        }).addOnFailureListener(e -> {
+            binding.moodInfoImageView.setVisibility(View.GONE);
+            Log.e("MoodInfoDialogFragment", "Error loading image", e);
+        });
     }
 }
