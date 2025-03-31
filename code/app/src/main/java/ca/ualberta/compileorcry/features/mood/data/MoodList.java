@@ -21,7 +21,6 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.storage.FirebaseStorage;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -508,17 +507,6 @@ public class MoodList implements Serializable {
                         }
                     }
                 }
-                // Have to delete all comments manually when deleting a moodEvent, fault of firestore client side
-                if(finalEvent.hasComments(user.getUsername()).equals("yes")){
-                    try {
-                        QuerySnapshot comments = Tasks.await(moodEventsRef.document(finalEvent.getId()).collection("comments").get());
-                        for(DocumentSnapshot doc: comments){
-                            doc.getReference().delete();
-                        }
-                    } catch (Exception e) {
-                        listener.onError(e);
-                    }
-                }
 
                 // Delete from the main collection regardless of recent processing
                 try {
@@ -526,17 +514,6 @@ public class MoodList implements Serializable {
                 } catch (Exception e) {
                     listener.onError(e);
                 }
-
-                // Delete picture from storage
-                if(finalEvent.getPicture() != null) {
-                    try {
-                        FirebaseStorage storage = FirebaseStorage.getInstance();
-                        Tasks.await(storage.getReference(finalEvent.getPicture()).delete());
-                    } catch (Exception e) {
-                        listener.onError(e);
-                    }
-                }
-
 
                 // Update the local list and notify listener
                 Collections.sort(moodEvents, (o1, o2) -> o2.getTimestamp().compareTo(o1.getTimestamp()));

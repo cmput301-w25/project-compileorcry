@@ -23,7 +23,6 @@ import java.util.List;
 
 import ca.ualberta.compileorcry.R;
 import ca.ualberta.compileorcry.domain.models.User;
-import ca.ualberta.compileorcry.features.mood.model.FollowHelper;
 
 /**
  * Bottom sheet dialog fragment that displays pending friend requests.
@@ -76,8 +75,9 @@ public class RequestsBottomSheet extends BottomSheetDialogFragment {
         // Load friend requests
         loadFriendRequests();
     }
+
     /**
-     * Load pending friend requests from Firestore using FollowHelper
+     * Load pending friend requests from Firestore
      */
     private void loadFriendRequests() {
         User activeUser = User.getActiveUser();
@@ -89,33 +89,33 @@ public class RequestsBottomSheet extends BottomSheetDialogFragment {
         // Show loading indicator
         showLoading(true);
 
-        try {
-            // Use FollowHelper to get the list of follow requests
-            ArrayList<String> requestUsernames = FollowHelper.getFollowRequest(activeUser.getUsername());
-
-            if (requestUsernames == null) {
-                showLoading(false);
-                showEmptyView("Error loading friend requests");
-                return;
-            }
-
-            if (requestUsernames.isEmpty()) {
-                showLoading(false);
-                showEmptyView("No pending friend requests");
-                return;
-            }
-
-            // Fetch user details for each requester
-            List<User> requestUsers = new ArrayList<>();
-            for (String username : requestUsernames) {
-                fetchUserDetails(username, requestUsers);
-            }
-
-        } catch (InterruptedException e) {
-            Log.e(TAG, "Error getting friend requests", e);
+        DocumentReference userDocRef = activeUser.getUserDocRef();
+        if (userDocRef == null) {
             showLoading(false);
-            showEmptyView("Unable to load friend requests");
+            showEmptyView("User data not available");
+            return;
         }
+
+        // Get friend requests from the "follow_request" subcollection
+        userDocRef.collection("follow_request").get()
+                .addOnCompleteListener(task -> {
+                    showLoading(false);
+                    if (task.isSuccessful()) {
+                        if (task.getResult().isEmpty()) {
+                            showEmptyView("No pending friend requests");
+                            return;
+                        }
+
+                        List<User> requestUsers = new ArrayList<>();
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            String userId = document.getId();
+                            fetchUserDetails(userId, requestUsers);
+                        }
+                    } else {
+                        Log.e(TAG, "Error getting friend requests", task.getException());
+                        showEmptyView("Unable to load friend requests");
+                    }
+                });
     }
 
     /**
@@ -177,26 +177,45 @@ public class RequestsBottomSheet extends BottomSheetDialogFragment {
 
         showLoading(true);
 
-        try {
-            // Use the FollowHelper to handle the friend request
-            boolean success = FollowHelper.handleFollowRequest(activeUser, requestUser.getUsername(), true);
-
-            if (success) {
-                // Remove from adapter on success
-                requestAdapter.removeItem(position);
-                showLoading(false);
-
-                if (requestAdapter.getItemCount() == 0) {
-                    showEmptyView("No pending friend requests");
-                }
-            } else {
-                showLoading(false);
-                Log.e(TAG, "Error accepting request: FollowHelper returned false");
-            }
-        } catch (InterruptedException e) {
-            showLoading(false);
-            Log.e(TAG, "Error accepting request", e);
-        }
+        // 1. Remove from follow_request collection
+        activeUser.getUserDocRef()
+                .collection("follow_request")
+                .document(requestUser.getUsername())
+                .delete()
+                .addOnSuccessListener(aVoid -> {
+                    // 2. Add to followers collection
+                    activeUser.getUserDocRef()
+                            .collection("followers")
+                            .document(requestUser.getUsername())
+                            .set(new HashMap<>())
+                            .addOnSuccessListener(aVoid2 -> {
+                                // 3. Add to the other user's following collection
+                                requestUser.getUserDocRef()
+                                        .collection("following")
+                                        .document(activeUser.getUsername())
+                                        .set(new HashMap<>())
+                                        .addOnSuccessListener(aVoid3 -> {
+                                            showLoading(false);
+                                            // Remove from adapter
+                                            requestAdapter.removeItem(position);
+                                            if (requestAdapter.getItemCount() == 0) {
+                                                showEmptyView("No pending friend requests");
+                                            }
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            showLoading(false);
+                                            Log.e(TAG, "Error adding to following", e);
+                                        });
+                            })
+                            .addOnFailureListener(e -> {
+                                showLoading(false);
+                                Log.e(TAG, "Error adding to followers", e);
+                            });
+                })
+                .addOnFailureListener(e -> {
+                    showLoading(false);
+                    Log.e(TAG, "Error removing request", e);
+                });
     }
 
     /**
@@ -210,26 +229,23 @@ public class RequestsBottomSheet extends BottomSheetDialogFragment {
 
         showLoading(true);
 
-        try {
-            // Use the FollowHelper to handle the friend request (decline = false)
-            boolean success = FollowHelper.handleFollowRequest(activeUser, requestUser.getUsername(), false);
-
-            if (success) {
-                // Remove from adapter on success
-                requestAdapter.removeItem(position);
-                showLoading(false);
-
-                if (requestAdapter.getItemCount() == 0) {
-                    showEmptyView("No pending friend requests");
-                }
-            } else {
-                showLoading(false);
-                Log.e(TAG, "Error declining request: FollowHelper returned false");
-            }
-        } catch (InterruptedException e) {
-            showLoading(false);
-            Log.e(TAG, "Error declining request", e);
-        }
+        // Remove from follow_request collection
+        activeUser.getUserDocRef()
+                .collection("follow_request")
+                .document(requestUser.getUsername())
+                .delete()
+                .addOnSuccessListener(aVoid -> {
+                    showLoading(false);
+                    // Remove from adapter
+                    requestAdapter.removeItem(position);
+                    if (requestAdapter.getItemCount() == 0) {
+                        showEmptyView("No pending friend requests");
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    showLoading(false);
+                    Log.e(TAG, "Error declining request", e);
+                });
     }
 
     /**

@@ -205,7 +205,6 @@ public class FeedFragment extends Fragment {
     }
 
     private void onMoodEventClick(MoodEvent clickedEvent) {
-
         if (clickedEvent == null) {
             Log.e("FeedFragment", "Clicked MoodEvent is null!");
             return;

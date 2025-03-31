@@ -4,7 +4,6 @@ import static android.app.Activity.RESULT_OK;
 
 import android.Manifest;
 import android.app.DatePickerDialog;
-import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -19,7 +18,6 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.DatePicker;
 import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -92,7 +90,7 @@ public class NewFragment extends Fragment {
     private Uri imagePath;
     private String uploadedImagePath;
     private GeoHash location;
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd '@' HH:mm", Locale.getDefault());
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
     // Const for image upload
     private static final int PICK_IMAGE_REQUEST = 71;
     private static final int AUTOCOMPLETE_REQUEST_CODE = 1;
@@ -158,7 +156,7 @@ public class NewFragment extends Fragment {
         setupSocialSituationDropdown();
 
         // Handle date picker dialog
-        dateEditText.setOnClickListener(v -> showDateTimePickerDialog());
+        dateEditText.setOnClickListener(v -> showDatePickerDialog());
 
         // Initialize Google Places API
         if (!Places.isInitialized()) {
@@ -221,53 +219,20 @@ public class NewFragment extends Fragment {
      * Displays a date picker dialog to allow the user to select a date for the mood event.
      * The selected date is displayed in the date input field.
      */
-    private void showDateTimePickerDialog() {
-        final Calendar currentCalendar = Calendar.getInstance();
-        int year = currentCalendar.get(Calendar.YEAR);
-        int month = currentCalendar.get(Calendar.MONTH);
-        int day = currentCalendar.get(Calendar.DAY_OF_MONTH);
-        final int currentHour = currentCalendar.get(Calendar.HOUR_OF_DAY);
-        final int currentMinute = currentCalendar.get(Calendar.MINUTE);
+    private void showDatePickerDialog() {
+        final Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
 
         DatePickerDialog datePickerDialog = new DatePickerDialog(requireContext(),
                 (DatePicker view, int selectedYear, int selectedMonth, int selectedDay) -> {
-                    Calendar selectedCalendar = Calendar.getInstance();
-                    selectedCalendar.set(selectedYear, selectedMonth, selectedDay);
-
-                    boolean isToday = selectedCalendar.get(Calendar.YEAR) == currentCalendar.get(Calendar.YEAR)
-                            && selectedCalendar.get(Calendar.MONTH) == currentCalendar.get(Calendar.MONTH)
-                            && selectedCalendar.get(Calendar.DAY_OF_MONTH) == currentCalendar.get(Calendar.DAY_OF_MONTH);
-
-                    TimePickerDialog timePickerDialog = new TimePickerDialog(requireContext(),
-                            (TimePicker timeView, int selectedHour, int selectedMinute) -> {
-                                // If selected date is today, ensure time doesn't exceed current time
-                                if (isToday) {
-                                    if (selectedHour > currentHour
-                                            || (selectedHour == currentHour && selectedMinute > currentMinute)) {
-                                        selectedHour = currentHour;
-                                        selectedMinute = currentMinute;
-                                    }
-                                }
-
-                                // Format the selected date and time
-                                String formattedMonth = (selectedMonth + 1) < 10 ? "0" + (selectedMonth + 1) : String.valueOf(selectedMonth + 1);
-                                String formattedDay = selectedDay < 10 ? "0" + selectedDay : String.valueOf(selectedDay);
-                                String formattedHour = selectedHour < 10 ? "0" + selectedHour : String.valueOf(selectedHour);
-                                String formattedMinute = selectedMinute < 10 ? "0" + selectedMinute : String.valueOf(selectedMinute);
-
-                                String selectedDateTime = selectedYear + "-" + formattedMonth + "-" + formattedDay
-                                        + " @ " + formattedHour + ":" + formattedMinute;
-                                dateEditText.setText(selectedDateTime);
-                            },
-                            isToday ? currentHour : 0,
-                            isToday ? currentMinute : 0,
-                            true);
-
-                    timePickerDialog.show();
+                    String formattedMonth = (selectedMonth + 1) < 10 ? "0" + (selectedMonth + 1) : String.valueOf(selectedMonth + 1);
+                    String formattedDay = selectedDay < 10 ? "0" + selectedDay : String.valueOf(selectedDay);
+                    String selectedDate = selectedYear + "-" + formattedMonth + "-" + formattedDay;
+                    dateEditText.setText(selectedDate);
                 }, year, month, day);
 
-        // Set max date to today
-        datePickerDialog.getDatePicker().setMaxDate(System.currentTimeMillis());
         datePickerDialog.show();
     }
 
