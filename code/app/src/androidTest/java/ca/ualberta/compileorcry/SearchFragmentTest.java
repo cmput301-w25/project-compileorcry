@@ -55,6 +55,7 @@ public class SearchFragmentTest {
         onView(withId(R.id.search_icon)).perform(click());
         SystemClock.sleep(2500);
         onView(withText("testuser")).check(matches(isDisplayed()));
+
     }
 
     @Test
@@ -65,6 +66,9 @@ public class SearchFragmentTest {
         onView(withId(R.id.search_icon)).perform(click());
         SystemClock.sleep(2500);
         onView(withId(R.id.empty_state_text)).check(matches(withText("No users with this username")));
+        onView(withId(R.id.search_icon)).perform(click());
+        SystemClock.sleep(2500);
+        onView(withId(R.id.empty_state_text)).check(matches(withText("Search your friend's username to view their profile!")));
     }
 
     @After
