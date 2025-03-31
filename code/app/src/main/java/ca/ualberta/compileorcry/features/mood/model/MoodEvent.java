@@ -330,6 +330,7 @@ public class MoodEvent implements Serializable {
      * @throws RuntimeException
      */
     public ArrayList<Comment> getComments(String moodUsername) throws InterruptedException {
+        ArrayList<Comment> localComments = new ArrayList<>();
         if(!this.isPublic){
             throw new RuntimeException("private moodEvents cannot have comments");
         }
@@ -353,7 +354,7 @@ public class MoodEvent implements Serializable {
                     for (DocumentSnapshot doc : commentsSnapshot.getDocuments()) {
                         Map<String,Object> docData = doc.getData();
                         if(this.isValidCommentMap(docData)){
-                            comments.add(new Comment(this,
+                            localComments.add(new Comment(this,
                                 (String) docData.get("username"),
                                 doc.getId(),
                                 Timestamp.now(),
@@ -362,6 +363,7 @@ public class MoodEvent implements Serializable {
                             doc.getReference().delete();
                         }
                     }
+                    comments = localComments;
                 } catch (ExecutionException | InterruptedException e) {
                     throw new RuntimeException(e);
                 }
