@@ -9,8 +9,6 @@ import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.instanceOf;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.SystemClock;
 
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
@@ -20,7 +18,6 @@ import androidx.test.filters.LargeTest;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.junit.After;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -28,7 +25,6 @@ import org.junit.runner.RunWith;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 @RunWith(AndroidJUnit4.class)
