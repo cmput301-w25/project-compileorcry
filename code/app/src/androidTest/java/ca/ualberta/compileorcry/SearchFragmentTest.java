@@ -54,7 +54,7 @@ public class SearchFragmentTest {
         onView(withId(R.id.search_input)).perform(typeText("testuser"), closeSoftKeyboard());
         onView(withId(R.id.search_icon)).perform(click());
         SystemClock.sleep(2500);
-        onView(withId(R.id.search_results_list)).check(matches(isDisplayed()));
+        onView(withText("testuser")).check(matches(isDisplayed()));
     }
 
     @Test
