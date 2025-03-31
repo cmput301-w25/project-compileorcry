@@ -87,8 +87,8 @@ public class FeedFragment extends Fragment {
             loadFeed();
         });
         super.onViewCreated(view, savedInstanceState);
-        setupUI(view);
         setupViewModel();
+        setupUI(view);
     }
 
     private void setupUI(View view) {
