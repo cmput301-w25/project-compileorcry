@@ -18,11 +18,12 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/friends_can_scan_this_to_follow_you"
+            android:layout_margin="5dp"
             android:fontFamily="@font/source_sans_pro_semibold"
+            android:text="@string/friends_can_scan_this_to_follow_you"
+            android:textAlignment="center"
             android:textColor="@color/dark"
-            android:textSize="24sp"
-            android:layout_margin="4dp"/>
+            android:textSize="24sp" />
 
         <ImageView
             android:id="@+id/qrcode_imageview"
@@ -34,15 +35,22 @@
             android:minWidth="400px"
             android:minHeight="400px" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/dismiss_button"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:backgroundTint="@color/dark"
-            android:text="@string/dismiss"
-            android:textColor="@color/light"
-            android:layout_margin="3dp"/>
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/dismiss_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:backgroundTint="@color/dark"
+                android:text="@string/dismiss"
+                android:textColor="@color/light" />
+        </LinearLayout>
+
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>

@@ -21,7 +21,7 @@ import ca.ualberta.compileorcry.domain.models.User;
 
 /**
  * Dialog fragment that allows users to change their display name.
- * This class displays a custom styled dialog with a TextInputEditText field pre-populated with
+ * This class displays a simple dialog with an EditText field pre-populated with
  * the user's current name and provides options to save or cancel the change.
  *
  * Features:
