@@ -455,13 +455,6 @@ public class MoodEvent implements Serializable {
      */
     public void reloadComments(String username) throws InterruptedException {
         this.commentsLoaded = false;
-        if(!(this.username == null)){
-            username = this.username;
-        }
-        if(username == null){
-            throw new RuntimeException("username and moodEvent username are null");
-        }
-        this.getComments(username);
     }
 
     /**
