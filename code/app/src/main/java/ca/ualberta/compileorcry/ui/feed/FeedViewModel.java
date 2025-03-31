@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import ca.ualberta.compileorcry.domain.models.User;
 import ca.ualberta.compileorcry.features.mood.model.MoodEvent;
 
 /**
@@ -28,6 +29,7 @@ public class FeedViewModel extends ViewModel implements Serializable {
     private final MutableLiveData<List<MoodEvent>> moodEvents = new MutableLiveData<>();
     private String feedType;
     private String filterType;
+    User user;
 
     /**
      * Returns LiveData containing the list of mood events.
@@ -70,5 +72,13 @@ public class FeedViewModel extends ViewModel implements Serializable {
 
     public void setFilterType(String filterType) {
         this.filterType = filterType;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }
