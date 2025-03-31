@@ -16,8 +16,43 @@ import ca.ualberta.compileorcry.R;
 import ca.ualberta.compileorcry.domain.models.User;
 
 /**
- * Adapter for displaying user items in a RecyclerView.
- * This adapter handles the display of users for both the followers and following lists.
+ * A RecyclerView adapter for displaying user items in lists throughout the application.
+ *
+ * <p>This adapter provides functionality to display user data in a consistent format
+ * across different sections of the application, particularly in the followers and following
+ * lists. Each user item displays:
+ * <ul>
+ *   <li>A user icon/avatar</li>
+ *   <li>The user's username (prefixed with '@')</li>
+ * </ul>
+ * </p>
+ *
+ * <p>The adapter supports click interactions with user items through the
+ * {@link OnUserClickListener} interface, allowing activities or fragments using this
+ * adapter to respond when a user is selected from the list.</p>
+ *
+ * <p>The adapter maintains an internal list of {@link User} objects and provides methods
+ * to update this list when new data is available. Empty list handling is supported
+ * by defaulting to an empty ArrayList when null data is provided.</p>
+ *
+ * <p>Example usage:
+ * <pre>
+ * // Initialize the adapter
+ * UserAdapter userAdapter = new UserAdapter();
+ * recyclerView.setAdapter(userAdapter);
+ *
+ * // Set up click listener
+ * userAdapter.setOnUserClickListener((user, position) -> {
+ *     // Handle user selection
+ * });
+ *
+ * // Update with new data
+ * userAdapter.updateUserList(newUsersList);
+ * </pre>
+ * </p>
+ *
+ * @see RecyclerView.Adapter
+ * @see User
  */
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder> {
 
@@ -69,6 +104,14 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         notifyDataSetChanged();
     }
 
+    /**
+     * Creates a new ViewHolder by inflating the user item layout.
+     * This is called by the RecyclerView when it needs a new ViewHolder.
+     *
+     * @param parent The ViewGroup into which the new View will be added
+     * @param viewType The view type of the new View (unused in this implementation)
+     * @return A new UserViewHolder that holds a user item view
+     */
     @NonNull
     @Override
     public UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -77,14 +120,21 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         return new UserViewHolder(itemView);
     }
 
+    /**
+     * Binds user data to a ViewHolder at the specified position.
+     * This method:
+     * <ul>
+     *   <li>Sets the username text (prefixed with '@')</li>
+     *   <li>Sets up the click listener for the item</li>
+     * </ul>
+     *
+     * @param holder The ViewHolder to bind data to
+     * @param position The position of the item in the data set
+     */
     @Override
     public void onBindViewHolder(@NonNull UserViewHolder holder, int position) {
         User user = userList.get(position);
         holder.usernameTextView.setText("@" + user.getUsername());
-
-        // You can add more fields here if the User model has more attributes
-        // For example, if the User model has a display name:
-        // holder.nameTextView.setText(user.getName());
 
         // Handle item click
         holder.itemView.setOnClickListener(v -> {
@@ -100,7 +150,8 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     }
 
     /**
-     * ViewHolder for the user item views
+     * ViewHolder class for user items in the RecyclerView.
+     * Holds references to the views within each user list item.
      */
     public static class UserViewHolder extends RecyclerView.ViewHolder {
         public ImageView userIconImageView;

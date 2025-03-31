@@ -28,14 +28,37 @@ import ca.ualberta.compileorcry.databinding.FragmentFriendsBinding;
 import ca.ualberta.compileorcry.domain.models.User;
 
 /**
- * Fragment that displays and manages the user's friends.
- * This class shows a list of the user's followers or people they are following
- * and provides functionality for managing friend relationships.
+ * Fragment that manages and displays the user's social connections.
  *
- * Features:
- * - Toggles between Followers and Following views
- * - Displays users in a RecyclerView
- * - Allows navigation back to the profile page
+ * <p>This fragment provides a dual-view interface that allows users to switch between:
+ * <ul>
+ *   <li><b>Followers</b> - Users who are following the current user</li>
+ *   <li><b>Following</b> - Users whom the current user is following</li>
+ * </ul>
+ * </p>
+ *
+ * <p>The fragment uses a {@link MaterialSwitch} to toggle between these two views,
+ * displaying the appropriate list in a {@link RecyclerView} with custom UI for empty
+ * states and loading indicators. The list of users is retrieved from Firestore
+ * subcollections associated with the current user.</p>
+ *
+ * <p>Each user in the list can be clicked to potentially view their profile or
+ * perform other user-specific actions. The fragment also provides a back button
+ * to return to the profile page.</p>
+ *
+ * <p>Error handling is implemented for various scenarios including:
+ * <ul>
+ *   <li>No active user logged in</li>
+ *   <li>Failure to retrieve user document references</li>
+ *   <li>Empty follower/following lists</li>
+ *   <li>Firestore query failures</li>
+ * </ul>
+ * </p>
+ *
+ * @see RecyclerView
+ * @see UserAdapter
+ * @see User
+ * @see FirebaseFirestore
  */
 public class FriendsFragment extends Fragment {
     /**
