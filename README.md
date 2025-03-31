@@ -1,4 +1,5 @@
-![Uploading image.png…]()
+![Screenshot 2025-03-31 at 11 55 34 AM](https://github.com/user-attachments/assets/079f823b-977c-4f14-8a75-b65a19b11aaf)
+
 
 # CMPUT 301 W25 - Team CompileOrCry
 
