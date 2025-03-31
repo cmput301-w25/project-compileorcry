@@ -312,7 +312,7 @@ public class MoodEvent implements Serializable {
     /**
      * Returns the formatted date string for display purposes.
      *
-     * @return A string representation of the timestamp in "yyyy-MM-dd HH:mm" format.
+     * @return A string representation of the timestamp in "yyyy-MM-dd @ HH:mm" format.
      */
     public String getFormattedDate() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd '@' HH:mm", Locale.getDefault());
