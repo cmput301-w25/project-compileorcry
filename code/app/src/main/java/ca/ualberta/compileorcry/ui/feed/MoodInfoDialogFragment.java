@@ -179,6 +179,7 @@ public class MoodInfoDialogFragment extends DialogFragment {
                 moodList.deleteMoodEvent(moodEvent);
                 notifyParentAndDismiss();
             }
+        });
 
         AlertDialog dialog = new AlertDialog.Builder(requireContext())
                 .setView(binding.getRoot())

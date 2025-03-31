@@ -94,6 +94,15 @@ public class FeedTest {
         user2Ref.collection("mood_events").document("mood2").set(mood2); // user2's post
         user3Ref.collection("mood_events").document("mood3").set(mood3); // user3's post
 
+        Map<String, Object> recMood1 = createRecentEvent(1, "Studying", Timestamp.now(), "Alone", null,"user1","user1Event");
+        Map<String, Object> recMood2 = createRecentEvent(2, "Coding", Timestamp.now(), "Online", null,"user2","user2Event");
+        Map<String, Object> recMood3 = createRecentEvent(3, "Gaming", Timestamp.now(), "Friends", null,"user3","user3Event");
+
+        // Assign moods to respective users
+        db.collection("most_recent_moods").document("user1").collection("recent_moods").document("user1Event").set(mood1); // user1's history
+        db.collection("most_recent_moods").document("user2").collection("recent_moods").document("user2Event").set(mood2); // user2's post
+        db.collection("most_recent_moods").document("user3").collection("recent_moods").document("user3Event").set(mood3); // user3's post
+
         // Wait for user1 to be set as active user
         CountDownLatch latch = new CountDownLatch(1);
         User.get_user("user1", (user, error) -> {
@@ -202,6 +211,22 @@ public class FeedTest {
         event.put("social_situation", socialSituation);
         event.put("location", location);
         event.put("is_public", false);
+        return event;
+    }
+
+    /**
+     * borrowed from MoodListTest
+     */
+    private static Map<String, Object> createRecentEvent(Object emotionalState, Object trigger, Object date, Object socialSituation, Object location, String username, String id) {
+        Map<String, Object> event = new HashMap<>();
+        event.put("emotional_state", emotionalState);
+        event.put("trigger", trigger);
+        event.put("date", date);
+        event.put("social_situation", socialSituation);
+        event.put("location", location);
+        event.put("username", username);
+        event.put("mood_id", id);
+        event.put("is_public", true);
         return event;
     }
 
