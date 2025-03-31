@@ -9,7 +9,9 @@
         android:id="@+id/navigation_feed"
         android:name="ca.ualberta.compileorcry.ui.feed.FeedFragment"
         android:label="@string/title_feed"
-        tools:layout="@layout/fragment_feed" />
+        tools:layout="@layout/fragment_feed">
+
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_new"
@@ -64,6 +66,18 @@
         android:name="ca.ualberta.compileorcry.ui.login.LoginFragment"
         android:label="@string/title_login"
         tools:layout="@layout/fragment_login" />
+
+    <fragment
+        android:id="@+id/commentFragment"
+        android:name="ca.ualberta.compileorcry.ui.feed.CommentFragment"
+        android:label="Comments"
+        tools:layout="@layout/fragment_comments">
+        <argument
+            android:name="moodEventId"
+            app:argType="string"
+            android:defaultValue="" />
+
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_search"

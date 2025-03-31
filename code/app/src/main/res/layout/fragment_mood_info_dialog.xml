@@ -2,6 +2,8 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/moodinfo_dialog_fragment"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="16dp">
@@ -14,9 +16,9 @@
         android:textColor="@color/dark"
         android:textSize="20sp"
         android:textStyle="bold"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/moodinfo_state_layout"
@@ -25,9 +27,9 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:hint="@string/emotional_state_required"
-        app:layout_constraintTop_toBottomOf="@id/moodinfo_edit_text"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/moodinfo_edit_text">
 
         <AutoCompleteTextView
             android:id="@+id/moodinfo_state_auto_complete"
@@ -164,6 +166,20 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/moodinfo_situation_layout" />
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/buttonViewComments"
+        style="@style/Widget.Material3.Button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/dark"
+        android:text="View Comments"
+        android:textColor="@color/light"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/bottom_barrier"
+        app:layout_goneMarginTop="16dp" />
+
     <LinearLayout
         android:id="@+id/button_bar"
         android:layout_width="match_parent"
@@ -195,4 +211,13 @@
             android:textColor="@color/light"
             android:text="@string/button_save_mood" />
     </LinearLayout>
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/bottom_barrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="button_bar,moodinfo_situation_readonly_layout" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

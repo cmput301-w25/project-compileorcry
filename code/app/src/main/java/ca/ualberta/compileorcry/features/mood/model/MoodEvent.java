@@ -2,6 +2,7 @@ package ca.ualberta.compileorcry.features.mood.model;
 
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.core.GeoHash;
+import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.Timestamp;
@@ -10,6 +11,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,7 +41,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * - Optional photograph
  *
  */
-public class MoodEvent {
+public class MoodEvent implements Serializable {
     private String id;
     public void setUsername(String username) {
         this.username = username;
@@ -338,6 +340,7 @@ public class MoodEvent {
             throw new RuntimeException("username and moodEvent username are null");
         }
         if(!commentsLoaded){
+            comments.clear();
             //Executor prevents deadlock due to the firestore operations callbacks hapening on main
             ExecutorService executor = Executors.newSingleThreadExecutor();
             //Runs the firestore stuff

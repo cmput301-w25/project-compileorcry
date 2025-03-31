@@ -17,6 +17,9 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.bumptech.glide.Glide;
 import com.google.firebase.storage.FirebaseStorage;
@@ -40,6 +43,7 @@ import ca.ualberta.compileorcry.features.mood.model.MoodEvent;
 public class MoodInfoDialogFragment extends DialogFragment {
 
     private MoodEvent moodEvent;
+    private MoodList moodList;
     private FragmentMoodInfoDialogBinding binding;
 
     /**
@@ -68,6 +72,8 @@ public class MoodInfoDialogFragment extends DialogFragment {
             String moodId = args.getString("moodId", "Unknown");
             String emotionalState = args.getString("emotionalState", "Unknown");
             EmotionalState state = EmotionalState.fromDescription(emotionalState);
+            this.moodEvent = (MoodEvent) args.getSerializable("moodEvent");
+            this.moodList = (MoodList) args.getSerializable("moodList");
             int backgroundColor = state.getColor(requireContext());
             String trigger = args.getString("trigger", "No Trigger");
             String socialSituation = args.getString("socialSituation", "No Situation");
@@ -87,6 +93,7 @@ public class MoodInfoDialogFragment extends DialogFragment {
             binding.moodinfoTriggerText.setText(trigger);
             binding.getRoot().setBackgroundColor(backgroundColor);
             binding.saveButton.setTextColor(backgroundColor);
+            binding.buttonViewComments.setTextColor(backgroundColor);
             if (!feedType.equals("History")) {
                 // Hide editable components
                 binding.moodinfoStateLayout.setVisibility(View.GONE);
@@ -131,9 +138,28 @@ public class MoodInfoDialogFragment extends DialogFragment {
                 set.applyTo(layout);
 
             }
-            moodEvent = new MoodEvent(moodId);
-            moodEvent.setEmotionalState(state);
+            if(!moodEvent.getIsPublic()){
+                binding.buttonViewComments.setVisibility(View.GONE);
+            }
         }
+
+        // view comments button logic
+        binding.buttonViewComments.setOnClickListener(v -> {
+            Log.d("MoodInfoFragment", "viewcomments button clicked");
+            if (moodEvent != null) {
+                CommentFragment commentFragment = new CommentFragment();
+                Bundle bundle = new Bundle();
+                bundle.putString("moodEventId", moodEvent.getId());
+                bundle.putSerializable("moodEvent",moodEvent);
+                commentFragment.setArguments(bundle);
+
+                NavController navController = NavHostFragment.findNavController(
+                        requireActivity().getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_activity_main)
+                );
+                dismiss();
+                navController.navigate(R.id.commentFragment, bundle);
+            }
+        });
 
         // Save button logic
         binding.saveButton.setOnClickListener(v -> {
@@ -142,54 +168,16 @@ public class MoodInfoDialogFragment extends DialogFragment {
                 changes.put("emotional_state", EmotionalState.fromDescription(binding.moodinfoStateAutoComplete.getText().toString()));
                 changes.put("trigger", binding.moodinfoTriggerText.getText().toString());
                 changes.put("social_situation", binding.moodinfoSituationAutoComplete.getText().toString());
-
-                MoodList.createMoodList(User.getActiveUser(), QueryType.HISTORY_MODIFIABLE, new MoodList.MoodListListener() {
-                    @Override
-                    public void returnMoodList(MoodList moodList) {
-                        if (moodList.containsMoodEvent(moodEvent)) {
-                            moodList.editMoodEvent(moodEvent, changes);
-
-                            notifyParentAndDismiss();
-                        } else {
-
-                            notifyParentAndDismiss();
-                        }
-                    }
-
-                    @Override
-                    public void onError(Exception e) {
-                        Log.e("MoodInfoDialogFragment", "Mood event with ID " + moodEvent.getId() + " not found in MoodList. Cannot edit.");
-                    }
-
-                    @Override
-                    public void updatedMoodList() {
-
-                    }
-                }, null);
+                moodList.editMoodEvent(moodEvent, changes);
+                notifyParentAndDismiss();
             }
         });
 
         // Delete button logic
         binding.deleteButton.setOnClickListener(v -> {
             if (moodEvent != null) {
-                MoodList.createMoodList(User.getActiveUser(), QueryType.HISTORY_MODIFIABLE, new MoodList.MoodListListener() {
-                    @Override
-                    public void returnMoodList(MoodList moodList) {
-                        moodList.deleteMoodEvent(moodEvent);
-                        notifyParentAndDismiss();
-                        Toast.makeText(requireContext(), "Mood deleted successfully", Toast.LENGTH_SHORT).show();
-
-
-                    }
-
-                    @Override
-                    public void onError(Exception e) {
-                    }
-
-                    @Override
-                    public void updatedMoodList() {
-                    }
-                }, null);
+                moodList.deleteMoodEvent(moodEvent);
+                notifyParentAndDismiss();
             }
         });
 

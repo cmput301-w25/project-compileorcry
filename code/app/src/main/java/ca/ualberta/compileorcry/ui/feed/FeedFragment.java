@@ -9,13 +9,13 @@ import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -58,12 +58,19 @@ import ca.ualberta.compileorcry.features.mood.model.MoodEvent;
 public class FeedFragment extends Fragment {
     private FragmentFeedBinding binding;
     private FeedViewModel feedViewModel;
+    private boolean userClicked = false;
+    private MoodList moodList;
+    private ArrayAdapter<String> filterAdapter;
     private MoodEventAdapter adapter;
     // Feed type options
     private static final String[] FEED_TYPES = {"Following", "History"};
     // Filter options
-    private static final String[] FILTER_OPTIONS = {"None", "Recent", "State", "Reason", "Nearby"};
+    private ArrayList<String> FILTER_OPTIONS = new ArrayList<>(List.of("","None", "Recent", "State", "Reason", "Nearby"));
 
+    @Override
+    public void onCreate(Bundle savedInstanceState){
+        super.onCreate(savedInstanceState);
+    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -90,14 +97,41 @@ public class FeedFragment extends Fragment {
                 requireContext(), R.layout.custom_spinner, FEED_TYPES);
         feedAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         binding.feedSpinner.setAdapter(feedAdapter);
-        binding.feedSpinner.post(() -> binding.feedSpinner.setSelection(0, false));
+        int position;
+        if(feedViewModel != null && feedViewModel.getFeedType()!=null){
+            position = this.getFeedSpinnerPosition(feedViewModel.getFeedType());
+        } else {
+            position = 0;
+        }
+        int finalPosition = position;
+        binding.feedSpinner.post(() -> binding.feedSpinner.setSelection(finalPosition, false));
 
         // Initialize filter spinner
         ArrayAdapter<String> filterAdapter = new ArrayAdapter<>(
-                requireContext(), R.layout.custom_spinner, FILTER_OPTIONS);
+                    requireContext(), R.layout.custom_spinner, FILTER_OPTIONS){
+                @Override
+                public View getDropDownView(int position, View convertView, ViewGroup parent) {
+                    View view = null;
+                    if (position == 0) {
+                        TextView textView = new TextView(getContext());
+                        textView.setVisibility(View.GONE);
+                        view = textView;
+                    } else {
+                        view = super.getDropDownView(position, null, parent);
+                    }
+                    return view;
+                }
+        };
         filterAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         binding.filterSpinner.setAdapter(filterAdapter);
-        binding.filterSpinner.post(() -> binding.filterSpinner.setSelection(0, false));
+        this.filterAdapter = filterAdapter;
+        if(feedViewModel != null && feedViewModel.getFilterType()!=null){
+            position = this.getFilterSpinnerPosition(feedViewModel.getFilterType());
+        } else {
+            position = 1;
+        }
+        int finalPosition1 = position;
+        binding.filterSpinner.post(() -> binding.filterSpinner.setSelection(finalPosition1, false));
 
         // Initialize RecyclerView
         adapter = new MoodEventAdapter(new ArrayList<>(), this::onMoodEventClick);
@@ -121,21 +155,44 @@ public class FeedFragment extends Fragment {
                                 ? R.drawable.txt_history
                                 : R.drawable.txt_feed
                 );
+                if(feedViewModel.getFeedType()!=null && !feedViewModel.getFeedType().equals((String) binding.feedSpinner.getSelectedItem())) {
+                    feedViewModel.setFilterType("None");
+                    binding.filterSpinner.setSelection(1);
+                }
+                feedViewModel.setFeedType((String) binding.feedSpinner.getSelectedItem());
                 loadFeed();
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {}
+
         });
 
         binding.filterSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if(position == 0){
+                    return;
+                }
+                feedViewModel.setFilterType((String) binding.filterSpinner.getSelectedItem());
                 loadFeed();
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        binding.filterSpinner.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                userClicked = true;
+                FILTER_OPTIONS.set(0,(String)binding.filterSpinner.getSelectedItem());
+                filterAdapter.notifyDataSetChanged();
+                binding.filterSpinner.setSelection(0,false);
+                return false;
+            }
         });
     }
 
@@ -166,7 +223,8 @@ public class FeedFragment extends Fragment {
         args.putString("socialSituation", clickedEvent.getSocialSituation());
         args.putString("imagePath", clickedEvent.getPicture());
         args.putString("feedType", feedType);
-
+        args.putSerializable("moodEvent", clickedEvent);
+        args.putSerializable("moodList",moodList);
         MoodInfoDialogFragment dialog = new MoodInfoDialogFragment();
         dialog.setArguments(args);
         dialog.show(requireActivity().getSupportFragmentManager(), "ViewMoodEvent");
@@ -183,9 +241,10 @@ public class FeedFragment extends Fragment {
      */
     private void loadFeed() {
         if (User.getActiveUser() == null) return;
-
         String feedType = (String) binding.feedSpinner.getSelectedItem();
         String filter = (String) binding.filterSpinner.getSelectedItem();
+        feedViewModel.setFeedType(feedType);
+        feedViewModel.setFilterType(filter);
         boolean isFollowing = feedType.equals("Following");
 
         switch (filter) {
@@ -205,9 +264,19 @@ public class FeedFragment extends Fragment {
                 });
                 break;
             case "State":
+                if(!userClicked){
+                    break;
+                } else {
+                    userClicked = false;
+                }
                 showEmotionalStateDialog(isFollowing);
                 break;
             case "Reason":
+                if(!userClicked){
+                    break;
+                } else {
+                    userClicked = false;
+                }
                 showReasonInputDialog(isFollowing);
                 break;
             default:
@@ -217,10 +286,12 @@ public class FeedFragment extends Fragment {
 
 
     private void fetchMoodEvents(QueryType queryType, Object filterValue) {
+        StackTraceElement[] cause = Thread.currentThread().getStackTrace();
         MoodList.createMoodList(User.getActiveUser(), queryType, new MoodList.MoodListListener() {
             @Override
-            public void returnMoodList(MoodList moodList) {
-                moodList.clearMoodEvents();
+            public void returnMoodList(MoodList initMoodList) {
+                initMoodList.clearMoodEvents();
+                moodList = initMoodList;
                 feedViewModel.setMoodEvents(moodList.getMoodEvents());
             }
 
@@ -231,6 +302,9 @@ public class FeedFragment extends Fragment {
 
             @Override
             public void updatedMoodList() {
+                requireActivity().runOnUiThread(() -> {
+                    adapter.notifyDataSetChanged();
+                });
                 // Handled automatically
             }
         }, filterValue);
@@ -273,30 +347,6 @@ public class FeedFragment extends Fragment {
                 })
                 .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
                 .show();
-    }
-
-    private void applySelectedFilter(QueryType queryType, Object filterValue) {
-        Log.d("FeedFragment", "Applying filter: " + queryType + " | " + filterValue);
-
-        MoodList.createMoodList(User.getActiveUser(), queryType, new MoodList.MoodListListener() {
-            @Override
-            public void returnMoodList(MoodList initializedMoodList) {
-                Log.d("FeedFragment", "returnMoodList() called");
-                if (feedViewModel != null) {
-                    feedViewModel.setMoodEvents(initializedMoodList.getMoodEvents());
-                }
-            }
-
-            @Override
-            public void updatedMoodList() {
-                Log.d("FeedFragment", "updatedMoodList() called");
-            }
-
-            @Override
-            public void onError(Exception e) {
-                Log.e("DataList",e.getMessage());
-            }
-        }, filterValue);
     }
 
     private void getCurrentLocation(LocationCallback callback) {
@@ -351,5 +401,29 @@ public class FeedFragment extends Fragment {
         } else {
             Toast.makeText(requireContext(), "No locatable events", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putSerializable("feedViewModel",this.feedViewModel);
+        super.onSaveInstanceState(outState);
+    }
+
+    private Integer getFilterSpinnerPosition(String string){
+        for (int i=1;i<binding.filterSpinner.getCount();i++){
+            if (binding.filterSpinner.getItemAtPosition(i).toString().equalsIgnoreCase(string)){
+                return i;
+            }
+        }
+        return 0;
+    }
+
+    private Integer getFeedSpinnerPosition(String string){
+        for (int i=0;i<binding.feedSpinner.getCount();i++){
+            if (binding.feedSpinner.getItemAtPosition(i).toString().equalsIgnoreCase(string)){
+                return i;
+            }
+        }
+        return 0;
     }
 }
