@@ -8,6 +8,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.isRoot;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
+import android.os.SystemClock;
 import android.view.View;
 
 import androidx.test.core.app.ActivityScenario;
@@ -33,6 +34,8 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import ca.ualberta.compileorcry.domain.models.User;
@@ -99,9 +102,9 @@ public class FeedTest {
         Map<String, Object> recMood3 = createRecentEvent(3, "Gaming", Timestamp.now(), "Friends", null,"user3","user3Event");
 
         // Assign moods to respective users
-        db.collection("most_recent_moods").document("user1").collection("recent_moods").document("user1Event").set(mood1); // user1's history
-        db.collection("most_recent_moods").document("user2").collection("recent_moods").document("user2Event").set(mood2); // user2's post
-        db.collection("most_recent_moods").document("user3").collection("recent_moods").document("user3Event").set(mood3); // user3's post
+        db.collection("most_recent_moods").document("user1").collection("recent_moods").document("user1Event").set(recMood1); // user1's history
+        db.collection("most_recent_moods").document("user2").collection("recent_moods").document("user2Event").set(recMood2); // user2's post
+        db.collection("most_recent_moods").document("user3").collection("recent_moods").document("user3Event").set(recMood3); // user3's post
 
         // Wait for user1 to be set as active user
         CountDownLatch latch = new CountDownLatch(1);
@@ -135,7 +138,6 @@ public class FeedTest {
 
         // Wait for UI to load
         onView(isRoot()).perform(waitForView(R.id.feed_spinner, 5000));
-
         // Step 4: Assert moods from mood history appears
         onView(withText("Anger")).check(matches(isDisplayed()));
     }
@@ -156,13 +158,11 @@ public class FeedTest {
         // Step 3: Select "Following" from feed spinner
         onView(withId(R.id.feed_spinner)).perform(click());
         onView(withText("Following")).perform(click());
-
         // Wait for UI to load
         onView(isRoot()).perform(waitForView(R.id.feed_spinner, 5000));
-
         // Step 4: Assert moods from followed users appear (usernames shown on moodevent items)
-        onView(withText("Confusion")).check(matches(isDisplayed()));
-        onView(withText("Disgust")).check(matches(isDisplayed()));
+        onView(withText("@user2's Confusion Event")).check(matches(isDisplayed()));
+        onView(withText("@user3's Disgust Event")).check(matches(isDisplayed()));
     }
 
     /**
