@@ -1,6 +1,7 @@
 package ca.ualberta.compileorcry.ui.profile;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -92,7 +93,8 @@ public class ProfileFragment extends Fragment {
         }
 
         binding.requestsButton.setOnClickListener((View v) -> {
-            // TODO: Implement Request Function
+            RequestsBottomSheet requestsBottomSheet = new RequestsBottomSheet();
+            requestsBottomSheet.show(getChildFragmentManager(), "requestsBottomSheet");
         });
 
         binding.editButton.setOnClickListener((View v) -> { // Edit Name Dialog
@@ -109,7 +111,7 @@ public class ProfileFragment extends Fragment {
             User.logoutUser(getActivity());
         });
 
-        binding.profileImage.setOnClickListener((View v) -> {
+        binding.qrcodeButton.setOnClickListener((View v) -> {
             DialogFragment qrCodeFragment = new QrCodeDialog();
             qrCodeFragment.show(getActivity().getSupportFragmentManager(), "userQrCode");
         });

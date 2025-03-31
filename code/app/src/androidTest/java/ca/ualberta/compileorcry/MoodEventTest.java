@@ -135,6 +135,11 @@ public class MoodEventTest {
         }
     }
 
+    @Test
+    public void hasComments() throws InterruptedException {
+        Assert.assertEquals("yes", this.testEvent.hasComments("test"));
+    }
+
     private static Map<String, Object> createEvent(Object emotionalState, Object trigger, Object date, Object socialSituation, Object location) {
         Map<String, Object> event = new HashMap<>();
         event.put("emotional_state", emotionalState);

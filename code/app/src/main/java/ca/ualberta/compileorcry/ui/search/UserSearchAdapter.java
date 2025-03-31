@@ -1,6 +1,8 @@
 package ca.ualberta.compileorcry.ui.search;
 
+import android.app.Activity;
 import android.content.Context;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +11,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
@@ -24,7 +28,12 @@ import ca.ualberta.compileorcry.domain.models.User;
  */
 public class UserSearchAdapter extends RecyclerView.Adapter<UserSearchAdapter.UserViewHolder> {
     private final Context context;
-    private List<User> users = new ArrayList<>();
+    private List<User> users;
+    private OnUserClickListener listener;
+
+    public interface OnUserClickListener {
+        void onUserClick(String username);
+    }
 
 
     /**
@@ -33,9 +42,10 @@ public class UserSearchAdapter extends RecyclerView.Adapter<UserSearchAdapter.Us
      * @param context   the context in which the adapter is used
      * @param users a list of usernames to display
      */
-    public UserSearchAdapter(Context context, List<User> users) {
+    public UserSearchAdapter(Context context, List<User> users, OnUserClickListener listener) {
         this.context = context;
         this.users = users;
+        this.listener = listener;
     }
 
     /**
@@ -67,8 +77,7 @@ public class UserSearchAdapter extends RecyclerView.Adapter<UserSearchAdapter.Us
 
         // Set up click behavior
         holder.itemView.setOnClickListener(v -> {
-            Toast.makeText(context, "Clicked on @" + user.getUsername(), Toast.LENGTH_SHORT).show();
-            // TODO: Navigate to user profile in the future
+            listener.onUserClick(user.getUsername());
         });
     }
 

@@ -3,11 +3,10 @@
     <string name="title_feed">Feed</string>
     <string name="title_new">New</string>
     <string name="title_profile">Profile</string>
-    <string name="hint_trigger">Enter trigger (optional)</string>
     <string name="button_save_mood">Save Mood</string>
     <string name="timestamp">Timestamp</string>
     <string name="emotional_state">Emotional State</string>
-    <string name="trigger">Trigger</string>
+    <string name="emotional_state_required">Emotional State *</string>
     <string name="social_situation">Social Situation</string>
     <string name="title_registration">Registration</string>
     <string name="title_login">Login</string>
@@ -26,9 +25,7 @@
     <string name="username">Username</string>
     <string name="name">Name</string>
     <string name="new_event">New Event</string>
-    <string name="social_situation_optional">Social Situation (Optional)</string>
-    <string name="trigger_optional">Trigger (Optional)</string>
-    <string name="date_amp_time"><![CDATA[Date & Time]]></string>
+    <string name="date_amp_time_required"><![CDATA[Date & Time *]]></string>
     <string name="create">Create</string>
     <string name="back">Back</string>
     <string name="profile_image">Profile Image</string>
@@ -39,7 +36,7 @@
     <string name="requests">Requests</string>
     <string name="logout">Logout</string>
     <string name="button_follow">Follow</string>
-    <string name="button_requested">Requested…</string>
+    <string name="button_requested">Requested</string>
     <string name="button_unfollow">Unfollow</string>
     <string name="sort_prompt">Sort</string>
     <string name="filter_prompt">Filter</string>
@@ -51,7 +48,6 @@
     <string name="button_delete">Delete</string>
     <string name="text_private">Private</string>
     <string name="text_formatted_public">"Public  "</string>
-    <string name="date">Date</string>
     <string name="location">Location</string>
     <string name="current_location">Current location</string>
     <string name="search_for_users">Search for users...</string>
@@ -59,4 +55,8 @@
     <string name="save">SAVE</string>
     <string name="cancel">Cancel</string>
     <string name="edit_your_name">Edit Your Name</string>
+    <string name="qr_code">QR Code</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="friends_can_scan_this_to_follow_you">Friends can scan this to follow you!</string>
+    <string name="reason">Reason</string>
 </resources>
