@@ -204,6 +204,8 @@ public class FeedFragment extends Fragment {
             feedViewModel.setUser(User.getActiveUser());
             feedViewModel.setFeedType(null);
             feedViewModel.setFilterType(null);
+            feedViewModel.setMoodEvents(new ArrayList<>());
+
         }
         feedViewModel.getMoodEvents().observe(getViewLifecycleOwner(), moodEvents -> {
             Log.d("RecyclerView", "Updating RecyclerView with " + moodEvents.size() + " moods.");
