@@ -22,6 +22,7 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -61,6 +62,7 @@ public class MoodEvent implements Serializable {
     private Boolean isPublic;
     private  Boolean commentsLoaded = false;
     private ArrayList<Comment> comments = new ArrayList<>();
+    Semaphore semiphore = new Semaphore(1,true);
 
     /**
      * Constructs a new MoodEvent with the specified emotional state and optional context information.
@@ -340,16 +342,17 @@ public class MoodEvent implements Serializable {
             throw new RuntimeException("username and moodEvent username are null");
         }
         if(!commentsLoaded){
-            comments.clear();
             //Executor prevents deadlock due to the firestore operations callbacks hapening on main
             ExecutorService executor = Executors.newSingleThreadExecutor();
             //Runs the firestore stuff
             String finalUsername = moodUsername;
+            semiphore.acquire();
             executor.execute(() -> {
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
                 QuerySnapshot commentsSnapshot;
                 try {
                     commentsSnapshot = Tasks.await(db.collection("users").document(finalUsername).collection("mood_events").document(this.id).collection("comments").get());
+                    comments.clear();
                     for (DocumentSnapshot doc : commentsSnapshot.getDocuments()) {
                         Map<String,Object> docData = doc.getData();
                         if(this.isValidCommentMap(docData)){
@@ -362,7 +365,9 @@ public class MoodEvent implements Serializable {
                             doc.getReference().delete();
                         }
                     }
+                    semiphore.release();
                 } catch (ExecutionException | InterruptedException e) {
+                    semiphore.release();
                     throw new RuntimeException(e);
                 }
             });
@@ -411,6 +416,11 @@ public class MoodEvent implements Serializable {
             toAdd.setIdFromDocRef(docRef);
             Map<String,Object> commentMap = toAdd.toFireStoreMap();
             // Write failed
+            try {
+                semiphore.acquire();
+            } catch (InterruptedException e) {
+
+            }
             docRef.set(commentMap)
                     .addOnSuccessListener(aVoid -> {
                         // Write succeeded
@@ -422,6 +432,7 @@ public class MoodEvent implements Serializable {
                         }
                     })
                     .addOnFailureListener(callback::onFailure);
+            semiphore.release();
         }
     }
     /**
@@ -455,13 +466,6 @@ public class MoodEvent implements Serializable {
      */
     public void reloadComments(String username) throws InterruptedException {
         this.commentsLoaded = false;
-        if(!(this.username == null)){
-            username = this.username;
-        }
-        if(username == null){
-            throw new RuntimeException("username and moodEvent username are null");
-        }
-        this.getComments(username);
     }
 
     /**
