@@ -38,14 +38,12 @@ import ca.ualberta.compileorcry.domain.models.User;
  *   <li>Automatically scales to 85% of screen width for optimal visibility</li>
  *   <li>Uses a borderless dialog style for modern UI appearance</li>
  * </ul>
- * </p>
  *
  * <p>Usage example:
  * <pre>
  * DialogFragment qrCodeFragment = new QrCodeDialog();
  * qrCodeFragment.show(getActivity().getSupportFragmentManager(), "userQrCode");
  * </pre>
- * </p>
  *
  * @see DialogFragment
  * @see BarcodeEncoder
@@ -127,7 +125,6 @@ public class QrCodeDialog extends DialogFragment {
      *   <li>Displays the QR code in the ImageView</li>
      *   <li>Handles any errors during QR code generation</li>
      * </ul>
-     * </p>
      *
      * @param inflater The LayoutInflater object for creating views
      * @param container The parent view that will contain the dialog's UI

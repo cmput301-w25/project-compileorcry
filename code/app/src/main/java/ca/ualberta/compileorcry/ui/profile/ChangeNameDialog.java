@@ -28,7 +28,6 @@ import ca.ualberta.compileorcry.domain.models.User;
  *   <li>Save button to confirm the name change</li>
  *   <li>Cancel button to dismiss the dialog without changes</li>
  * </ul>
- * </p>
  *
  * <p>The dialog validates that the name is not empty before allowing the save operation.</p>
  *
@@ -37,7 +36,6 @@ import ca.ualberta.compileorcry.domain.models.User;
  * DialogFragment editNameDialog = new ChangeNameDialog();
  * editNameDialog.show(getActivity().getSupportFragmentManager(), "editName");
  * </pre>
- * </p>
  *
  * @see DialogFragment
  * @see User
@@ -91,7 +89,6 @@ public class ChangeNameDialog extends DialogFragment {
      *   <li>Populates the name field with the current user's name</li>
      *   <li>Sets up button event handlers</li>
      * </ul>
-     * </p>
      *
      * @param inflater The LayoutInflater object for inflating views
      * @param container The parent view that the fragment's UI should be attached to

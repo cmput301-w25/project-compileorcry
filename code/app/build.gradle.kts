@@ -84,8 +84,10 @@ dependencies {
     //QR Codes
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
 
-    //implementation(files("${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar")) // For javadocs
-
+    /*
+    Uncomment below for generating javadocs. Update username and path as needed
+     */
+    //implementation(files("C:/Users/<USERNAME_HERE>/AppData/Local/Android/Sdk/platforms/android-35/android.jar"))
 }
 
 secrets {

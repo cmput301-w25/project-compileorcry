@@ -35,7 +35,6 @@ import ca.ualberta.compileorcry.domain.models.User;
  *   <li><b>Followers</b> - Users who are following the current user</li>
  *   <li><b>Following</b> - Users whom the current user is following</li>
  * </ul>
- * </p>
  *
  * <p>The fragment uses a {@link MaterialSwitch} to toggle between these two views,
  * displaying the appropriate list in a {@link RecyclerView} with custom UI for empty
@@ -53,7 +52,6 @@ import ca.ualberta.compileorcry.domain.models.User;
  *   <li>Empty follower/following lists</li>
  *   <li>Firestore query failures</li>
  * </ul>
- * </p>
  *
  * @see RecyclerView
  * @see UserAdapter
