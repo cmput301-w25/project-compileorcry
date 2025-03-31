@@ -30,10 +30,17 @@ import java.util.ArrayList;
 import ca.ualberta.compileorcry.R;
 import ca.ualberta.compileorcry.features.mood.model.MoodEvent;
 
+/**
+ * Fragment that displays a Google Map with markers representing mood events.
+ * Users can view locations of different mood events and interact with the map.
+ */
 public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private GoogleMap googleMap;
 
+    /**
+     * Inflates the layout for the map fragment.
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -41,6 +48,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         return inflater.inflate(R.layout.fragment_map, container, false);
     }
 
+    /**
+     * Initializes the map and UI components after the view is created.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -53,6 +63,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         fabExit.setOnClickListener(v -> requireActivity().getSupportFragmentManager().popBackStack());
     }
 
+    /**
+     * Called when the Google Map is ready to be used. Configures the map's style and adds markers.
+     *
+     * @param gMap The GoogleMap instance.
+     */
     @Override
     public void onMapReady(GoogleMap gMap) {
         googleMap = gMap;
@@ -111,6 +126,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, padding));
     }
 
+    /**
+     * Converts an integer color value to its corresponding hue value for map markers.
+     *
+     * @param color The color integer.
+     * @return The hue value corresponding to the color.
+     */
     private float getHueFromColor(int color) {
         // Convert to hsv
         float[] hsv = new float[3];
