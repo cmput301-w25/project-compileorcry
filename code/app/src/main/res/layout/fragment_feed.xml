@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.feed.FeedFragment">
+    tools:context=".ui.feed.FeedFragment"
+    android:background="@color/dark">
 
     <ImageView
         android:id="@+id/imageView"
@@ -68,20 +69,19 @@
     </LinearLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabAddMood"
+        android:id="@+id/fabUserSearch"
         style="@style/Widget.Material3.FloatingActionButton.Primary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="40dp"
         android:layout_marginBottom="18dp"
         android:backgroundTint="@color/dark"
-        android:contentDescription="@string/add_friends"
-        android:src="@drawable/baseline_add_24"
+        android:contentDescription="@string/search_for_users"
+        android:src="@drawable/ic_baseline_search_24dp"
         app:elevation="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:tint="@color/light" />
-
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabMap"
         style="@style/Widget.Material3.FloatingActionButton.Primary"
@@ -91,10 +91,9 @@
         android:layout_marginBottom="18dp"
         android:backgroundTint="@color/dark"
         android:contentDescription="@string/view_map"
-        android:src="@drawable/ic_map_24"
+        android:src="@drawable/ic_location_pin_24dp"
         app:elevation="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:tint="@color/light" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>

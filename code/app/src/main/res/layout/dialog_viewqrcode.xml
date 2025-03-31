@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="8dp"
+    android:layout_margin="16dp"
+    app:cardBackgroundColor="@color/light"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="6dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/friends_can_scan_this_to_follow_you"
+            android:fontFamily="@font/source_sans_pro_semibold"
+            android:textColor="@color/dark"
+            android:textSize="24sp"
+            android:layout_margin="4dp"/>
+
+        <ImageView
+            android:id="@+id/qrcode_imageview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="6dp"
+            android:backgroundTint="@color/light"
+            android:minWidth="400px"
+            android:minHeight="400px" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/dismiss_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:backgroundTint="@color/dark"
+            android:text="@string/dismiss"
+            android:textColor="@color/light"
+            android:layout_margin="3dp"/>
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

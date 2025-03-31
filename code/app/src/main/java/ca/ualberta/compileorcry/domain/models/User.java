@@ -38,6 +38,7 @@ public class User {
     private String name;
     private final DocumentReference userDocRef;
     private ListenerRegistration listenerRegistration;
+    private static final String TAG = "User";
 
     public interface OnUserLoadedListener {
         /**
@@ -52,7 +53,15 @@ public class User {
         void onActiveUserUpdated(boolean resumed, String error);
     }
 
-    private User(String username, String name, DocumentReference documentReference){
+    /**
+     * Constructor for creating a User object.
+     * If documentReference is null, creates a display-only user without Firestore functionality.
+     *
+     * @param username Username of user
+     * @param name Display name of user
+     * @param documentReference Document reference to user in Firestore (can be null for display-only users)
+     */
+    public User(String username, String name, DocumentReference documentReference){
         this.username = username;
         this.name = name;
         this.userDocRef = documentReference;
@@ -155,24 +164,34 @@ public class User {
         });
     }
 
+    /**
+     * Attaches a snapshot listener to the Firestore document to keep the local user object in sync.
+     * Only attaches if the document reference is not null.
+     */
     private void attachSnapshotListener() {
-        listenerRegistration = this.userDocRef.addSnapshotListener((documentSnapshot, error) -> {
-            if (error != null) {
-                Log.e("UserRepository", "Listen failed: " + error);
-                return;
-            }
 
-            if (documentSnapshot != null && documentSnapshot.exists()) {
-                // Update the name field if it changes in Firestore
-                String updatedName = documentSnapshot.getString("name");
-                if (updatedName != null && !updatedName.equals(this.name)) {
-                    this.name = updatedName;
-                    System.out.println("Name updated to: " + this.name);
+        try {
+            listenerRegistration = this.userDocRef.addSnapshotListener((documentSnapshot, error) -> {
+                if (error != null) {
+                    Log.e(TAG, "Listen failed: " + error);
+                    return;
+
                 }
-            } else {
-                Log.e("UserRepository", "Attach Failed. User document does not exist.");
-            }
-        });
+
+                if (documentSnapshot != null && documentSnapshot.exists()) {
+                    // Update the name field if it changes in Firestore
+                    String updatedName = documentSnapshot.getString("name");
+                    if (updatedName != null && !updatedName.equals(this.name)) {
+                        this.name = updatedName;
+                        System.out.println("Name updated to: " + this.name);
+                    }
+                } else {
+                    Log.e(TAG, "Attach Failed. User document does not exist.");
+                }
+            });
+        } catch (Exception e) {
+            Log.e(TAG, "Error attaching snapshot listener: " + e.getMessage());
+        }
     }
 
     /**
@@ -192,21 +211,30 @@ public class User {
     }
 
     /**
-     * Returns a reference to the user document in firestore
-     * @return DocumentReference to user in firestore.
+     * Returns a reference to the user document in firestore.
+     * May return null for display-only users.
+     *
+     * @return DocumentReference to user in firestore, or null for display-only users.
      */
     public DocumentReference getUserDocRef() {
         return userDocRef;
     }
 
+
     /**
-     * Change the name of a user
+     * Change the name of a user locally.
+     * Only updates the local name, does not update Firestore.
+     * For updating both local and Firestore, use updateName() instead.
+     *
      * @param name New name for the user
      */
     public void setName(String name) {
         this.name = name;
-        userDocRef.update(Map.of("name",this.name));
+        if(this.userDocRef != null){
+            userDocRef.update(Map.of("name", this.name));
+        }
     }
+
     /*
     The following function was has significant help in design from Deepseek, a bunch of it's mine
     Input: On the android java dev. If I have a document with sub collections. How do I delete all its sub collections considering the limits on the api for java android.
@@ -215,8 +243,10 @@ public class User {
 
     /**
      * Deletes the user object and related entries from the user collection and sub-collections.
+     * Does nothing for display-only users.
      */
     public void deleteUserFromDB() {
+
         deleteSubcollections(this.userDocRef.collection("mood_events"));
         deleteSubcollections(this.userDocRef.collection("follow_request"));
         deleteSubcollections(this.userDocRef.collection("following"));
@@ -347,9 +377,19 @@ public class User {
         // Navigate to login
         NavHostFragment navHostFragment = (NavHostFragment) activity.getSupportFragmentManager()
                 .findFragmentById(R.id.nav_host_fragment_activity_main);
+        assert navHostFragment != null;
         navHostFragment.getNavController().navigate(R.id.navigation_login);
         activity.findViewById(R.id.nav_view).setVisibility(BottomNavigationView.GONE);
     }
 
+    /**
+     * Cleanup method to remove any attached listeners.
+     * Should be called when the user object is no longer needed.
+     */
+    public void cleanup() {
+        if (listenerRegistration != null) {
+            listenerRegistration.remove();
+            listenerRegistration = null;
+        }
+    }
 }
-

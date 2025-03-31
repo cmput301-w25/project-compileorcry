@@ -1,5 +1,6 @@
 package ca.ualberta.compileorcry;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -8,11 +9,12 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
-import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import ca.ualberta.compileorcry.domain.data.OfflineHelper;
+import java.util.List;
+
 import ca.ualberta.compileorcry.domain.models.User;
 
 /**
@@ -62,8 +64,36 @@ public class MainActivity extends AppCompatActivity {
             // Set up bottom navigation
             navView = findViewById(R.id.nav_view);
 
-            // Just connect the nav view to controller, no action bar setup
-            NavigationUI.setupWithNavController(navView, navController);
+            // Add destination change listener to keep nav view in sync
+            navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
+                int destId = destination.getId();
+                // Reveal bottom nav after login screens
+                if (destId != R.id.navigation_login &&
+                        destId != R.id.navigation_registration) {
+                    navView.setVisibility(View.VISIBLE);
+                    // Set bottom nav item to checked
+                    if (destId == R.id.navigation_feed ||
+                            destId == R.id.navigation_new ||
+                            destId == R.id.navigation_profile) {
+                        navView.getMenu().findItem(destId).setChecked(true);
+                    } else if (destId == R.id.navigation_view_profile){ // Select profile nav for ViewProfile
+                        navView.getMenu().findItem(R.id.navigation_profile).setChecked(true);
+                    }
+                } else {
+                    navView.setVisibility(View.GONE);
+                }
+            });
+
+            // Custom navigation handling
+            navView.setOnItemSelectedListener(item -> {
+                int itemId = item.getItemId();
+                // If we're already on this destination, do nothing
+                if (navController.getCurrentDestination().getId() == itemId) {
+                    return true;
+                }
+                // Otherwise navigate while clearing back stack
+                return handleNavigation(itemId);
+            });
 
             // Handle login navigation
             if (User.getActiveUser() == null) {
@@ -71,36 +101,58 @@ public class MainActivity extends AppCompatActivity {
                     if(error != null){
                         Log.e("UserResume", error);
                     }
-
                     if(resumed){
                         Log.i("UserResume", "ActiveUser Resumed");
                         navController.navigate(R.id.navigation_feed);
                         navView.setSelectedItemId(R.id.navigation_feed);
-                        navView.setVisibility(View.VISIBLE);
                     } else {
                         navController.navigate(R.id.navigation_login);
-                        navView.setVisibility(View.GONE);
                     }
                 });
             } else {
-                // If user is already logged in, navigate to feed
-                navController.navigate(R.id.navigation_feed);
-                // Make sure the correct menu item is selected
-                navView.setSelectedItemId(R.id.navigation_feed);
-                navView.setVisibility(View.VISIBLE);
+                // If user is already logged in, check for QR Profile Read then go to feed
+                // Check for QR Code link
+                Uri data = getIntent().getData();
+                boolean qrCodeRedirect = false;
+                if(data != null){
+                    List<String> pathSegments = data.getPathSegments();
+                    if (!pathSegments.isEmpty()){
+                        String profileUsername = pathSegments.get(0);
+                        qrCodeRedirect = true;
+                        Log.d("QRRead", "Display Profile: " + profileUsername);
+                        Bundle bundle = new Bundle();
+                        bundle.putString("profileUsername", profileUsername);
+                        navController.navigate(R.id.navigation_view_profile, bundle);
+                        //navView.
+                    } else {
+                        Log.d("QRRead", "No Profile");
+                    }
+                } else {
+                    Log.d("QRRead", "Data Null");
+                }
+                if(!qrCodeRedirect){
+                    navController.navigate(R.id.navigation_feed);
+                }
             }
         }
     }
 
-    /**
-     * Shows the bottom navigation bar and navigates to the feed screen.
-     * This method is typically called after a successful login or registration.
-     */
-    public void showNavigation() {
-        if (navView != null) {
-            navView.setVisibility(View.VISIBLE);
+    // Helper method to handle navigation
+    private boolean handleNavigation(int itemId) {
+        // Clear the back stack to start destination and navigate
+        if (itemId == R.id.navigation_feed) {
+            navController.popBackStack(navController.getGraph().getStartDestinationId(), false);
             navController.navigate(R.id.navigation_feed);
-            navView.setSelectedItemId(R.id.navigation_feed);
+            return true;
+        } else if (itemId == R.id.navigation_new) {
+            navController.popBackStack(navController.getGraph().getStartDestinationId(), false);
+            navController.navigate(R.id.navigation_new);
+            return true;
+        } else if (itemId == R.id.navigation_profile) {
+            navController.popBackStack(navController.getGraph().getStartDestinationId(), false);
+            navController.navigate(R.id.navigation_profile);
+            return true;
         }
+        return false;
     }
 }
