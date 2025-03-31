@@ -97,6 +97,7 @@ public class RegistrationFragment extends Fragment {
         });
 
         binding.doneButton.setOnClickListener((View v) -> { // Attempt to register user
+            boolean isValid = true;
             String username = binding.registrationUsernameText.getText().toString();
             String name = binding.registrationNameText.getText().toString();
             if(username.isEmpty()){
@@ -104,13 +105,18 @@ public class RegistrationFragment extends Fragment {
                 binding.registrationUsernameLayout.setStartIconTintList(
                         getResources().getColorStateList(R.color.anger, getContext().getTheme())
                 );
+                isValid = false;
             }
             if(name.isEmpty()){
                 binding.registrationNameLayout.setError(getString(R.string.name_required));
                 binding.registrationNameLayout.setStartIconTintList(
                         getResources().getColorStateList(R.color.anger, getContext().getTheme())
                 );
+                isValid = false;
             }
+
+            if (!isValid) { return; }
+
             disableUI();
 
             User.register_user(username, name, (user, error) -> {
