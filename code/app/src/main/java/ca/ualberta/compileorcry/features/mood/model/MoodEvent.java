@@ -318,7 +318,7 @@ public class MoodEvent {
      * @return A string representation of the timestamp in "yyyy-MM-dd HH:mm" format.
      */
     public String getFormattedDate() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd '@' HH:mm", Locale.getDefault());
         return sdf.format(timestamp.toDate());
     }
 
