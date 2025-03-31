@@ -155,9 +155,11 @@ public class FeedFragment extends Fragment {
                                 ? R.drawable.txt_history
                                 : R.drawable.txt_feed
                 );
-                feedViewModel.setFilterType("None");
+                if(feedViewModel.getFeedType()!=null && !feedViewModel.getFeedType().equals((String) binding.feedSpinner.getSelectedItem())) {
+                    feedViewModel.setFilterType("None");
+                    binding.filterSpinner.setSelection(1);
+                }
                 feedViewModel.setFeedType((String) binding.feedSpinner.getSelectedItem());
-                binding.filterSpinner.setSelection(1);
                 loadFeed();
             }
 
@@ -284,6 +286,7 @@ public class FeedFragment extends Fragment {
 
 
     private void fetchMoodEvents(QueryType queryType, Object filterValue) {
+        StackTraceElement[] cause = Thread.currentThread().getStackTrace();
         MoodList.createMoodList(User.getActiveUser(), queryType, new MoodList.MoodListListener() {
             @Override
             public void returnMoodList(MoodList initMoodList) {
@@ -407,7 +410,7 @@ public class FeedFragment extends Fragment {
     }
 
     private Integer getFilterSpinnerPosition(String string){
-        for (int i=0;i<binding.filterSpinner.getCount();i++){
+        for (int i=1;i<binding.filterSpinner.getCount();i++){
             if (binding.filterSpinner.getItemAtPosition(i).toString().equalsIgnoreCase(string)){
                 return i;
             }
