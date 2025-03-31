@@ -220,7 +220,8 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/source_sans_pro_semibold"
                     android:maxLength="200"
-                    android:inputType="text"
+                    android:inputType="textMultiLine"
+                    android:maxLines="2"
                     android:textColor="@color/light" />
             </com.google.android.material.textfield.TextInputLayout>
 
