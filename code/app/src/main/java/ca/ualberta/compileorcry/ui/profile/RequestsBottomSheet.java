@@ -37,7 +37,6 @@ public class RequestsBottomSheet extends BottomSheetDialogFragment {
     private RecyclerView recyclerView;
     private RequestAdapter requestAdapter;
     private TextView emptyView;
-    private View progressBar;
     private FirebaseFirestore db;
 
     @Nullable
@@ -56,7 +55,6 @@ public class RequestsBottomSheet extends BottomSheetDialogFragment {
         // Set up views
         recyclerView = view.findViewById(R.id.recyclerView_requests);
         emptyView = view.findViewById(R.id.empty_message);
-        progressBar = view.findViewById(R.id.progress_bar);
 
         // Set up RecyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -76,6 +74,7 @@ public class RequestsBottomSheet extends BottomSheetDialogFragment {
         // Load friend requests
         loadFriendRequests();
     }
+
     /**
      * Load pending friend requests from Firestore using FollowHelper
      */
@@ -86,21 +85,16 @@ public class RequestsBottomSheet extends BottomSheetDialogFragment {
             return;
         }
 
-        // Show loading indicator
-        showLoading(true);
-
         try {
             // Use FollowHelper to get the list of follow requests
             ArrayList<String> requestUsernames = FollowHelper.getFollowRequest(activeUser.getUsername());
 
             if (requestUsernames == null) {
-                showLoading(false);
                 showEmptyView("Error loading friend requests");
                 return;
             }
 
             if (requestUsernames.isEmpty()) {
-                showLoading(false);
                 showEmptyView("No pending friend requests");
                 return;
             }
@@ -113,7 +107,6 @@ public class RequestsBottomSheet extends BottomSheetDialogFragment {
 
         } catch (InterruptedException e) {
             Log.e(TAG, "Error getting friend requests", e);
-            showLoading(false);
             showEmptyView("Unable to load friend requests");
         }
     }
@@ -175,8 +168,6 @@ public class RequestsBottomSheet extends BottomSheetDialogFragment {
             return;
         }
 
-        showLoading(true);
-
         try {
             // Use the FollowHelper to handle the friend request
             boolean success = FollowHelper.handleFollowRequest(activeUser, requestUser.getUsername(), true);
@@ -184,17 +175,14 @@ public class RequestsBottomSheet extends BottomSheetDialogFragment {
             if (success) {
                 // Remove from adapter on success
                 requestAdapter.removeItem(position);
-                showLoading(false);
 
                 if (requestAdapter.getItemCount() == 0) {
                     showEmptyView("No pending friend requests");
                 }
             } else {
-                showLoading(false);
                 Log.e(TAG, "Error accepting request: FollowHelper returned false");
             }
         } catch (InterruptedException e) {
-            showLoading(false);
             Log.e(TAG, "Error accepting request", e);
         }
     }
@@ -208,8 +196,6 @@ public class RequestsBottomSheet extends BottomSheetDialogFragment {
             return;
         }
 
-        showLoading(true);
-
         try {
             // Use the FollowHelper to handle the friend request (decline = false)
             boolean success = FollowHelper.handleFollowRequest(activeUser, requestUser.getUsername(), false);
@@ -217,27 +203,15 @@ public class RequestsBottomSheet extends BottomSheetDialogFragment {
             if (success) {
                 // Remove from adapter on success
                 requestAdapter.removeItem(position);
-                showLoading(false);
 
                 if (requestAdapter.getItemCount() == 0) {
                     showEmptyView("No pending friend requests");
                 }
             } else {
-                showLoading(false);
                 Log.e(TAG, "Error declining request: FollowHelper returned false");
             }
         } catch (InterruptedException e) {
-            showLoading(false);
             Log.e(TAG, "Error declining request", e);
-        }
-    }
-
-    /**
-     * Show/hide the loading indicator
-     */
-    private void showLoading(boolean show) {
-        if (progressBar != null) {
-            progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
         }
     }
 

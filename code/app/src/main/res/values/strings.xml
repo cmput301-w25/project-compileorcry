@@ -59,4 +59,6 @@
     <string name="dismiss">Dismiss</string>
     <string name="friends_can_scan_this_to_follow_you">Friends can scan this to follow you!</string>
     <string name="reason">Reason</string>
+    <string name="no_pending_friend_requests">No pending friend requests</string>
+    <string name="friend_requests">Friend Requests</string>
 </resources>
