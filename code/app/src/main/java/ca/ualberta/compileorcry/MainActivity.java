@@ -101,38 +101,44 @@ public class MainActivity extends AppCompatActivity {
                     }
                     if(resumed){
                         Log.i("UserResume", "ActiveUser Resumed");
-                        navController.navigate(R.id.navigation_feed);
-                        navView.setSelectedItemId(R.id.navigation_feed);
+                        if(!handleIntentRedirect(getIntent().getData())){ // If no redirect, go to Feed
+                            navController.navigate(R.id.navigation_feed);
+                        }
                     } else {
                         navController.navigate(R.id.navigation_login);
                     }
                 });
             } else {
                 // If user is already logged in, check for QR Profile Read then go to feed
-                // Check for QR Code link
-                Uri data = getIntent().getData();
-                boolean qrCodeRedirect = false;
-                if(data != null){
-                    List<String> pathSegments = data.getPathSegments();
-                    if (!pathSegments.isEmpty()){
-                        String profileUsername = pathSegments.get(0);
-                        qrCodeRedirect = true;
-                        Log.d("QRRead", "Display Profile: " + profileUsername);
-                        Bundle bundle = new Bundle();
-                        bundle.putString("profileUsername", profileUsername);
-                        navController.navigate(R.id.navigation_view_profile, bundle);
-                        //navView.
-                    } else {
-                        Log.d("QRRead", "No Profile");
-                    }
-                } else {
-                    Log.d("QRRead", "Data Null");
-                }
-                if(!qrCodeRedirect){
+                if(!handleIntentRedirect(getIntent().getData())){ // If no redirect, go to Feed
                     navController.navigate(R.id.navigation_feed);
                 }
             }
         }
+    }
+
+    /**
+     * Check if theres a profile redirect from a QR code
+     * @param data Intent data
+     * @return Returns true if redirected, otherwise false
+     */
+    private boolean handleIntentRedirect(Uri data){
+        if(data != null){
+            List<String> pathSegments = data.getPathSegments();
+            if (!pathSegments.isEmpty()){
+                String profileUsername = pathSegments.get(0);
+                Log.d("QRRead", "Display Profile: " + profileUsername);
+                Bundle bundle = new Bundle();
+                bundle.putString("profileUsername", profileUsername);
+                navController.navigate(R.id.navigation_view_profile, bundle);
+                return true;
+            } else {
+                Log.d("QRRead", "No Profile");
+            }
+        } else {
+            Log.d("QRRead", "Data Null");
+        }
+        return false;
     }
 
     // Helper method to handle navigation
