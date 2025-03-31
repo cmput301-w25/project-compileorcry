@@ -117,6 +117,13 @@ public class CommentViewModel extends ViewModel {
         }).start();
     }
 
+    /**
+     *
+     * @param moodEvent
+     */
+    public void setMoodEvent(MoodEvent moodEvent) {
+        this.moodEvent = moodEvent;
+    }
 }
 
 

@@ -68,6 +68,7 @@ public class MoodInfoDialogFragment extends DialogFragment {
             String moodId = args.getString("moodId", "Unknown");
             String emotionalState = args.getString("emotionalState", "Unknown");
             EmotionalState state = EmotionalState.fromDescription(emotionalState);
+            this.moodEvent = (MoodEvent) args.getSerializable("moodEvent");
             int backgroundColor = state.getColor(requireContext());
             String trigger = args.getString("trigger", "No Trigger");
             String socialSituation = args.getString("socialSituation", "No Situation");
@@ -106,8 +107,9 @@ public class MoodInfoDialogFragment extends DialogFragment {
                 binding.moodinfoTriggerDisplay.setText(trigger);
                 binding.moodinfoSituationText.setText(socialSituation);
             }
-            moodEvent = new MoodEvent(moodId);
-            moodEvent.setEmotionalState(state);
+            if(!moodEvent.getIsPublic()){
+                binding.buttonViewComments.setVisibility(View.GONE);
+            }
         }
 
         // view comments button logic
@@ -117,6 +119,7 @@ public class MoodInfoDialogFragment extends DialogFragment {
                 CommentFragment commentFragment = new CommentFragment();
                 Bundle bundle = new Bundle();
                 bundle.putString("moodEventId", moodEvent.getId());
+                bundle.putSerializable("moodEvent",moodEvent);
                 commentFragment.setArguments(bundle);
 
                 NavController navController = NavHostFragment.findNavController(
