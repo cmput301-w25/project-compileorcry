@@ -40,7 +40,6 @@ import ca.ualberta.compileorcry.features.mood.model.MoodEvent;
 public class MoodInfoDialogFragment extends DialogFragment {
 
     private MoodEvent moodEvent;
-    private MoodList moodList;
     private FragmentMoodInfoDialogBinding binding;
 
     /**
@@ -70,7 +69,6 @@ public class MoodInfoDialogFragment extends DialogFragment {
             String emotionalState = args.getString("emotionalState", "Unknown");
             EmotionalState state = EmotionalState.fromDescription(emotionalState);
             this.moodEvent = (MoodEvent) args.getSerializable("moodEvent");
-            this.moodList = (MoodList) args.getSerializable("moodList");
             int backgroundColor = state.getColor(requireContext());
             String trigger = args.getString("trigger", "No Trigger");
             String socialSituation = args.getString("socialSituation", "No Situation");
@@ -139,16 +137,55 @@ public class MoodInfoDialogFragment extends DialogFragment {
                 changes.put("emotional_state", EmotionalState.fromDescription(binding.moodinfoStateAutoComplete.getText().toString()));
                 changes.put("trigger", binding.moodinfoTriggerText.getText().toString());
                 changes.put("social_situation", binding.moodinfoSituationAutoComplete.getText().toString());
-                moodList.editMoodEvent(moodEvent, changes);
-                notifyParentAndDismiss();
+
+                MoodList.createMoodList(User.getActiveUser(), QueryType.HISTORY_MODIFIABLE, new MoodList.MoodListListener() {
+                    @Override
+                    public void returnMoodList(MoodList moodList) {
+                        if (moodList.containsMoodEvent(moodEvent)) {
+                            moodList.editMoodEvent(moodEvent, changes);
+
+                            notifyParentAndDismiss();
+                        } else {
+
+                            notifyParentAndDismiss();
+                        }
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        Log.e("MoodInfoDialogFragment", "Mood event with ID " + moodEvent.getId() + " not found in MoodList. Cannot edit.");
+                    }
+
+                    @Override
+                    public void updatedMoodList() {
+
+                    }
+                }, null);
             }
         });
 
         // Delete button logic
         binding.deleteButton.setOnClickListener(v -> {
             if (moodEvent != null) {
-                moodList.deleteMoodEvent(moodEvent);
-                notifyParentAndDismiss();
+                MoodList.createMoodList(User.getActiveUser(), QueryType.HISTORY_MODIFIABLE, new MoodList.MoodListListener() {
+                    @Override
+                    public void returnMoodList(MoodList moodList) {
+                        moodList.deleteMoodEvent(moodEvent);
+                        notifyParentAndDismiss();
+                        Toast.makeText(requireContext(), "Mood deleted successfully", Toast.LENGTH_SHORT).show();
+
+
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                    }
+
+                    @Override
+                    public void updatedMoodList() {
+
+                    }
+                }, null);
             }
         });
 

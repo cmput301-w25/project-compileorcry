@@ -65,7 +65,6 @@ public class FeedFragment extends Fragment {
     private static final String[] FEED_TYPES = {"Following", "History"};
     // Filter options
     private ArrayList<String> FILTER_OPTIONS = new ArrayList<>(List.of("","None", "Recent", "State", "Reason", "Nearby"));
-    private MoodList moodList;
 
     @Override
     public void onCreate(Bundle savedInstanceState){
@@ -221,7 +220,6 @@ public class FeedFragment extends Fragment {
         args.putString("imagePath", clickedEvent.getPicture());
         args.putString("feedType", feedType);
         args.putSerializable("moodEvent", clickedEvent);
-        args.putSerializable("moodList",moodList);
 
         MoodInfoDialogFragment dialog = new MoodInfoDialogFragment();
         dialog.setArguments(args);
@@ -286,9 +284,8 @@ public class FeedFragment extends Fragment {
     private void fetchMoodEvents(QueryType queryType, Object filterValue) {
         MoodList.createMoodList(User.getActiveUser(), queryType, new MoodList.MoodListListener() {
             @Override
-            public void returnMoodList(MoodList initMoodList) {
-                initMoodList.clearMoodEvents();
-                moodList = initMoodList;
+            public void returnMoodList(MoodList moodList) {
+                moodList.clearMoodEvents();
                 feedViewModel.setMoodEvents(moodList.getMoodEvents());
             }
 
@@ -299,7 +296,6 @@ public class FeedFragment extends Fragment {
 
             @Override
             public void updatedMoodList() {
-                adapter.notifyDataSetChanged();
                 // Handled automatically
             }
         }, filterValue);
@@ -342,6 +338,30 @@ public class FeedFragment extends Fragment {
                 })
                 .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
                 .show();
+    }
+
+    private void applySelectedFilter(QueryType queryType, Object filterValue) {
+        Log.d("FeedFragment", "Applying filter: " + queryType + " | " + filterValue);
+
+        MoodList.createMoodList(User.getActiveUser(), queryType, new MoodList.MoodListListener() {
+            @Override
+            public void returnMoodList(MoodList initializedMoodList) {
+                Log.d("FeedFragment", "returnMoodList() called");
+                if (feedViewModel != null) {
+                    feedViewModel.setMoodEvents(initializedMoodList.getMoodEvents());
+                }
+            }
+
+            @Override
+            public void updatedMoodList() {
+                Log.d("FeedFragment", "updatedMoodList() called");
+            }
+
+            @Override
+            public void onError(Exception e) {
+                Log.e("DataList",e.getMessage());
+            }
+        }, filterValue);
     }
 
     private void getCurrentLocation(LocationCallback callback) {
