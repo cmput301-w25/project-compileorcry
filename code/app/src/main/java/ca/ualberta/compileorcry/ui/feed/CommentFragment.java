@@ -60,17 +60,17 @@ public class CommentFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // pass in the mood id of mood clicked on from feed, needed for adding comments
+        // Pass in the mood id of mood clicked on from feed, needed for adding comments
         if (getArguments() != null) {
             moodEventId = getArguments().getString("moodEventId");
             moodEvent =  (MoodEvent) getArguments().getSerializable("moodEvent");
             Log.d("CommentFragment", "Received moodEventId in onCreate: " + moodEventId);
         }
-        // viewmodel needs factory method to be initialized
+        // Viewmodel needs factory method to be initialized
         commentViewModel = new ViewModelProvider(this, new CommentViewModelFactory(moodEventId))
                 .get(CommentViewModel.class);
         commentViewModel.setMoodEvent(moodEvent);
-        // get currently logged in user's username for posting comments and fetching moods
+        // Get currently logged in user's username for posting comments and fetching moods
         username = commenter.getActiveUser().getUsername();
     }
 
@@ -128,7 +128,7 @@ public class CommentFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         Log.d("CommentFragment", "onViewCreated called");
-        // username of commenter passed in, correct username and mood handled by MoodEvent.getComments()
+        // Username of commenter passed in, correct username and mood handled by MoodEvent.getComments()
         commentViewModel.loadComments(username);
     }
 
