@@ -299,7 +299,9 @@ public class FeedFragment extends Fragment {
 
             @Override
             public void updatedMoodList() {
-                adapter.notifyDataSetChanged();
+                requireActivity().runOnUiThread(() -> {
+                    adapter.notifyDataSetChanged();
+                });
                 // Handled automatically
             }
         }, filterValue);
