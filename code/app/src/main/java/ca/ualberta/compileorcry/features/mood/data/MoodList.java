@@ -22,6 +22,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -77,7 +78,7 @@ import ca.ualberta.compileorcry.features.mood.model.MoodEvent;
  * @see QueryType
  * @see MoodListListener
  */
-public class MoodList {
+public class MoodList implements Serializable {
     private final ArrayList<MoodEvent> moodEvents;  //a list of moodEvents, don't modify it outside of this class
     private final MoodList ptrToSelf;   //a reference to itself
     private boolean writeAllowed = false;   //internal boolean that prevents usage of add/delete/edit methods when using filtered queries
