@@ -84,7 +84,7 @@ public class CommentAdapter extends ListAdapter<Comment, CommentAdapter.CommentV
         public void bind(Comment comment) {
             usernameTextView.setText(comment.getUsername());
             textTextView.setText(comment.getCommentMsg());
-            timestampTextView.setText(new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(comment.getDate().toDate()));
+            timestampTextView.setText(new SimpleDateFormat("yyyy-MM-dd '@' HH:mm", Locale.getDefault()).format(comment.getDate().toDate()));
         }
 
     }
