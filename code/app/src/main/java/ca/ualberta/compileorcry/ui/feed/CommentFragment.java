@@ -63,11 +63,13 @@ public class CommentFragment extends Fragment {
         // pass in the mood id of mood clicked on from feed, needed for adding comments
         if (getArguments() != null) {
             moodEventId = getArguments().getString("moodEventId");
+            moodEvent =  (MoodEvent) getArguments().getSerializable("moodEvent");
             Log.d("CommentFragment", "Received moodEventId in onCreate: " + moodEventId);
         }
         // viewmodel needs factory method to be initialized
         commentViewModel = new ViewModelProvider(this, new CommentViewModelFactory(moodEventId))
                 .get(CommentViewModel.class);
+        commentViewModel.setMoodEvent(moodEvent);
         // get currently logged in user's username for posting comments and fetching moods
         username = commenter.getActiveUser().getUsername();
     }

@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -22,9 +23,11 @@ import ca.ualberta.compileorcry.features.mood.model.MoodEvent;
  * - Ensuring mood events are always sorted in reverse chronological order
  * - Providing LiveData for the UI to observe changes
  */
-public class FeedViewModel extends ViewModel {
+public class FeedViewModel extends ViewModel implements Serializable {
     /** LiveData containing the list of mood events to display */
     private final MutableLiveData<List<MoodEvent>> moodEvents = new MutableLiveData<>();
+    private String feedType;
+    private String filterType;
 
     /**
      * Returns LiveData containing the list of mood events.
@@ -51,5 +54,21 @@ public class FeedViewModel extends ViewModel {
             Collections.sort(events, (m1, m2) -> m2.getTimestamp().compareTo(m1.getTimestamp()));
         }
         moodEvents.setValue(events);
+    }
+
+    public String getFeedType() {
+        return feedType;
+    }
+
+    public void setFeedType(String feedType) {
+        this.feedType = feedType;
+    }
+
+    public String getFilterType() {
+        return filterType;
+    }
+
+    public void setFilterType(String filterType) {
+        this.filterType = filterType;
     }
 }
