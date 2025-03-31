@@ -47,11 +47,11 @@ public class MoodInfoDialogFragment extends DialogFragment {
      * then dismisses this dialog.
      */
     private void notifyParentAndDismiss() {
-        if (isAdded()) {
-            getParentFragmentManager().setFragmentResult("moodEventUpdated", new Bundle());
+        if (getActivity() != null) {
+            getActivity().getSupportFragmentManager().setFragmentResult("moodEventUpdated", new Bundle());
             Log.d("MoodInfoDialogFragment", "Sending result to parent before dismiss");
         }
-        dismiss();
+        dismissAllowingStateLoss();
     }
 
     @NonNull
@@ -148,10 +148,7 @@ public class MoodInfoDialogFragment extends DialogFragment {
                     public void returnMoodList(MoodList moodList) {
                         if (moodList.containsMoodEvent(moodEvent)) {
                             moodList.editMoodEvent(moodEvent, changes);
-
-                            notifyParentAndDismiss();
                         } else {
-
                             notifyParentAndDismiss();
                         }
                     }
@@ -163,6 +160,7 @@ public class MoodInfoDialogFragment extends DialogFragment {
 
                     @Override
                     public void updatedMoodList() {
+                        notifyParentAndDismiss();
 
                     }
                 }, null);
@@ -176,10 +174,6 @@ public class MoodInfoDialogFragment extends DialogFragment {
                     @Override
                     public void returnMoodList(MoodList moodList) {
                         moodList.deleteMoodEvent(moodEvent);
-                        notifyParentAndDismiss();
-                        Toast.makeText(requireContext(), "Mood deleted successfully", Toast.LENGTH_SHORT).show();
-
-
                     }
 
                     @Override
@@ -188,6 +182,8 @@ public class MoodInfoDialogFragment extends DialogFragment {
 
                     @Override
                     public void updatedMoodList() {
+
+                        notifyParentAndDismiss();
                     }
                 }, null);
             }
