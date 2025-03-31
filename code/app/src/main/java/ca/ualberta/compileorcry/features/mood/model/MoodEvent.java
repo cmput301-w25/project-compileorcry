@@ -36,11 +36,8 @@ import java.util.concurrent.atomic.AtomicReference;
  * - Optional trigger text explanation (reason for the mood)
  * - Optional social situation context
  * - Optional location data as GeoHash
- * - Optional photograph (not fully implemented)
+ * - Optional photograph
  *
- * Outstanding issues:
- * - Picture data handling is not fully implemented (marked with TODO)
- * - Location data handling needs further implementation
  */
 public class MoodEvent {
     private String id;
@@ -186,7 +183,6 @@ public class MoodEvent {
 
     /**
      * Returns the picture associated with this mood event.
-     * Note: Picture handling is not fully implemented yet.
      *
      * @return The picture path, or null if not set
      */
@@ -224,7 +220,6 @@ public class MoodEvent {
 
     /**
      * Sets the picture associated with this mood event.
-     * Note: Picture handling is not fully implemented yet.
      *
      * @param picture The picture object to associate with this mood event
      */
