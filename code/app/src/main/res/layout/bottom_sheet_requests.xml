@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:fontFamily="@font/source_sans_pro_semibold"
-        android:text="Friend Requests"
+        android:text="@string/friend_requests"
         android:textColor="@color/light"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -39,8 +39,6 @@
         app:layout_constraintTop_toBottomOf="@id/divider"
         tools:listitem="@layout/item_request" />
 
-    <!-- ProgressBar has been removed -->
-
     <TextView
         android:id="@+id/empty_message"
         android:layout_width="wrap_content"
@@ -48,7 +46,7 @@
         android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp"
         android:fontFamily="@font/source_sans_pro"
-        android:text="No pending friend requests"
+        android:text="@string/no_pending_friend_requests"
         android:textColor="@color/light"
         android:textSize="16sp"
         android:visibility="gone"

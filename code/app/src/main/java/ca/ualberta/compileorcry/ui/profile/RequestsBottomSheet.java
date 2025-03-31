@@ -56,9 +56,6 @@ public class RequestsBottomSheet extends BottomSheetDialogFragment {
         recyclerView = view.findViewById(R.id.recyclerView_requests);
         emptyView = view.findViewById(R.id.empty_message);
 
-        // Remove reference to progressBar
-        // We no longer need it since we're removing the loading animation
-
         // Set up RecyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         requestAdapter = new RequestAdapter(new ArrayList<>(), new RequestAdapter.OnRequestActionListener() {
@@ -87,8 +84,6 @@ public class RequestsBottomSheet extends BottomSheetDialogFragment {
             showEmptyView("No active user found");
             return;
         }
-
-        // Removed showing loading indicator
 
         try {
             // Use FollowHelper to get the list of follow requests
@@ -173,8 +168,6 @@ public class RequestsBottomSheet extends BottomSheetDialogFragment {
             return;
         }
 
-        // Removed showing loading indicator
-
         try {
             // Use the FollowHelper to handle the friend request
             boolean success = FollowHelper.handleFollowRequest(activeUser, requestUser.getUsername(), true);
@@ -202,8 +195,6 @@ public class RequestsBottomSheet extends BottomSheetDialogFragment {
         if (activeUser == null || activeUser.getUserDocRef() == null || requestUser == null) {
             return;
         }
-
-        // Removed showing loading indicator
 
         try {
             // Use the FollowHelper to handle the friend request (decline = false)
