@@ -198,6 +198,13 @@ public class FeedFragment extends Fragment {
 
     private void setupViewModel() {
         feedViewModel = new ViewModelProvider(requireActivity()).get(FeedViewModel.class);
+        if(feedViewModel.getUser() == null){
+            feedViewModel.setUser(User.getActiveUser());
+        } else if (!feedViewModel.getUser().getUsername().equals(User.getActiveUser().getUsername())){
+            feedViewModel.setUser(User.getActiveUser());
+            feedViewModel.setFeedType(null);
+            feedViewModel.setFilterType(null);
+        }
         feedViewModel.getMoodEvents().observe(getViewLifecycleOwner(), moodEvents -> {
             Log.d("RecyclerView", "Updating RecyclerView with " + moodEvents.size() + " moods.");
             boolean isFollowing = binding.feedSpinner.getSelectedItem().equals("Following");
