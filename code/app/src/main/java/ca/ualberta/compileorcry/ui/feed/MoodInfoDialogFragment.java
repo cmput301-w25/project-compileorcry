@@ -51,11 +51,11 @@ public class MoodInfoDialogFragment extends DialogFragment {
      * then dismisses this dialog.
      */
     private void notifyParentAndDismiss() {
-        if (isAdded()) {
-            getParentFragmentManager().setFragmentResult("moodEventUpdated", new Bundle());
+        if (getActivity() != null) {
+            getActivity().getSupportFragmentManager().setFragmentResult("moodEventUpdated", new Bundle());
             Log.d("MoodInfoDialogFragment", "Sending result to parent before dismiss");
         }
-        dismiss();
+        dismissAllowingStateLoss();
     }
 
     @NonNull

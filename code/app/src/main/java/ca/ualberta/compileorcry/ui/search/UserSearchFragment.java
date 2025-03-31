@@ -181,7 +181,7 @@ public class UserSearchFragment extends Fragment {
         adapter.notifyDataSetChanged();
         binding.searchResultsList.setVisibility(View.GONE);
         showEmptyState(R.drawable.ic_search_big,
-                "Search your friends' username to view their profile!");
+                "Search your friend's username to view their profile!");
         binding.searchIcon.setImageResource(R.drawable.ic_baseline_search_24dp);
         isClearIconVisible = false;
     }
