@@ -87,7 +87,7 @@
             android:id="@+id/moodinfo_trigger_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="text"
+            android:inputType="textMultiLine"
             android:maxLength="200" />
 
     </com.google.android.material.textfield.TextInputLayout>
@@ -110,7 +110,7 @@
             android:id="@+id/moodinfo_trigger_display"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="text"
+            android:inputType="textMultiLine"
             android:enabled="false"
             android:focusable="false"
             android:background="@null"
