@@ -201,6 +201,7 @@ public class FeedFragment extends Fragment {
         if(feedViewModel.getUser() == null){
             feedViewModel.setUser(User.getActiveUser());
         } else if (!feedViewModel.getUser().getUsername().equals(User.getActiveUser().getUsername())){
+            feedViewModel.setUser(User.getActiveUser());
             feedViewModel.setFeedType(null);
             feedViewModel.setFilterType(null);
         }
