@@ -36,7 +36,6 @@ import ca.ualberta.compileorcry.features.mood.model.FollowHelper;
  *   <li>The requester's display name</li>
  *   <li>Accept and Decline buttons to respond to the request</li>
  * </ul>
- * </p>
  *
  * <p>The bottom sheet handles various states:
  * <ul>
@@ -44,7 +43,6 @@ import ca.ualberta.compileorcry.features.mood.model.FollowHelper;
  *   <li><b>Error state</b> - When there's an issue loading the requests</li>
  *   <li><b>Content state</b> - When requests are available and displayed in a list</li>
  * </ul>
- * </p>
  *
  * <p>The implementation uses {@link FollowHelper} to handle database operations
  * related to accepting or declining requests, ensuring consistent data handling
@@ -55,7 +53,6 @@ import ca.ualberta.compileorcry.features.mood.model.FollowHelper;
  * RequestsBottomSheet requestsBottomSheet = new RequestsBottomSheet();
  * requestsBottomSheet.show(getChildFragmentManager(), "requestsBottomSheet");
  * </pre>
- * </p>
  *
  * @see BottomSheetDialogFragment
  * @see FollowHelper
@@ -94,7 +91,6 @@ public class RequestsBottomSheet extends BottomSheetDialogFragment {
      *   <li>Configures accept/decline button handlers</li>
      *   <li>Triggers friend request data loading</li>
      * </ul>
-     * </p>
      *
      * @param view The View returned by onCreateView
      * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous saved state

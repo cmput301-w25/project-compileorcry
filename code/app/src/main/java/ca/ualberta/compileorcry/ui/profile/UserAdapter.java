@@ -25,7 +25,6 @@ import ca.ualberta.compileorcry.domain.models.User;
  *   <li>A user icon/avatar</li>
  *   <li>The user's username (prefixed with '@')</li>
  * </ul>
- * </p>
  *
  * <p>The adapter supports click interactions with user items through the
  * {@link OnUserClickListener} interface, allowing activities or fragments using this
@@ -49,7 +48,6 @@ import ca.ualberta.compileorcry.domain.models.User;
  * // Update with new data
  * userAdapter.updateUserList(newUsersList);
  * </pre>
- * </p>
  *
  * @see RecyclerView.Adapter
  * @see User
