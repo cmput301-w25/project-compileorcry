@@ -28,7 +28,7 @@ import java.net.URL;
 
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class UserSearchTest {
+public class SearchFragmentTest {
 
     @Rule
     public ActivityScenarioRule<MainActivity> activityRule = new ActivityScenarioRule<>(MainActivity.class);
