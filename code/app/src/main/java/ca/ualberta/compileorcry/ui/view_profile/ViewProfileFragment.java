@@ -9,6 +9,10 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+
 import ca.ualberta.compileorcry.R;
 import ca.ualberta.compileorcry.databinding.FragmentViewProfileBinding;
 import ca.ualberta.compileorcry.domain.models.User;
@@ -49,6 +53,7 @@ public class ViewProfileFragment extends Fragment {
 
         // Initially disable buttons until user is loaded
         binding.followButton.setEnabled(false);
+        binding.followButtonLayout.setVisibility(View.GONE);
 
         String displayProfileUsername = ViewProfileFragmentArgs.fromBundle(getArguments()).getProfileUsername();
         Log.d("ViewProfile", ("Displaying: " + displayProfileUsername));
@@ -63,10 +68,10 @@ public class ViewProfileFragment extends Fragment {
             binding.viewProfileUsername.setText(displayUser.getUsername());
             binding.viewProfileName.setText(displayUser.getName());
             binding.followButton.setEnabled(true);
+            binding.followButtonLayout.setVisibility(View.VISIBLE);
 
             refreshFollowStatus();
         });
-
 
         // Create button event handlers
         binding.followButton.setOnClickListener((l) -> {

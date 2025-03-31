@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
                             destId == R.id.navigation_profile) {
                         navView.getMenu().findItem(destId).setChecked(true);
                     } else if (destId == R.id.navigation_view_profile){ // Select profile nav for ViewProfile
-                        navView.getMenu().findItem(R.id.navigation_profile).setChecked(true);
+                        navView.getMenu().findItem(R.id.navigation_feed).setChecked(true);
                     }
                 } else {
                     navView.setVisibility(View.GONE);
