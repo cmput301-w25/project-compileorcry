@@ -1,4 +1,6 @@
-![image](https://github.com/user-attachments/assets/77b63179-ccbd-423f-a6a8-d5bb2beaaac6)
+![Screenshot 2025-03-31 at 11 55 34 AM](https://github.com/user-attachments/assets/079f823b-977c-4f14-8a75-b65a19b11aaf)
+
+
 # CMPUT 301 W25 - Team CompileOrCry
 
 ## Team Members
@@ -36,4 +38,3 @@
 - [UI FigJam](https://www.figma.com/board/Hyxc2GxgZMiecMfXabJSii/Storyboard-Flow?node-id=0-1&p=f&t=WD9eHsEwiYao282q-0)
 - [UML](https://github.com/cmput301-w25/project-compileorcry/wiki/UML-Diagram)
 
-![image](https://github.com/user-attachments/assets/d1a4ba7f-0918-448e-90a1-d2a65297360d)
