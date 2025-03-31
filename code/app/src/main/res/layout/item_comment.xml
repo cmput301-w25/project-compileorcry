@@ -3,12 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/mood_item_background"
+    android:background="@drawable/comment_item_background"
     android:clipToOutline="true"
     android:gravity="center_vertical"
     android:orientation="vertical"
     android:backgroundTint="@color/light"
-    android:padding="8dp">
+    android:paddingVertical="8dp"
+    android:paddingHorizontal="12dp"
+    android:layout_marginBottom="10dp">
 
 
         <LinearLayout
@@ -32,7 +34,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:fontFamily="@font/source_sans_pro"
-                    android:text="time DD/MM/YYYY"
+                    android:text="@string/timestamp"
                     android:textAlignment="textEnd"
                     android:textColor="@color/material_dynamic_neutral60" />
         </LinearLayout>
@@ -42,7 +44,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/source_sans_pro"
-            android:text="Comment Text"
+            android:text="@string/comment_text"
             android:textSize="16sp"
             android:textColor="@color/dark" />
 
