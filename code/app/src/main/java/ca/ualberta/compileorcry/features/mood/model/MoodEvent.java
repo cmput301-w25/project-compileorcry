@@ -2,6 +2,7 @@ package ca.ualberta.compileorcry.features.mood.model;
 
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.core.GeoHash;
+import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.Timestamp;
@@ -10,6 +11,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,13 +38,10 @@ import java.util.concurrent.atomic.AtomicReference;
  * - Optional trigger text explanation (reason for the mood)
  * - Optional social situation context
  * - Optional location data as GeoHash
- * - Optional photograph (not fully implemented)
+ * - Optional photograph
  *
- * Outstanding issues:
- * - Picture data handling is not fully implemented (marked with TODO)
- * - Location data handling needs further implementation
  */
-public class MoodEvent {
+public class MoodEvent implements Serializable {
     private String id;
     public void setUsername(String username) {
         this.username = username;
@@ -186,7 +185,6 @@ public class MoodEvent {
 
     /**
      * Returns the picture associated with this mood event.
-     * Note: Picture handling is not fully implemented yet.
      *
      * @return The picture path, or null if not set
      */
@@ -224,7 +222,6 @@ public class MoodEvent {
 
     /**
      * Sets the picture associated with this mood event.
-     * Note: Picture handling is not fully implemented yet.
      *
      * @param picture The picture object to associate with this mood event
      */
@@ -315,7 +312,7 @@ public class MoodEvent {
     /**
      * Returns the formatted date string for display purposes.
      *
-     * @return A string representation of the timestamp in "yyyy-MM-dd HH:mm" format.
+     * @return A string representation of the timestamp in "yyyy-MM-dd @ HH:mm" format.
      */
     public String getFormattedDate() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd '@' HH:mm", Locale.getDefault());
@@ -343,6 +340,7 @@ public class MoodEvent {
             throw new RuntimeException("username and moodEvent username are null");
         }
         if(!commentsLoaded){
+            comments.clear();
             //Executor prevents deadlock due to the firestore operations callbacks hapening on main
             ExecutorService executor = Executors.newSingleThreadExecutor();
             //Runs the firestore stuff

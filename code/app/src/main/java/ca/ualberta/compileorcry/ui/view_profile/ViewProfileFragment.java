@@ -9,6 +9,10 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+
 import ca.ualberta.compileorcry.R;
 import ca.ualberta.compileorcry.databinding.FragmentViewProfileBinding;
 import ca.ualberta.compileorcry.domain.models.User;
@@ -49,9 +53,14 @@ public class ViewProfileFragment extends Fragment {
 
         // Initially disable buttons until user is loaded
         binding.followButton.setEnabled(false);
+        binding.followButtonLayout.setVisibility(View.GONE);
 
         String displayProfileUsername = ViewProfileFragmentArgs.fromBundle(getArguments()).getProfileUsername();
         Log.d("ViewProfile", ("Displaying: " + displayProfileUsername));
+
+        User activeUser = User.getActiveUser();
+        String activeUsername = activeUser != null ? activeUser.getUsername() : "";
+
         User.get_user(displayProfileUsername, (user, error) -> {
             if(error != null){ // Display error message on error fetching user
                 binding.viewProfileName.setText(R.string.error_loading_user);
@@ -59,19 +68,28 @@ public class ViewProfileFragment extends Fragment {
                 return;
             }
             displayUser = user;
-            // Update UI with user info
             binding.viewProfileUsername.setText(displayUser.getUsername());
             binding.viewProfileName.setText(displayUser.getName());
-            binding.followButton.setEnabled(true);
 
-            refreshFollowStatus();
+            // Check if the displayed profile is the active user's own profile
+            if (displayUser.getUsername().equals(activeUsername)) {
+                binding.followButtonLayout.setVisibility(View.GONE);
+            } else {
+                binding.followButton.setEnabled(true);
+                binding.followButtonLayout.setVisibility(View.VISIBLE);
+                refreshFollowStatus();
+            }
         });
-
 
         // Create button event handlers
         binding.followButton.setOnClickListener((l) -> {
             if(displayUser != null){
                 try {
+                    // Double-check that we're not trying to follow ourselves
+                    if (displayUser.getUsername().equals(activeUsername)) {
+                        return; // Prevent self-following
+                    }
+
                     if(FollowHelper.isUserFollowing(User.getActiveUser().getUsername(), displayUser.getUsername())){ // User is following user
                         FollowHelper.unfollowUser(User.getActiveUser().getUsername(), displayUser.getUsername());
                     } else if (FollowHelper.hasUserRequestedFollow(User.getActiveUser().getUsername(), displayUser.getUsername())) { // User has requested to follow
@@ -85,8 +103,6 @@ public class ViewProfileFragment extends Fragment {
                 refreshFollowStatus();
             }
         });
-
-
 
         return root;
     }

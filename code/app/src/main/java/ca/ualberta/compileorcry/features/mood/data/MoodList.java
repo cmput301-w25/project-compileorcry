@@ -23,6 +23,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -78,7 +79,7 @@ import ca.ualberta.compileorcry.features.mood.model.MoodEvent;
  * @see QueryType
  * @see MoodListListener
  */
-public class MoodList {
+public class MoodList implements Serializable {
     private final ArrayList<MoodEvent> moodEvents;  //a list of moodEvents, don't modify it outside of this class
     private final MoodList ptrToSelf;   //a reference to itself
     private boolean writeAllowed = false;   //internal boolean that prevents usage of add/delete/edit methods when using filtered queries
@@ -737,7 +738,6 @@ public class MoodList {
                             listener.onError(new IllegalArgumentException("location cannot be null for map query or is not a the correct datatype"));
                             return;
                         }
-                        //todo: picture datatype and retrieving the picture as the firestore cannot store pictures in a document
                         if (isValidKeyPairDatatype(documentData, "picture", String.class)) {
                             moodEvent.setPicture((String) documentData.get("picture"));
                         }
@@ -976,7 +976,7 @@ public class MoodList {
     }
     /**
      * Validates a map of data to ensure it is suitable for storing a personal MoodEvent in Firestore.
-     * todo: any data validation for reason if reason has a char limit.
+     * 
      * @param map The map of data to validate.
      * @return True if the data is valid, false otherwise.
      */
@@ -998,7 +998,7 @@ public class MoodList {
     }
     /**
      * Validates a map of data to ensure it is suitable for storing a recent MoodEvent in Firestore.
-     * todo: any data validation for reason if reason has a char limit.
+     * 
      * @param map The map of data to validate.
      * @return True if the data is valid, false otherwise.
      */

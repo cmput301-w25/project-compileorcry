@@ -30,7 +30,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:fontFamily="@font/source_sans_pro_semibold"
-            android:text="@string/name"
+            android:text=""
             android:textColor="@color/light"
             android:textSize="24sp" />
 
@@ -40,7 +40,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:fontFamily="@font/source_sans_pro"
-            android:text="@string/username_placeholder"
+            android:text=""
             android:textColor="@color/light"
             android:textSize="24sp" />
 
@@ -56,7 +56,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:id="@+id/follow_button_layout">
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/follow_button"
@@ -65,7 +66,7 @@
                     android:layout_height="wrap_content"
                     android:insetTop="8dp"
                     android:insetBottom="0dp"
-                    app:icon="@drawable/ic_star_outline_40dp"
+                    app:icon="@drawable/ic_person_24dp"
                     app:iconTint="@color/light"
                     app:strokeColor="@color/light" />
 

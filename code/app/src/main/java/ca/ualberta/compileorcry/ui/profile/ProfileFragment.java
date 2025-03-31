@@ -21,10 +21,32 @@ import ca.ualberta.compileorcry.databinding.FragmentProfileBinding;
 import ca.ualberta.compileorcry.domain.models.User;
 
 /**
- * Fragment that displays and manages the user's profile information.
- * This class shows the user's username and display name, and provides buttons
- * for various profile-related actions such as editing the name, viewing friend
- * requests, viewing mood history, and managing friends.
+ * A fragment that displays and manages the authenticated user's profile information.
+ *
+ * <p>This fragment serves as the central hub for user account management, displaying
+ * the user's profile information and providing access to various profile-related actions:</p>
+ *
+ * <ul>
+ *   <li><b>View Profile Information</b> - Displays the user's username and display name</li>
+ *   <li><b>Friend Requests</b> - Allows users to view and manage incoming follow/friend requests</li>
+ *   <li><b>Edit Profile</b> - Enables users to change their display name</li>
+ *   <li><b>Manage Friends</b> - Provides access to view followers and following lists</li>
+ *   <li><b>QR Code</b> - Displays a scannable QR code to share the user's profile</li>
+ *   <li><b>Logout</b> - Enables the user to sign out of their account</li>
+ * </ul>
+ *
+ * <p>The fragment uses Firestore listeners to automatically update the UI when profile
+ * information changes, ensuring consistent display across the application. It also
+ * handles the case where no active user is logged in by redirecting to the login screen.</p>
+ *
+ * <p>This fragment acts as the navigation hub for the social aspects of the application,
+ * connecting to other fragments and dialogs for specific functionality.</p>
+ *
+ * @see User
+ * @see RequestsBottomSheet
+ * @see ChangeNameDialog
+ * @see FriendsFragment
+ * @see QrCodeDialog
  */
 public class ProfileFragment extends Fragment {
     /** View binding for accessing UI elements */

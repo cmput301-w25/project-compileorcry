@@ -20,15 +20,27 @@ import ca.ualberta.compileorcry.R;
 import ca.ualberta.compileorcry.domain.models.User;
 
 /**
- * Dialog fragment that allows users to change their display name.
- * This class displays a custom styled dialog with a TextInputEditText field pre-populated with
- * the user's current name and provides options to save or cancel the change.
+ * A dialog fragment that allows users to change their display name in the application.
  *
- * Features:
- * - Pre-populates the input field with the current user name
- * - Provides Save and Cancel buttons
- * - Updates the user's name in the database upon confirmation
- * - Follows Android's dialog design patterns
+ * <p>This dialog presents users with a form containing:
+ * <ul>
+ *   <li>A text input field pre-populated with the user's current display name</li>
+ *   <li>Save button to confirm the name change</li>
+ *   <li>Cancel button to dismiss the dialog without changes</li>
+ * </ul>
+ * </p>
+ *
+ * <p>The dialog validates that the name is not empty before allowing the save operation.</p>
+ *
+ * <p>Typical usage:
+ * <pre>
+ * DialogFragment editNameDialog = new ChangeNameDialog();
+ * editNameDialog.show(getActivity().getSupportFragmentManager(), "editName");
+ * </pre>
+ * </p>
+ *
+ * @see DialogFragment
+ * @see User
  */
 public class ChangeNameDialog extends DialogFragment {
 
@@ -36,6 +48,14 @@ public class ChangeNameDialog extends DialogFragment {
     private MaterialButton saveButton;
     private MaterialButton cancelButton;
 
+    /**
+     * Initializes the dialog's style.
+     * <p>
+     * Sets the dialog to use STYLE_NO_FRAME for a borderless appearance.
+     * </p>
+     *
+     * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous saved state
+     */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,6 +63,15 @@ public class ChangeNameDialog extends DialogFragment {
         setStyle(DialogFragment.STYLE_NO_FRAME, 0);
     }
 
+    /**
+     * Creates the dialog instance.
+     * <p>
+     * Removes the title bar from the dialog for a cleaner look.
+     * </p>
+     *
+     * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous saved state
+     * @return A Dialog instance with no title
+     */
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
@@ -52,6 +81,23 @@ public class ChangeNameDialog extends DialogFragment {
         return dialog;
     }
 
+    /**
+     * Inflates the dialog layout and sets up UI components.
+     * <p>
+     * This method:
+     * <ul>
+     *   <li>Inflates the dialog layout</li>
+     *   <li>Initializes UI references</li>
+     *   <li>Populates the name field with the current user's name</li>
+     *   <li>Sets up button event handlers</li>
+     * </ul>
+     * </p>
+     *
+     * @param inflater The LayoutInflater object for inflating views
+     * @param container The parent view that the fragment's UI should be attached to
+     * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous saved state
+     * @return The root View for the fragment's UI
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -87,6 +133,12 @@ public class ChangeNameDialog extends DialogFragment {
         return view;
     }
 
+    /**
+     * Adjusts the dialog size when it starts.
+     * <p>
+     * Resizes the dialog to 85% of the screen width while maintaining wrap content for height.
+     * </p>
+     */
     @Override
     public void onStart() {
         super.onStart();

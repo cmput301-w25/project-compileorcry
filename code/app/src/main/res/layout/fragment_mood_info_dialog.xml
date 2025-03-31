@@ -2,6 +2,8 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/moodinfo_dialog_fragment"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="16dp">
@@ -14,9 +16,9 @@
         android:textColor="@color/dark"
         android:textSize="20sp"
         android:textStyle="bold"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/moodinfo_state_layout"
@@ -25,9 +27,11 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:hint="@string/emotional_state_required"
-        app:layout_constraintTop_toBottomOf="@id/moodinfo_edit_text"
+        app:boxStrokeColor="@color/dark"
+        app:hintTextColor="@color/dark"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/moodinfo_edit_text">
 
         <AutoCompleteTextView
             android:id="@+id/moodinfo_state_auto_complete"
@@ -48,6 +52,8 @@
         android:layout_marginTop="16dp"
         android:hint="@string/emotional_state"
         android:visibility="gone"
+        app:boxStrokeColor="@color/dark"
+        app:hintTextColor="@color/dark"
         app:layout_constraintTop_toBottomOf="@id/moodinfo_edit_text"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -71,16 +77,18 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:hint="@string/reason"
-        app:layout_constraintTop_toBottomOf="@id/moodinfo_state_layout"
+        app:boxStrokeColor="@color/dark"
+        app:hintTextColor="@color/dark"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/moodinfo_state_layout">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/moodinfo_trigger_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:maxLength="200"
-            android:inputType="text" />
+            android:inputType="text"
+            android:maxLength="200" />
 
     </com.google.android.material.textfield.TextInputLayout>
     <!-- HIDDEN read-only version of trigger -->
@@ -92,6 +100,8 @@
         android:layout_marginTop="16dp"
         android:hint="@string/reason"
         android:visibility="gone"
+        app:boxStrokeColor="@color/dark"
+        app:hintTextColor="@color/dark"
         app:layout_constraintTop_toBottomOf="@id/moodinfo_state_readonly_layout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -115,6 +125,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:hint="@string/social_situation"
+        app:boxStrokeColor="@color/dark"
+        app:hintTextColor="@color/dark"
         app:layout_constraintTop_toBottomOf="@id/moodinfo_trigger_layout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -137,6 +149,8 @@
         android:layout_marginTop="16dp"
         android:hint="@string/social_situation"
         android:visibility="gone"
+        app:boxStrokeColor="@color/dark"
+        app:hintTextColor="@color/dark"
         app:layout_constraintTop_toBottomOf="@id/moodinfo_trigger_readonly_layout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -164,6 +178,22 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/moodinfo_situation_layout" />
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/buttonViewComments"
+        style="@style/Widget.Material3.Button.IconButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:icon="@drawable/ic_comment_40dp"
+        app:iconTint="@color/dark"
+        app:iconSize="28dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/bottom_barrier"
+        app:layout_constraintVertical_bias="1.0"
+        app:layout_goneMarginTop="16dp" />
+
     <LinearLayout
         android:id="@+id/button_bar"
         android:layout_width="match_parent"
@@ -182,7 +212,8 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:textColor="@color/dark"
-            android:text="@string/button_delete" />
+            android:text="@string/button_delete"
+            app:strokeColor="@color/dark" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/save_button"
@@ -195,4 +226,13 @@
             android:textColor="@color/light"
             android:text="@string/button_save_mood" />
     </LinearLayout>
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/bottom_barrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="button_bar,moodinfo_situation_readonly_layout" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

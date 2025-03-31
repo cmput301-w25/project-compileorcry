@@ -114,7 +114,11 @@ public class LoginFragment extends Fragment {
         });
 
         binding.registerButton.setOnClickListener((View v) -> {
-            findNavController(view).navigate(R.id.navigation_registration);
+            Bundle bundle = new Bundle();
+            if(binding.loginUsernameText.getText() != null && !binding.loginUsernameText.getText().toString().isEmpty()){
+                bundle.putString("passed_username",binding.loginUsernameText.getText().toString());
+            }
+            findNavController(view).navigate(R.id.navigation_registration,bundle);
             //TODO: Add passing typed username to registration fragment
         });
 

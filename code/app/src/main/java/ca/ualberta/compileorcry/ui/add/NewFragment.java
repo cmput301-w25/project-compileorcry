@@ -35,7 +35,6 @@ import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.model.RectangularBounds;
 import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.AutocompleteActivity;
-import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.materialswitch.MaterialSwitch;
@@ -63,15 +62,8 @@ import ca.ualberta.compileorcry.features.mood.model.EmotionalState;
 import ca.ualberta.compileorcry.features.mood.model.MoodEvent;
 
 /**
- * The NewFragment class provides the UI for creating new mood events.
- * It implements a form-based interface for users to input mood event details
- * including emotional state, date, description, trigger, and social situation.
- *
- * Key features:
- * - Form validation for required fields
- * - Date picker dialog for selecting event dates
- * - Support for future image upload functionality
- *
+ * Fragment for creating new mood events with form inputs for emotional state, date, description, etc.
+ * Handles validation, date picking, location selection, and image uploads.
  */
 public class NewFragment extends Fragment {
 
@@ -93,7 +85,6 @@ public class NewFragment extends Fragment {
     private String uploadedImagePath;
     private GeoHash location;
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd '@' HH:mm", Locale.getDefault());
-    // Const for image upload
     private static final int PICK_IMAGE_REQUEST = 71;
     private static final int AUTOCOMPLETE_REQUEST_CODE = 1;
 
@@ -107,13 +98,6 @@ public class NewFragment extends Fragment {
 
     /**
      * Inflates the fragment layout.
-     *
-     * @param inflater The LayoutInflater object that can be used to inflate views
-     * @param container If non-null, this is the parent view that the fragment's UI should be
-     *                 attached to
-     * @param savedInstanceState If non-null, this fragment is being re-constructed from a
-     *                           previous saved state
-     * @return The View for the fragment's UI
      */
     @Nullable
     @Override
@@ -122,13 +106,7 @@ public class NewFragment extends Fragment {
     }
 
     /**
-     * Initialize UI components and set up event listeners after the view is created.
-     * This method handles all the initialization of UI elements, dropdowns,
-     * and button click listeners.
-     *
-     * @param view The View returned by onCreateView
-     * @param savedInstanceState If non-null, this fragment is being re-constructed from a
-     *                           previous saved state
+     * Initializes UI components and sets up event listeners.
      */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -200,7 +178,6 @@ public class NewFragment extends Fragment {
             }
         });
 
-        // Handle image upload (TODO)
         uploadImageButton.setOnClickListener(v -> {
             Intent intent = new Intent();
             intent.setType("image/*");
@@ -218,8 +195,7 @@ public class NewFragment extends Fragment {
     }
 
     /**
-     * Displays a date picker dialog to allow the user to select a date for the mood event.
-     * The selected date is displayed in the date input field.
+     * Opens a date picker dialog followed by a time picker dialog and updates the date field.
      */
     private void showDateTimePickerDialog() {
         final Calendar currentCalendar = Calendar.getInstance();
@@ -272,10 +248,7 @@ public class NewFragment extends Fragment {
     }
 
     /**
-     * Validates form inputs and submits the new mood event data if all required fields are valid.
-     * Shows appropriate error messages for invalid or missing data.
-     *
-     * Note: The actual submission to the database is not yet implemented.
+     * Handles form submission and validation.
      */
     private void submitNewEvent() {
         boolean isValid = true;
@@ -310,7 +283,6 @@ public class NewFragment extends Fragment {
 
         Timestamp timestamp = new Timestamp(date);
 
-        // TODO: Pass in visibility boolean during event creation. isPublic is already defined above.
         MoodEvent event = new MoodEvent(EmotionalState.valueOf(emotionalState.toUpperCase()),
                 timestamp, trigger, socialSituation, uploadedImagePath, isPublic, location);
 
@@ -337,9 +309,7 @@ public class NewFragment extends Fragment {
     }
 
     /**
-     * Sets up the emotional state dropdown with values from the string array resource.
-     * This creates and attaches an adapter to display all possible emotional states
-     * in a dropdown menu format.
+     * Sets up dropdown menu for emotional states.
      */
     private void setupEmotionalStateDropdown() {
         // Get emotional states from arrays resource
@@ -357,9 +327,7 @@ public class NewFragment extends Fragment {
     }
 
     /**
-     * Sets up the social situation dropdown with values from the string array resource.
-     * This creates and attaches an adapter to display all possible social situations
-     * in a dropdown menu format.
+     * Sets up dropdown menu for social situations.
      */
     private void setupSocialSituationDropdown() {
         // Get social situations from arrays resource
@@ -377,9 +345,7 @@ public class NewFragment extends Fragment {
     }
 
     /**
-     * Clears all form fields and error states.
-     * This method is called after successfully submitting a mood event
-     * to prepare the form for a new entry.
+     * Clears all form inputs and resets validation errors.
      */
     public void clear() {
         // Clear the emotional state dropdown
@@ -412,6 +378,9 @@ public class NewFragment extends Fragment {
         dateLayout.setError(null);
     }
 
+    /**
+     * Handles activity result for location selection and image selection.
+     */
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -453,6 +422,9 @@ public class NewFragment extends Fragment {
         }
     }
 
+    /**
+     * Re-selects location field once permissions are granted.
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
@@ -463,6 +435,9 @@ public class NewFragment extends Fragment {
         }
     }
 
+    /**
+     * Uploads the selected image to Firebase Storage.
+     */
     private void uploadImage() {
         if (imagePath != null) {
             // Create a reference to the file location in Firebase Storage
@@ -481,6 +456,12 @@ public class NewFragment extends Fragment {
         }
     }
 
+    /**
+     * Checks if the selected file size is within the allowed limit.
+     *
+     * @param uri URI of the selected file.
+     * @return true if the file size is valid, false otherwise.
+     */
     private boolean isFileSizeValid(Uri uri) {
         try {
             Cursor cursor = requireContext().getContentResolver().query(uri, null, null, null, null);

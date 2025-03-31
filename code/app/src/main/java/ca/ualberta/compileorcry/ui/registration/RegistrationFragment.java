@@ -33,6 +33,7 @@ import ca.ualberta.compileorcry.domain.models.User;
 public class RegistrationFragment extends Fragment {
     /** View binding for accessing UI elements */
     private FragmentRegistrationBinding binding;
+    private String passedUsername;
 
     /**
      * Inflates the fragment layout using view binding.
@@ -47,6 +48,10 @@ public class RegistrationFragment extends Fragment {
 
         binding = FragmentRegistrationBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
+        Bundle args = getArguments();
+        if(args.containsKey("passed_username")){
+            passedUsername = args.getString("passed_username");
+        }
         return root;
     }
 
@@ -84,12 +89,15 @@ public class RegistrationFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
+        if(passedUsername != null && !(passedUsername.isEmpty())){
+            binding.registrationUsernameText.setText(passedUsername);
+        }
         binding.backButton.setOnClickListener((View v) -> {
             findNavController(view).navigate(R.id.navigation_login);
         });
 
         binding.doneButton.setOnClickListener((View v) -> { // Attempt to register user
+            boolean isValid = true;
             String username = binding.registrationUsernameText.getText().toString();
             String name = binding.registrationNameText.getText().toString();
             if(username.isEmpty()){
@@ -97,13 +105,18 @@ public class RegistrationFragment extends Fragment {
                 binding.registrationUsernameLayout.setStartIconTintList(
                         getResources().getColorStateList(R.color.anger, getContext().getTheme())
                 );
+                isValid = false;
             }
             if(name.isEmpty()){
                 binding.registrationNameLayout.setError(getString(R.string.name_required));
                 binding.registrationNameLayout.setStartIconTintList(
                         getResources().getColorStateList(R.color.anger, getContext().getTheme())
                 );
+                isValid = false;
             }
+
+            if (!isValid) { return; }
+
             disableUI();
 
             User.register_user(username, name, (user, error) -> {
