@@ -18,7 +18,7 @@
 
   _Moody_ is a fun and unique social networking app that blends social media with personal journaling. Our app allows you to make posts about personal events and the emotions you experienced in those moments. These posts are similar to that of a Facebook status with the option of making it only visible to you, like a personal journal entry. Share events in your personal life with your followers or customize your feed and view others' events too! Our mapping and filtering features allow you to view the content that you're in the mood for.
   
-  _Moody_ stands out among social media platforms in its focus on mental health: It encourages sharing emotions rather than offensive content and instead promotes conversation. Download it on the google play store today and feel the connection!
+  _Moody_ stands out among social media platforms in its focus on mental health: It encourages sharing emotions rather than offensive content and instead promotes conversation. Download it on the Google Play store today and feel the connection!
 
 ## Key Features ✨
 
@@ -50,10 +50,15 @@ Find and follow your friends by searching for their username or sharing QR codes
 **8.** Selecting _New_ on the menu bar will let you ceate a new mood event which will show up in your mood history as well as your follower's following feeds (if the mood is created as public). The mood must be either private (meaning only you can see it) or public (meaning your followers can see it), and have at least an emotional state and timestamp. You can optionally attach a location, description, social situation, and image to a mood.
 
 **9.** Selecting _Profile_ on the menu bar will take you to a view of your profile and has the following actions:
+
       - _Requests_: Displays a popup window of incoming follow requests from other users.
+      
       - _Edit_: Allows you to edit your name. (Note: Usernames cannot be changed after signing up)
+      
       - _Friends_: Shows a list of your followers or people you follow
+      
       - _QR Code_: Displays a QR code that links to your user profile for other users to view
+      
       - _Logout_: Logs out of your account and takes you back into the log-in page
 
 ## Documentation📑
